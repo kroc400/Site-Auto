@@ -250,6 +250,19 @@ svg * {
     --transition-duration: 0.2s; 
 }   
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+  clip-path: inset(100%) !important;
+  clip: rect(0 0 0 0) !important;
+  overflow: hidden !important;
+}
+
 body {
     font-family: var(--font-family-base);
     background-color: var(--color-light);
@@ -268,11 +281,12 @@ body {
     justify-content: space-around;
     align-items: center;
     padding-inline: 32px;
+    padding-top: 15px;
 }
 
 .header-menu-list {
     display: flex;
-    column-gap: 16px;
+    column-gap:30px;
 }
 
 a {
@@ -288,4 +302,87 @@ a {
     display: inline-flex;
     height: 80px;
     align-items: center;
+    white-space: nowrap;
+}
+
+.header-logo {
+  flex-shrink: 0;
+}
+
+.header-burger-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  background-color: transparent;
+  border-radius: 5px;
+  border-color: #C2C2C4;
+}
+
+.header-burger-button:hover {
+  color: var(--color-medium-grey);
+  border-radius: 50%;
+  transition-duration: var(--transition-duration);
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 25px;
+  min-height: 600px;
+  background-color: #eff0f0;
+  border-radius: var(--border-radius);
+  margin: 10px 25px 10px 25px;
+}
+
+.banner-body {
+  background-color: aqua;
+}
+
+.banner-pagination-list {
+  display: flex;
+  justify-content: center;
+}
+
+.banner-pagination-item {
+  margin-inline: 5px;
+}
+
+@media (max-width: 800px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: 7px;
+    padding-inline: 15px;
+    align-items: center;  
+    padding-top: 7px;
+    min-width: 320px;
+  }
+
+  .header-menu {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .header-menu-link{
+    height: 25px;
+  }
+
+  .header-menu-list{
+    column-gap: 10px;
+    margin-block: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .header-logo{
+    width: 127px;
+  }
+
+  .header-burger-button{
+    height: 30px;
+    width: 30px;
+    padding-inline: 20%;
+  }
 }
