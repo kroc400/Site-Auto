@@ -236,6 +236,7 @@ svg * {
     --color-medium-grey: #C2C2C4;
     --color-light-grey: #EFF0F0;
     --color-light: #ffffff;
+    --color-red: #CA0100;
 
     --border-radius-light: 6px;
     --border-radius: 25px;
@@ -286,7 +287,7 @@ body {
 
 .header-menu-list {
     display: flex;
-    column-gap:30px;
+    column-gap:20px;
 }
 
 a {
@@ -297,16 +298,16 @@ a {
     text-decoration: none;
     text-transform: uppercase;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 11px;
     background-color: red;
     display: inline-flex;
-    height: 80px;
+    height: 50px;
     align-items: center;
     white-space: nowrap;
-}
+    }
 
 .header-logo {
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 
 .header-burger-button {
@@ -326,10 +327,48 @@ a {
   transition-duration: var(--transition-duration);
 }
 
+.mobile-contacts {
+  display: flex;
+  flex-direction: column; /* Элементы идут друг под другом */
+  gap: 5px; /* Отступ между номерами */
+  background-color: red;
+}
+
+.mobile-contact-item {
+  display: flex;
+  align-items: center; /* Вертикальное выравнивание иконок и текста */
+  gap: 7px; /* Отступ между иконкой и текстом */
+  background-color: purple;
+  justify-content: end;
+}
+
+
+.mobile-icon {
+  width: 30px; /* Размер иконки */
+  height: 30px;
+  flex-shrink: 0; /* Запрещаем сжиматься */
+  background-color: yellow;
+}
+
+.mobile-text-main {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+  background-color: green;
+  white-space: nowrap;
+}
+
+.mobile-text-second {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-medium-grey);
+  background-color: greenyellow;
+  text-align: right;
+}
+
 .banner {
   display: flex;
   flex-direction: column;
-  justify-content: end;
   padding: 25px;
   min-height: 600px;
   background-color: #eff0f0;
@@ -348,6 +387,18 @@ a {
 
 .banner-pagination-item {
   margin-inline: 5px;
+}
+
+.bubble {
+  background-color: var(--color-red);
+  width: 208px;
+  height: 29px;
+  align-content: center;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 33px;
+  margin-top: 81px;
+  font-weight: 700;
 }
 
 @media (max-width: 800px) {
@@ -384,5 +435,17 @@ a {
     height: 30px;
     width: 30px;
     padding-inline: 20%;
+  }
+
+  .mobile-icon{
+    height: 15px;
+  }
+
+  .mobile-text-main{
+    font-size: 12px;
+  }
+  
+  .mobile-text-second{
+    font-size: 9px;
   }
 }
