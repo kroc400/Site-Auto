@@ -367,26 +367,53 @@ a {
 }
 
 .banner {
+  position: relative;
   display: flex;
   flex-direction: column;
-  padding: 25px;
   min-height: 600px;
+  min-width: 360px;
   background-color: #eff0f0;
   border-radius: var(--border-radius);
   margin: 10px 25px 10px 25px;
+
+  background-image: url(./images/banner_bg.jpg);
+  background-repeat: no-repeat;
+  background-size: 1222px 598px;
+  background-position: right center;
+  overflow: hidden;
+  background-blend-mode: multiply;
+
 }
 
 .banner-body {
+  padding: 0;
   background-color: aqua;
+  font-size: 60px;
+  font-size: clamp(30px, 8vw, 60px);
+  font-weight: 700;
+  max-height: 140px;
+  margin: clamp(10px, 5vw, 35px) 
+           clamp(15px, 10vw, 235px)
+           clamp(100px, 20vw, 315px);
+  z-index: 5;
+}
+
+.banner-pagination {
+  position: absolute;
+  bottom: 20px;
+  left: 0px;
+  right: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .banner-pagination-list {
   display: flex;
-  justify-content: center;
 }
 
 .banner-pagination-item {
-  margin-inline: 5px;
+  margin-inline: 7px;
 }
 
 .bubble {
@@ -397,9 +424,49 @@ a {
   text-align: center;
   color: #ffffff;
   border-radius: 33px;
-  margin-top: 81px;
+  /*margin: 81px 0px 0px 235px;*/
   font-weight: 700;
+  font-size: 16px;
+  margin: 
+    clamp(20px, 5vw, 81px)    /* верх: от 20px до 81px */
+    0                             /* право: всегда 0 */
+    0                           /* низ: всегда 0 */
+    clamp(110px, 10vw, 235px);
 }
+
+.banner-img {
+  position: absolute;
+  pointer-events: none; /* отключаем взаимодействие, чтобы не мешали тексту */
+  transition: margin 0.5s ease, transform 0.5s ease;
+}
+
+.img-1 {
+  height: 328px;
+  width: 785px;
+  margin-top:250px; /* вместо margin-top: 173px; */
+  margin-left: clamp(20%, 17vw, 750px); /* вместо margin-left: 750px; */
+  z-index: 4;
+  object-fit: contain;
+}
+
+.img-2 {
+  height: 281px;
+  width: 507px;
+  margin-top: 245px; /* вместо margin-top: 184px; */
+  margin-left: clamp(50%, 17vw, 1190px); /* вместо margin-left: 1190px; */
+  z-index: 3;
+  object-fit: contain;
+}
+
+.img-3 {
+  height: 242px;
+  width: 403px;
+  margin-top: 220px; /* вместо margin-top: 167px; */
+  margin-left: clamp(65%, 17vw, 1384px); /* вместо margin-left: 1384px; */
+  z-index: 2;
+  object-fit: contain;
+}
+
 
 @media (max-width: 800px) {
   .header {
@@ -447,5 +514,50 @@ a {
   
   .mobile-text-second{
     font-size: 9px;
+  }
+
+  .banner{
+    min-height: 600px;
+    min-width: 360px;
+    margin: 10px 15px 10px 15px;
+    background-size: auto 598px;
+  }
+
+  .banner-body{
+    margin: 13px 20px 195px;
+  }
+
+  .bubble{
+    width: 154px;
+    height: 22px;
+    border-radius: 33px;
+    margin: 28px 116px 13px 20px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .img-1{
+    height: 104px;
+    width: 212px;
+    margin-top: 357px;
+    margin-left: 60px;
+    margin-bottom: 30px;
+    scale: 1.5;
+  }
+  .img-2{
+    height: 77px;
+    width: 137px;
+    margin-top: 357px;
+    margin-left: 230px;
+    margin-bottom: 30px;
+    scale: 1.7;
+  }
+  .img-3{
+    height: 65px;
+    width: 110px;
+    margin-top: 357px;
+    margin-left: 320px;
+    margin-bottom: 30px;
+    scale: 1.9;
   }
 }
