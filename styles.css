@@ -467,6 +467,38 @@ a {
   object-fit: contain;
 }
 
+.auto-cards{
+  /* max-height: 1115px; */
+  max-width: 1398px;
+  background-color: aquamarine;
+  margin: 64px 13.38vw 10px 13.38vw;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+
+  font-size: clamp(30px, 8vw, 40px);
+}
+
+.cars-grid-container{
+  background-color: #CA0100;
+  display: grid;
+  flex-direction: row;
+  gap: 32px;
+  justify-content: center;
+  margin: 50px;
+  align-items: center;
+  flex-wrap: wrap;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto); 
+}
+
+.car-container{
+  min-height: 416px;
+  min-width: 290px;
+  background-color: grey;
+}
+
 
 @media (max-width: 800px) {
   .header {
