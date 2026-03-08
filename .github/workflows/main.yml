@@ -1,26 +1,59 @@
-name: Deploy to Server via SFTP
-
+name: Deploy Site
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   deploy:
-    name: Checkout and Upload
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Upload Files
+
+      - name: Check local directory
+        run: ls -la ./local/ || echo "Directory ./local/ not found"
+
+      # Выберите ОДИН из вариантов ниже:
+
+      # ВАРИАНТ 1: Исправление текущего действия
+      - name: Upload Files (fixed)
         uses: pontago/lftp-deploy-action@v1.0.1
         with:
-          protocol: ftp  # или ftp, ftps
-          host: ${{ secrets.SFTP_HOST }} # замените на ваш хост
-          username: ${{ secrets.SFTP_USERNAME }}  # логин для доступа
-          password: ${{ secrets.SFTP_PASSWORD }}
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}  # если используете SSH-ключ
-          local_dir: ./local/  # локальная директория для загрузки
-          remote_dir: /  # удалённая директория
-          
-env:
-  LFTP_DEBUG: "3"  # уровень детализации логов lftp
+          protocol: ftp
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local_dir: ./local/
+          remote_dir: /
+          verify_cert: true
+          create_remote_dir: true
+          dry_run: false
+          debug: false
+          timeout: 30
+          max_retries: 5
+          script: |
+            set ssl:verify-certificate false
+            mirror -R --verbose ./local/ /
+        env:
+          LFTP_DEBUG: 3
+
+      # ВАРИАНТ 2: Прямой вызов lftp (рекомендуется)
+      # - name: Deploy via lftp
+      #   run: |
+      #       lftp -c "
+      #         set ssl:verify-certificate false
+      #         open -u ${{ secrets.FTP_USER }}, ${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }}
+      #         mirror -R ./local/ /
+      #         quit
+      #       "
+
+      # ВАРИАНТ 3: SCP (если доступен)
+      # - name: Deploy via SCP
+      #   uses: appleboy/scp-action@v0.1.3
+      #   with:
+      #     host: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USER }}
+      #     password: ${{ secrets.FTP_PASS }}
+      #     source: "./local"
+      #     target: "/"
+      #     rm: true
