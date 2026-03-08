@@ -15,6 +15,5 @@ jobs:
         username: kroc400_git
         password: ${{ secrets.SFTP_PASSWORD }}
         protocol: ftp
-        secure: false
-        passive: true
+        security: loose
         port: 21 # todo replace with your web hosts ftps port
