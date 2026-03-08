@@ -20,9 +20,9 @@ jobs:
         uses: pontago/lftp-deploy-action@v1.0.1
         with:
           protocol: ftp
-          host: "ftp-kroc400.alwaysdata.net"
-          username: "kroc400_git"
-          password: "&?Hy9?WWKxKW"
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
           local_dir: ./local/
           remote_dir: /
           verify_cert: true
