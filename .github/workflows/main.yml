@@ -1,40 +1,18 @@
-name: Deploy Site
 on:
   push:
     branches: [main]
-
+name: 🚀 Deploy website on push
 jobs:
-  deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: List all directories and files  # временный шаг для диагностики
-        run: |
-          echo "=== Current directory: $(pwd) ==="
-          echo "=== Files and directories: ==="
-          ls -la
-          echo "=== Tree structure: ==="
-          tree -L 3 || find . -type d -print | sed -e "s/[^-][^\/]*\//--/g" -e "s/--/  /g"
-
-
-      - name: Check local directory
-        run: |
-          if [ -d "./local/" ]; then
-            echo "Local directory ./local/ exists"
-            ls -la ./local/
-          else
-            echo "ERROR: Local directory ./local/ not found!"
-            exit 1
-          fi
-
-      - name: Deploy via lftp (direct)
-        run: |
-          lftp -c "
-            set ssl:verify-certificate false
-            open -u ${{ secrets.SFTP_USERNAME }}, ${{ secrets.SFTP_PASSWORD }} ${{ secrets.SFTP_HOST }}
-            mirror -R --verbose ./local/ /
-            quit
-          "
-        shell: bash
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      with:
+        server: ftp-kroc400.alwaysdata.net
+        username: kroc400_git
+        password: ${{ secrets.SFTP_PASSWORD }}
