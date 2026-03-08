@@ -19,5 +19,5 @@ jobs:
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
           localPath: './'
-          remotePath: '/www/ваш-сайт/'  # укажите путь к сайту
+          remotePath: '/'  # укажите путь к сайту
           rmBefore: false  # не удалять всё перед загрузкой
