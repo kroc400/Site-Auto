@@ -18,4 +18,9 @@ jobs:
         local_source_dir: "."
         dist_target_dir: "/"
         delete: "false"
-        exclude: "'^logs/' '^README.md'"
+        exclude: |
+            .git/
+            .github/
+            .gitattributes
+            logs/
+            README.md
