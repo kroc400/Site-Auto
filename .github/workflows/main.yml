@@ -1,7 +1,7 @@
 name: Deploy Site
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
@@ -34,3 +34,4 @@ jobs:
             mirror -R --verbose ./local/ /
             quit
           "
+        shell: bash
