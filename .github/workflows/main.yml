@@ -10,6 +10,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: List all directories and files  # временный шаг для диагностики
+        run: |
+          echo "=== Current directory: $(pwd) ==="
+          echo "=== Files and directories: ==="
+          ls -la
+          echo "=== Tree structure: ==="
+          tree -L 3 || find . -type d -print | sed -e "s/[^-][^\/]*\//--/g" -e "s/--/  /g"
+
+
       - name: Check local directory
         run: |
           if [ -d "./local/" ]; then
