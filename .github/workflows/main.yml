@@ -21,3 +21,6 @@ jobs:
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}  # если используете SSH-ключ
           local_dir: ./local/  # локальная директория для загрузки
           remote_dir: /  # удалённая директория
+          
+env:
+  LFTP_DEBUG: "3"  # уровень детализации логов lftp
