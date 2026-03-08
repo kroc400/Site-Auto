@@ -1,23 +1,23 @@
-name: Deploy to AlwaysData via SFTP
+name: Deploy to Server via SFTP
 
 on:
   push:
-    branches: [ main ]  # триггер на пуш в ветку main
+    branches: [main]
 
 jobs:
   deploy:
+    name: Checkout and Upload
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Deploy via SFTP
-        uses: sebastianpopp/sftp-action@v1
+      - name: Upload Files
+        uses: pontago/lftp-deploy-action@v1.0.1
         with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
+          protocol: ftp  # или ftp, ftps
+          host: ${{ secrets.SFTP_HOST }} # замените на ваш хост
+          username: ${{ secrets.SFTP_USERNAME }}  # логин для доступа
           password: ${{ secrets.SFTP_PASSWORD }}
-          localPath: './'
-          remotePath: '/'  # укажите путь к сайту
-          rmBefore: false  # не удалять всё перед загрузкой
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}  # если используете SSH-ключ
+          local_dir: ./local/  # локальная директория для загрузки
+          remote_dir: /  # удалённая директория
