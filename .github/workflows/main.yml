@@ -1,3 +1,5 @@
+
+
 on: push
 name: 🚀 Deploy website on push
 jobs:
@@ -8,12 +10,12 @@ jobs:
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
 
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+    - uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
       with:
-        server: ssh-kroc400.alwaysdata.net
-        username: kroc400_git
-        password: ${{ secrets.SFTP_PASSWORD }}
-        protocol: ftp
-        security: loose
-        port: 21 # todo replace with your web hosts ftps port
+        ftp_host: ${{ secrets.SFTP_HOST }}
+        ftp_username: ${{ secrets.SFTP_USERNAME }}
+        ftp_password: ${{ secrets.SFTP_PASSWORD }}
+        local_source_dir: "dist"
+        dist_target_dir: "/"
+        delete: "false"
+        exclude: "'^logs/' '^README.md'"
