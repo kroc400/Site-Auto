@@ -11,8 +11,8 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
-        server: ftp-kroc400.alwaysdata.net
+        server: ssh-kroc400.alwaysdata.net
         username: kroc400_git
         password: ${{ secrets.SFTP_PASSWORD }}
-        protocol: ftp
-        port: 21 # todo replace with your web hosts ftps port
+        protocol: sftp
+        port: 22 # todo replace with your web hosts ftps port
