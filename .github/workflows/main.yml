@@ -15,7 +15,7 @@ jobs:
         ftp_host: ${{ secrets.SFTP_HOST }}
         ftp_username: ${{ secrets.SFTP_USERNAME }}
         ftp_password: ${{ secrets.SFTP_PASSWORD }}
-        local_source_dir: "dist"
+        local_source_dir: "."
         dist_target_dir: "/"
         delete: "false"
         exclude: "'^logs/' '^README.md'"
