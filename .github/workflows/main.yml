@@ -14,5 +14,5 @@ jobs:
         server: ssh-kroc400.alwaysdata.net
         username: kroc400_git
         password: ${{ secrets.SFTP_PASSWORD }}
-        protocol: sftp
+        protocol: ftps
         port: 22 # todo replace with your web hosts ftps port
