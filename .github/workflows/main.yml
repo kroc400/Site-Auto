@@ -22,8 +22,8 @@ jobs:
 
       - name: Debug: Check secrets (do not show password)
         run: |
-          echo "FTP_HOST: ${{ secrets.SFTP_HOST }}"
-          echo "FTP_USER: ${{ secrets.SFTP_USERNAME }}"
+          echo "SFTP_HOST: ${{ secrets.SFTP_HOST }}"
+          echo "SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}"
         shell: bash
 
       - name: Deploy via lftp (direct)
