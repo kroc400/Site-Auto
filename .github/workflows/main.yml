@@ -16,3 +16,4 @@ jobs:
         server: ftp-kroc400.alwaysdata.net
         username: kroc400_git
         password: ${{ secrets.SFTP_PASSWORD }}
+        protocol: ftp
