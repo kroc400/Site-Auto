@@ -1,0 +1,23 @@
+name: Deploy to AlwaysData via SFTP
+
+on:
+  push:
+    branches: [ main ]  # триггер на пуш в ветку main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SFTP
+        uses: sebastianpopp/sftp-action@v1
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          localPath: './'
+          remotePath: '/www/ваш-сайт/'  # укажите путь к сайту
+          rmBefore: false  # не удалять всё перед загрузкой
