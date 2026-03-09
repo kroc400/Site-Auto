@@ -468,13 +468,13 @@ a {
 }
 
 .auto-cards{
+  position: relative;
   /* max-height: 1115px; */
-  max-width: 1398px;
+  /* max-width: 1398px; */
   background-color: aquamarine;
   margin: 64px 13.38vw 10px 13.38vw;
   align-items: center;
   text-align: center;
-  flex-direction: column;
   justify-content: center;
 
   font-size: clamp(30px, 8vw, 40px);
@@ -483,19 +483,15 @@ a {
 .cars-grid-container{
   background-color: #CA0100;
   display: grid;
-  flex-direction: row;
-  gap: 32px;
-  justify-content: center;
-  margin: 50px;
+  gap: 28px;
   align-items: center;
-  flex-wrap: wrap;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, auto); 
+  grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
+  justify-items: center;
 }
 
 .car-container{
-  min-height: 416px;
-  min-width: 290px;
+  height: 449px;
+  width: 446px;
   background-color: grey;
 }
 
@@ -591,5 +587,22 @@ a {
     margin-left: 320px;
     margin-bottom: 30px;
     scale: 1.9;
+  }
+
+  .auto-cards{
+    margin: 60px 15px 40px 15px;
+  }
+
+  .car-container{
+    height: 416px;
+    width: 290px;
+  }
+
+  .cars-grid-container{
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  }
+
+  .car-container:nth-child(n + 3) {
+    display: none;
   }
 }
