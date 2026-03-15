@@ -485,6 +485,7 @@ a {
   display: grid;
   gap: 28px;
   grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
+  align-items: center;
   justify-items: center;
 }
 
