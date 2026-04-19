@@ -1,3 +1,4 @@
+/*#region[ rgba(255, 255, 255, 0.4) ] Базовая настройка */
 @font-face {
     font-family: 'Roboto';
     src: url('.fonts/Roboto-Black.woff2') format('woff2');
@@ -276,7 +277,9 @@ body {
     margin-inline: auto;
     padding-inline: var(--container-padding-x);
 }
+/*#endregion */
 
+/*#region[ rgba(66, 170, 255, 0.3) ] Header */
 .header {
     display: flex;
     justify-content: space-around;
@@ -284,7 +287,6 @@ body {
     padding-inline: 32px;
     padding-top: 15px;
 }
-
 .header-menu-list {
     display: flex;
     column-gap:20px;
@@ -293,6 +295,7 @@ body {
 a {
     color: var(--color-dark);
 }
+
 
 .header-menu-link {
     text-decoration: none;
@@ -327,11 +330,13 @@ a {
   transition-duration: var(--transition-duration);
 }
 
+
+
 .mobile-contacts {
   display: flex;
   flex-direction: column; /* Элементы идут друг под другом */
   gap: 5px; /* Отступ между номерами */
-  background-color: red;
+  background-color: rgb(255, 0, 0);
 }
 
 .mobile-contact-item {
@@ -365,7 +370,9 @@ a {
   background-color: greenyellow;
   text-align: right;
 }
+/*#endregion */
 
+/*#region 1 баннер-машины */
 .banner {
   position: relative;
   display: flex;
@@ -466,7 +473,11 @@ a {
   z-index: 2;
   object-fit: contain;
 }
+/*#endregion */
 
+
+
+/*#region Авто в наличии */
 .auto-cards{
   position: relative;
   /* max-height: 1115px; */
@@ -495,7 +506,11 @@ a {
   background-color: grey;
   border-radius: var(--border-radius);
 }
+/*#endregion */
 
+
+
+/*#region новости */
 .news-cards{
   position: relative;
   /* max-height: 1115px; */
@@ -523,8 +538,96 @@ a {
   background-color: grey;
   border-radius: var(--border-radius);
 }
+/*#endregion */
 
 
+/*#region 2 баннер перебъем цены */
+.banner-beat{
+  background: linear-gradient(90deg, var(--color-red) 0%, #000000 100%);
+  margin: 89px 13.3vw 10px 13.3vw;
+  min-height: 329px;
+  display: flex;
+  justify-content: space-between;
+  min-height: 200px;
+  border-radius: var(--border-radius);
+}
+
+.banner-beat-left{
+  max-width: 474px;
+  max-height: 319px;
+  padding-right: 3px;
+  align-content: center;
+}
+
+.banner-beat-right{
+  width: 50%;
+}
+
+.banner-beat-slogan{
+  margin-top: 66px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-light);
+  text-transform: uppercase;
+}
+
+.banner-beat-skidki{
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--color-light);
+  margin-bottom: 25px;
+}
+
+.banner-beat-input{
+  border-radius: var(--border-radius-light);
+  border: none;
+  max-width: 369px;
+  max-height: 65px;
+  font-size: 16px;
+  min-height: 65px;
+  min-width: 250px;
+  box-sizing: border-box;
+  padding-left: 15px;
+  color: var(--color-dark);
+}
+
+.banner-beat-input::placeholder{
+  color: var(--color-dark);
+  font-size: 14px;
+}
+
+.banner-beat-button{
+  border-radius: var(--border-radius-light);
+  border: none;
+  background-color: var(--color-red);
+  color: var(--color-light);
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 500;
+  min-height: 65px;
+  min-width: 250px;
+  margin-right: 147px;
+}
+
+.banner-beat-form{
+  display: flex;
+  gap: 38px;
+}
+
+.banner-beat-smalltext{
+  color: var(--color-light);
+  font-size: 13px;
+}
+
+
+
+
+
+
+/*#endregion */
+
+
+/*#region карта */
 .map-section {
   position: relative;
   display: flex;
@@ -547,42 +650,44 @@ a {
 
 .map-info {
   position: absolute;
-  justify-content: center;
-  align-items: center;
   pointer-events: none;
 }
 
 .map-container {
-  margin: 50px;
+  /* margin: 5.573vw 12.24vw 5.677vw 64.271vw; */
+  top: 5.573vw;
+  right: 12.24vw;
+  bottom: 5.677vw;
+  left: 64.271vw;
   z-index: 1;
   border-radius: var(--border-radius);
   position: absolute;
-  justify-content: center;
-  align-items: left;
-  pointer-events: none;
   background-color: var(--color-light);
   width: 401px;
   height: 258px;
   display: flex;
   flex-direction: column;
-  gap: 21px
+  padding: 16px 0;
+  gap: 12px;
+  
 }
-
-.map-label {
-  padding-left: 64px;
-  font-size: 16px;
-}
-
-
 
 .map-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 29px;
+}
+
+.map-red-icon {
+  border-radius: 50%;
+  background-color: var(--color-red);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 23px;
   height: 23px;
-  background-color: var(--color-red);
-  position: absolute;
-  align-content: center;
-  justify-items: center;
-  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .map-container-icon {
@@ -590,10 +695,16 @@ a {
   height: 9px;
 }
 
+.map-label {
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 0;
+}
 
 .map-button {
   height: 53px;
   width: 244px;
+  margin-top: 16px;
   margin-left: 29px;
   border-radius: var(--border-radius-light);
   border-width: 0;
@@ -601,11 +712,13 @@ a {
   font-weight: bold;
   background-color: var(--color-red);
   color: var(--color-light);
+  align-self: flex-start;
 }
+/*#endregion */
 
-
-
+/*#region media */
 @media (max-width: 800px) {
+  /*#region media-header*/
   .header {
     flex-wrap: wrap;
     row-gap: 7px;
@@ -652,7 +765,9 @@ a {
   .mobile-text-second{
     font-size: 9px;
   }
+  /* #endregion*/
 
+  /*#region media-banner-1*/
   .banner{
     min-height: 600px;
     min-width: 360px;
@@ -697,7 +812,9 @@ a {
     margin-bottom: 30px;
     scale: 1.9;
   }
+  /* #endregion*/
 
+  /*#region media-auto-cards*/
   .auto-cards{
     margin: 60px 15px 40px 15px;
   }
@@ -714,7 +831,9 @@ a {
   .car-container:nth-child(n + 3) {
     display: none;
   }
+  /* #endregion*/
 
+  /*#region media-news*/
   .news-cards{
     margin: 60px 15px 40px 15px;
   }
@@ -727,8 +846,76 @@ a {
   .news-grid-container{
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   }
+  /* #endregion*/
 
-  .map{
-    min-width: 386px;
+  /*#region media-banner-beat*/
+  .banner-beat{
+    max-width: 290px;
+    max-height: 585px;
+    display: block;
+    background: linear-gradient(180deg, var(--color-red) 0%, #000000 100%);
   }
+
+  .banner-beat-slogan{
+    font-size: 24px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 0px;
+  }
+
+  .banner-beat-skidki{
+    font-size: 16px;
+    margin-top: 22px;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .banner-beat-form{
+    display:contents;
+    margin-top: 32px;
+  }
+
+  .banner-beat-input{
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .banner-beat-button{
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 10px;
+  }
+
+  .banner-beat-smalltext{
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 10px;
+    color: #737373;
+  }
+  /* #endregion*/
+
+  /*#region media-map*/
+  .map-section{
+    min-height: 386px;
+  }
+  
+  .map{
+    min-width: 290px;
+    height: 386px;
+    z-index: inherit;
+  }
+
+  /* .map-container {
+
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 365px;
+
+  } */
+  /* #endregion*/
+
 }
+/*#endregion */
