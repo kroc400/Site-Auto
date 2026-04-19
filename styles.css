@@ -547,20 +547,33 @@ a {
   margin: 89px 13.3vw 10px 13.3vw;
   min-height: 329px;
   display: flex;
-  justify-content: space-between;
-  min-height: 200px;
+  justify-content: space-around;
   border-radius: var(--border-radius);
+  width: calc(100% - 26.6vw);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .banner-beat-left{
   max-width: 474px;
-  max-height: 319px;
   padding-right: 3px;
-  align-content: center;
+  align-self: center;
+  width: 100%; /* Позволяет масштабироваться */
+  flex-shrink: 1; /* Позволяет сжиматься */
+}
+
+.banner-beat-left img {
+  max-width: 474px;
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .banner-beat-right{
-  width: 50%;
+  flex: 1 1 120%;
+  padding: 0 20px;
+  min-width: 0;
 }
 
 .banner-beat-slogan{
@@ -850,10 +863,21 @@ a {
 
   /*#region media-banner-beat*/
   .banner-beat{
-    max-width: 290px;
-    max-height: 585px;
-    display: block;
+    margin: 40px 5% 20px; /* Уменьшенные отступы */
+    flex-direction: column; /* Вертикальное расположение блоков */
+    align-items: center; /* Центрирование элементов */
     background: linear-gradient(180deg, var(--color-red) 0%, #000000 100%);
+    width: 91vw;
+  }
+
+  .banner-beat-left{
+    max-width: 290px; /* Уменьшение размера картинки */
+    align-self: flex-start;
+    margin-bottom: 25px; /* Отступ между картинкой и текстом */
+  }
+
+  .banner-beat-right {
+    text-align: center; /* Выравнивание текста по центру */
   }
 
   .banner-beat-slogan{
@@ -871,28 +895,28 @@ a {
   }
 
   .banner-beat-form{
-    display:contents;
-    margin-top: 32px;
+    flex-direction: column; /* Поля и кнопка друг под другом */
+    gap: 15px;
   }
 
   .banner-beat-input{
-    margin-left: 20px;
-    margin-right: 20px;
+    min-width: 100%; /* Поля на всю ширину */
+    max-width: none; /* Снятие ограничений */
+    padding: 12px 15px; /* Внутренние отступы для удобства нажатия */
   }
 
   .banner-beat-button{
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 10px;
+    min-width: 100%; /* Поля на всю ширину */
+    max-width: none; /* Снятие ограничений */
+    padding: 12px 15px; /* Внутренние отступы для удобства нажатия */
   }
 
   .banner-beat-smalltext{
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 10px;
-    margin-bottom: 30px;
-    font-size: 10px;
-    color: #737373;
+    font-size: 10px; /* Уменьшенный шрифт мелкого текста */
+    color: #737373; /* Цвет текста */
+    text-align: center; /* Выравнивание по центру */
+    margin-top: 8px; /* Отступы */
+    margin-bottom: 20px;
   }
   /* #endregion*/
 
@@ -916,6 +940,33 @@ a {
 
   } */
   /* #endregion*/
+
+}
+
+@media (max-width: 1380px) {
+  .banner-beat-form {
+    flex-direction: column; /* Вертикальное расположение блоков */
+    align-items: center; /* Центрирование элементов */
+    gap: 10px;
+    width: 100%;
+  }
+
+  .banner-beat-input{
+    width: 100%; /* Растягиваем на всю ширину контейнера */
+    box-sizing: border-box; /* Учитываем padding и border в width */
+    margin: 0; /* Убираем отступы, если они есть */
+    max-width: none;
+  }
+
+  .banner-beat-button {
+  margin: 0 auto; /* Центрирует блок по горизонтали */
+  display: block; /* Важно для `margin: 0 auto` */
+  width: 100%;
+  }
+  
+  .banner-beat-smalltext{
+    margin-top: 10px;
+  }
 
 }
 /*#endregion */
