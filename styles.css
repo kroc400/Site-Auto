@@ -631,13 +631,68 @@ a {
   color: var(--color-light);
   font-size: 13px;
 }
-
-
-
-
-
-
 /*#endregion */
+
+
+/* #region footer */
+.footer-section {
+  margin: 0 auto;
+}
+
+.footer-container {
+  background-color: var(--color-black);
+  display: flex;
+  justify-content: space-between;
+  gap: 84px;
+}
+
+.diller-info{
+  color: var(--color-light);
+  font-size: 18px;
+}
+
+.left-column {
+  flex: 1;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.right-column {
+  flex: 1;
+  text-align: right;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  margin-right: 36px;
+}
+
+.links {
+  margin-top: 22px;
+}
+
+.links a {
+  color: #FDE1E1;
+  font-size: 14px;
+  text-decoration: none;
+  margin-right: 20px;
+  margin-top: 22px;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.offert-text {
+  color: #FDE1E1;
+  font-size: 14px;
+  max-width: 613px;
+  text-align: justify
+}
+/*#endregion */
+
+
+
+
 
 
 /*#region карта */
@@ -940,6 +995,37 @@ a {
 
   } */
   /* #endregion*/
+
+  /* #region footer */
+  .footer-container {
+    display: block;
+  }
+
+  .diller-info{
+    padding-top: 26px;
+    font-size: 24px;
+    text-align: left;
+    margin-left: 20px;
+  }
+
+  .links {
+    text-align: left;
+    margin-left: 20px;
+  }
+
+  .links a {
+    display: block;
+    font-size: 12px;
+    margin: 0;
+  }
+
+  .offert-text {
+    font-size: 12px;
+    margin-left: 20px;
+    margin-top: 15px;
+    padding-bottom: 30px;
+  }
+/*#endregion */
 
 }
 
