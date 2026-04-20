@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тачки на прокачку</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-actions">
+            <button
+                class="header-burger-button"
+                type="button">
+                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="2" y1="2" x2="26" y2="2" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
+                <line x1="2" y1="11" x2="26" y2="11" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
+                <line x1="2" y1="20" x2="26" y2="20" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <a class="header-logo" href="/">
+            <img
+                class="header-logo"
+                src="./images/logo.png"
+                alt="Logo"
+                width="198", height="50" loading="lazy"/>
+        </a>
+        <nav class="header-menu">
+            <ul class="header-menu-list">
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/">О компании</a>
+                </li>
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/">Техцентр</a>
+                </li>
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/">Отзывы</a>
+                </li>
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/">Контакты</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="mobile-contacts">
+        <div class="mobile-contact-item">
+            <img src="/icons/mobile-logo.svg" alt="Phone" class="mobile-icon">
+            <span class="mobile-text-main">+7(800)555-35-35</span>
+        </div>
+        <div class="mobile-contact-item">
+            <span class="mobile-text-second">+7(495)228-12-34</span>
+        </div>
+        </div>
+    </header>
+    <main class="content">
+
+
+
+        <div style="
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 0fr 1fr 1fr;
+    gap: 10px;
+    padding: 20px;">
+
+    <!-- Заголовок -->
+    <div style="grid-column: 1 / span 3; background-color: #3fb875; color: white; padding: 10px; font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; height: 60px;">
+    СОБЫТИЕ НЕДЕЛИ
+    <span style="font-size: 24px; font-style: italic; margin-left: 50px;">Новости Академгородка</span>
+    </div>
+
+
+    <!-- 1 строка: фото + 2 ячейки текста -->
+    <img src="./images/news1.png" alt="Фото с места происшествия" style="grid-column: 1; max-width: 100%; border-radius: 5px;">
+    <div style="grid-column: 2 / span 2; font-size: 16px; line-height: 1.6; padding: 10px;">
+      <h1 style="font-size: 36px; margin-bottom: 10px; font-weight: bold;">ЮЛИЯ ЯКУБЕНЯ УРОНИЛА ОТВАРНУЮ СОСИСКУ</h1>
+      19 октября около шести часов вечера выпускница НГУ, Юлия Якубеня, закончив отваривать молочную сосиску СПК, подцепила её кончиком вилки, чтобы переместить из кипятка в миску с отварным картофелем. «Я думала, что сосиска прочно держится на зубчиках вилки, но я ошибалась…» — вспоминает девушка.
+    </div>
+
+    <!-- 2 строка: 2 ячейки текста + фото -->
+    <div style="grid-column: 1 / span 2; font-size: 16px; line-height: 1.6; padding: 10px;">
+      Находясь примерно на середине пути между пунктом отправления и пунктом назначения, мясной продукт не выдержал тяжести собственного веса и рухнул вниз. «Я пыталась поймать её, но она лишь скользнула по моим ладоням…» — На влажную сосиску моментально налип собачий ворс и кусочки бытовых отходов, покрывавшие пол кухни (и остальных комнат). Однако девушка среагировала молниеносно: «Как только сосиска коснулась пола, я мгновенно подхватила её». Несмотря на ожоги, полученные кипятком и отварным продуктом, Юлия не растерялась и оперативно обмыла мясной снек под холодной водой из крана.
+    </div>
+    <img src="./images/news2.png" alt="Сосиска на фоне" style="grid-column: 3; max-width: 100%; border-radius: 5px;">
+
+    <!-- 3 строка: 2 ячейки текста + фото -->
+    <div style="grid-column: 1 / span 2; font-size: 16px; line-height: 1.6; padding: 10px;">
+      «Я не жалею о том, что произошло», — утверждает девушка. «Иногда за то, что ты любишь, приходится бороться…»
+      <p style="font-size: 14px; margin-top: 10px;">Подготовила: Е.Морозова</p>
+    </div>
+    <img src="./images/news3.png" alt="Портрет Юлии" style="grid-column: 3; max-width: 100%; border-radius: 5px;">
+  </div>
+
+
+
+    </main>
+    <footer>
+        <section class="footer-section">
+            <div class="footer-container">
+                <div class="left-column">
+                    <div class="diller-info">© 2026 Автосалон "ТулГУ". Официальный дилер</div>
+                    <div class="links">
+                        <a href="#">Политика конфиденциальности</a>
+                        <a href="#">Пользовательское соглашение</a>
+                    </div>
+                </div>
+                <div class="right-column">
+                    <div class="offert-text">
+                        Обращаем Ваше внимание на то, что данный интернет-сайт носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями Статьи 437 Гражданского кодекса Российской Федерации.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </footer>
+
+
+
+
+
+       <script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.car-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      const carId = this.closest('.car-container').dataset.carId;
+      openCarDetails(carId);
+    });
+  });
+});
+
+function openCarDetails(carId) {
+  window.location.href = `Toyota_Camry.html?id=${carId}`;
+}
+</script>
+
+
+
+</body>
+</html>
