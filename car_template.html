@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toyota Camry</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header></header>
+    
+    <main class="content">
+        <h1 class="visually-hidden">Toyota Camry</h1>
+        <section class="banner">
+            <img src="./images/Toyota Camry.png" class="Toyota_Camry-banner-img">
+            <div class="Toyota_Camry_banner-body">
+
+                <span id="car-title"></span>
+                <div id="car-price" class="price"></div>
+
+                <!-- <div class="price">от 3 700 000 ₽</div> -->
+
+                <div class="car-gift-container">
+                    <div class="car-gift">
+                        <div class="car-gift-icon">
+                            <img src="./icons/gift_icon.png">
+                        </div>
+                        <div class="car-gift-text">Улучшим любое предложение</div>
+                    </div>
+                    <div class="car-0procent">
+                        <div class="car-0procent-icon">
+                            <img src="./icons/0procent_icon.png">
+                        </div>
+                        <div class="car-gift-text">Без первончального взноса</div>
+                    </div>
+                    <div class="car-RUB">
+                        <div class="car-RUB-icon">
+                            <img src="./icons/ruble_icon.png">
+                        </div>
+                        <div id="car-procent" class="car-gift-text"></div>
+                    </div>
+                </div>
+
+
+                
+            </div>
+            
+        </section>
+    </main>
+    <footer></footer>
+
+
+
+    <script src="car-details.js"></script>
+
+
+    <script>
+async function loadCarDetails() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const carId = parseInt(urlParams.get('id'));
+
+    if (!carId) {
+      throw new Error('Не указан ID автомобиля');
+    }
+
+    const response = await fetch('cars-data.json');
+    if (!response.ok) throw new Error('Ошибка загрузки данных');
+
+    const cars = await response.json();
+    const car = cars.find(c => c.id === carId);
+
+    if (car) {
+      updateCarDisplay(car);
+    } else {
+      showError('Автомобиль не найден');
+    }
+  } catch (error) {
+    console.error('Ошибка:', error);
+    showError('Ошибка загрузки данных: ' + error.message);
+  }
+}
+
+function updateCarDisplay(car) {
+  document.getElementById('car-title').textContent = car.title;
+  document.getElementById('car-price').textContent = `от ${car.price}`;
+  document.getElementById('car-procent').textContent = `${car.procent}`;
+  document.title = car.title;
+}
+
+function showError(message) {
+  document.getElementById('car-title').textContent = 'Ошибка';
+  document.getElementById('car-price').textContent = message;
+  document.getElementById('car-price').style.color = 'red';
+}
+
+document.addEventListener('DOMContentLoaded', loadCarDetails);
+</script>
+
+
+
+
+
+
+
+
+    <script type="module" src='header.js'></script>
+    <script type="module" src='footer.js'></script>
+</body>
+</html>
