@@ -642,7 +642,7 @@ a {
   flex-direction: column;
   min-height: 600px;
   min-width: 360px;
-  background-color: red;
+  /* background-color: red; */
   margin: 89px 25px 10px 25px;
 }
 
