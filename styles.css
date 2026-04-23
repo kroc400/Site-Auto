@@ -866,6 +866,56 @@ a {
 
 /*#endregion */
 
+/*#region Toyota Camry.html */
+  .copml{
+    /* background-color: red; */
+    margin-left: 150px;
+    margin-right: 150px;
+  }
+
+  .equipment{
+    font-size: 40px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-dark);
+  }
+
+  .equipment-grid{
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 76px;
+    /* background-color: blue; */
+    width: 100%;
+    overflow: visible;
+  }
+
+  .equipment-column {
+  flex: 1 0 250px;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  /* background-color: purple; */
+  }
+
+  .equipment-hr{
+    background-color: #737373;
+    height: 1px;
+    border: none;
+    margin: 10px 0;
+    align-self: stretch;
+  }
+
+  .equipment-title{
+    font-size: 20px;
+    margin: 0 0 15px 0;
+  }
+
+  
+
+
+
+/*#endregion */
+
 /*#region media */
 @media (max-width: 800px) {
   /*#region media-header*/

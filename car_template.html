@@ -40,11 +40,37 @@
                         <div id="car-procent" class="car-gift-text"></div>
                     </div>
                 </div>
-
-
-                
             </div>
-            
+        </section>
+
+        <section class="copml">
+            <div>
+            <h2 class="visually-hidden">Комплектация</h2>
+            <div class="equipment">Что входит в комплектацию Active</div>
+            <div class="equipment-grid">
+                <!-- <div class="equipment-column">
+                        
+                    <h3 class="equipment-title">Безопасность</h3>
+                        <hr class="equipment-hr"> 
+                    <ul></ul>
+                    <hr class="equipment-hr"> 
+                    </div>
+                    <div class="equipment-column">
+                        
+                    <h3 class="equipment-title">Экстерьер</h3>
+                        <hr class="equipment-hr">
+                    <ul></ul>
+                    <hr class="equipment-hr">
+                    </div>
+                    <div class="equipment-column">
+                        
+                    <h3 class="equipment-title">Интерьер</h3>
+                        <hr class="equipment-hr">
+                    <ul></ul>
+                    <hr class="equipment-hr">
+                </div> -->
+            </div>
+            </div>
         </section>
     </main>
     <footer></footer>
@@ -52,58 +78,6 @@
 
 
     <script src="car-details.js"></script>
-
-
-    <script>
-async function loadCarDetails() {
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const carId = parseInt(urlParams.get('id'));
-
-    if (!carId) {
-      throw new Error('Не указан ID автомобиля');
-    }
-
-    const response = await fetch('cars-data.json');
-    if (!response.ok) throw new Error('Ошибка загрузки данных');
-
-    const cars = await response.json();
-    const car = cars.find(c => c.id === carId);
-
-    if (car) {
-      updateCarDisplay(car);
-    } else {
-      showError('Автомобиль не найден');
-    }
-  } catch (error) {
-    console.error('Ошибка:', error);
-    showError('Ошибка загрузки данных: ' + error.message);
-  }
-}
-
-function updateCarDisplay(car) {
-  document.getElementById('car-title').textContent = car.title;
-  document.getElementById('car-price').textContent = `от ${car.price}`;
-  document.getElementById('car-procent').textContent = `${car.procent}`;
-  document.title = car.title;
-}
-
-function showError(message) {
-  document.getElementById('car-title').textContent = 'Ошибка';
-  document.getElementById('car-price').textContent = message;
-  document.getElementById('car-price').style.color = 'red';
-}
-
-document.addEventListener('DOMContentLoaded', loadCarDetails);
-</script>
-
-
-
-
-
-
-
-
     <script type="module" src='header.js'></script>
     <script type="module" src='footer.js'></script>
 </body>
