@@ -396,7 +396,7 @@ a {
 
 .banner-body {
   padding: 0;
-  background-color: aqua;
+  /* background-color: aqua; */
   font-size: 60px;
   font-size: clamp(30px, 8vw, 60px);
   font-weight: 700;
@@ -484,7 +484,7 @@ a {
   position: relative;
   /* max-height: 1115px; */
   /* max-width: 1398px; */
-  background-color: aquamarine;
+  /* background-color: aquamarine; */
   margin: 64px 13.3vw 10px 13.3vw;
   align-items: center;
   text-align: center;
@@ -494,7 +494,7 @@ a {
 }
 
 .cars-grid-container{
-  background-color: #CA0100;
+  /* background-color: #CA0100; */
   display: grid;
   gap: 28px;
   grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
@@ -517,7 +517,7 @@ a {
   position: relative;
   /* max-height: 1115px; */
   /* max-width: 1398px; */
-  background-color: aquamarine;
+  /* background-color: aquamarine; */
   margin: 64px 13.3vw 10px 13.3vw;
   align-items: center;
   text-align: center;
@@ -527,7 +527,7 @@ a {
 }
 
 .news-grid-container{
-  background-color: #CA0100;
+  /* background-color: #CA0100; */
   display: grid;
   gap: 28px;
   grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
