@@ -24,23 +24,50 @@ async function loadCarDetails() {
   }
 }
 
+function fillDimensions(dimensions) {
+  // Длина (боковой вид)
+  const lengthEl = document.getElementById('dimension-length');
+  if (lengthEl && dimensions.length !== undefined) {
+    lengthEl.textContent = dimensions.length;
+  }
+
+  // Ширина (вид сзади)
+  const widthBackEl = document.getElementById('dimension-width-back');
+  if (widthBackEl && dimensions.width !== undefined) {
+    widthBackEl.textContent = dimensions.width;
+  }
+
+  // Ширина (вид спереди)
+  const widthFrontEl = document.getElementById('dimension-width-front');
+  if (widthFrontEl && dimensions.width !== undefined) {
+    widthFrontEl.textContent = dimensions.width;
+  }
+
+  // Высота кузова
+  const heightEl = document.getElementById('dimension-height');
+  if (heightEl && dimensions.height !== undefined) {
+    heightEl.textContent = dimensions.height;
+  }
+}
+
+
 function updateCarDisplay(car) {
-  // Заполняем основные поля
   document.getElementById('car-title').textContent = car.title;
   document.getElementById('car-price').textContent = `от ${car.price}`;
   document.getElementById('car-procent').textContent = `${car.procent}`;
   document.title = car.title;
 
-  // Получаем данные комплектации (если отсутствуют — пустой объект)
+  if (car.dimensions) {
+    fillDimensions(car.dimensions);
+    fillSpecsTable(car.dimensions);
+  } else {
+    console.warn('Данные о размерах отсутствуют для автомобиля:', car.title);
+  }
+
   const equipment = car.equipment || {};
-
-  // Получаем контейнер для колонок
   const equipmentGrid = document.querySelector('.equipment-grid');
-
-  // Очищаем контейнер от статического контента
   equipmentGrid.innerHTML = '';
 
-  // Словарь для перевода ключей на русский (можно расширить)
   const categoryNames = {
     'безопасность': 'Безопасность',
     'экстерьер': 'Экстерьер',
@@ -51,55 +78,40 @@ function updateCarDisplay(car) {
     'трансмиссия': 'Трансмиссия'
   };
 
-  // Флаг: есть ли хотя бы одна непустая категория
   let hasVisibleCategories = false;
 
-  // Перебираем все категории в данных комплектации
   for (const [categoryKey, items] of Object.entries(equipment)) {
-    // Проверяем, что категория существует и не пуста
     if (items && Array.isArray(items) && items.length > 0) {
       hasVisibleCategories = true;
-
-      // Создаём колонку для этой категории
       const columnElement = document.createElement('div');
       columnElement.className = 'equipment-column';
 
-      // Заголовок колонки
       const titleElement = document.createElement('h3');
       titleElement.className = 'equipment-title';
       titleElement.textContent = categoryNames[categoryKey] ||
         categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1);
 
-      // Первый hr
       const hrBefore = document.createElement('hr');
       hrBefore.className = 'equipment-hr';
 
-      // Список пунктов
       const listElement = document.createElement('ul');
-
-      // Заполняем список пунктами
       items.forEach(item => {
         const li = document.createElement('li');
         li.textContent = item;
         listElement.appendChild(li);
       });
 
-      // Второй hr
       const hrAfter = document.createElement('hr');
       hrAfter.className = 'equipment-hr';
 
-      // Собираем колонку В ПРАВИЛЬНОМ ПОРЯДКЕ:
-      columnElement.appendChild(titleElement);  // 1. Заголовок
-      columnElement.appendChild(hrBefore);     // 2. Первый hr
-      columnElement.appendChild(listElement);   // 3. Список
-      columnElement.appendChild(hrAfter);      // 4. Второй hr
-
-      // Добавляем колонку в контейнер
+      columnElement.appendChild(titleElement);
+      columnElement.appendChild(hrBefore);
+      columnElement.appendChild(listElement);
+      columnElement.appendChild(hrAfter);
       equipmentGrid.appendChild(columnElement);
     }
   }
 
-  // Если нет ни одной непустой категории — показываем сообщение
   if (!hasVisibleCategories) {
     const noEquipmentMessage = document.createElement('div');
     noEquipmentMessage.className = 'no-equipment-message';
@@ -109,61 +121,65 @@ function updateCarDisplay(car) {
     noEquipmentMessage.style.fontSize = '18px';
     equipmentGrid.appendChild(noEquipmentMessage);
   } else {
-    // Создаём и настраиваем ResizeObserver
     const resizeObserver = new ResizeObserver(entries => {
       requestAnimationFrame(() => {
         alignColumnHeights();
       });
     });
-
-    // Подключаем наблюдатель к контейнеру
     resizeObserver.observe(equipmentGrid);
-
-    // Первоначальный вызов выравнивания
     alignColumnHeights();
   }
 }
 
-// Функция для выравнивания высоты колонок
 function alignColumnHeights() {
   const columns = document.querySelectorAll('.equipment-column');
   if (columns.length === 0) return;
 
-  // Сбрасываем высоту списка перед пересчётом
   columns.forEach(col => {
     const list = col.querySelector('ul');
     if (list) list.style.minHeight = 'auto';
   });
 
   let maxHeight = 0;
-
-  // Находим максимальную высоту содержимого (заголовок + hr + список)
   columns.forEach(col => {
     const title = col.querySelector('.equipment-title');
     const list = col.querySelector('ul');
     const hrBefore = col.querySelector('.equipment-hr:first-of-type');
-
     if (!title || !list || !hrBefore) return;
-
-    // Высота до конца списка (без второго hr)
     const currentHeight = title.offsetHeight + hrBefore.offsetHeight + list.offsetHeight;
-    if (currentHeight > maxHeight) {
-      maxHeight = currentHeight;
-    }
+    if (currentHeight > maxHeight) maxHeight = currentHeight;
   });
 
-  // Устанавливаем минимальную высоту списка так, чтобы второй hr был на одном уровне
   columns.forEach(col => {
     const title = col.querySelector('.equipment-title');
     const list = col.querySelector('ul');
     const hrBefore = col.querySelector('.equipment-hr:first-of-type');
-
     if (!title || !list || !hrBefore) return;
-
     const targetListHeight = maxHeight - title.offsetHeight - hrBefore.offsetHeight;
-
-    // Устанавливаем минимальную высоту списка (чтобы не сжимался ниже содержимого)
     list.style.minHeight = targetListHeight + 'px';
+  });
+}
+
+function fillSpecsTable(dimensions) {
+  const dimensionMap = {
+    'Длина кузова, мм': 'length',
+    'Ширина кузова, мм': 'width',
+    'Высота кузова, мм': 'height',
+    'Колёсная база, мм': 'wheelbase',
+    'Дорожный просвет, мм': 'ground_clearance'
+  };
+  document.querySelectorAll('.specs-table-row').forEach(row => {
+    const labelElement = row.querySelector('.specs-label');
+    const valueElement = row.querySelector('.specs-value');
+    if (labelElement && valueElement) {
+      const labelText = labelElement.textContent.trim();
+      const dimensionField = dimensionMap[labelText];
+      if (dimensionField && dimensions[dimensionField] !== undefined) {
+        valueElement.textContent = dimensions[dimensionField];
+      } else {
+        valueElement.textContent = '—';
+      }
+    }
   });
 }
 
@@ -171,6 +187,41 @@ function showError(message) {
   document.getElementById('car-title').textContent = 'Ошибка';
   document.getElementById('car-price').textContent = message;
   document.getElementById('car-price').style.color = 'red';
+
+  // // Скрываем блоки с размерами, если есть ошибка
+  // const dimensionContainers = [
+  //   '.car-side-view',
+  //   '.car-back-view',
+  //   '.car-front-view',
+  //   '.car-height-view'
+  // ];
+
+  dimensionContainers.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) element.style.display = 'none';
+  });
+
+  // Очищаем таблицу характеристик
+  document.querySelectorAll('.specs-table .specs-value').forEach(el => {
+    el.textContent = '—';
+  });
+
+  // Очищаем блок комплектации
+  const equipmentGrid = document.querySelector('.equipment-grid');
+  if (equipmentGrid) {
+    equipmentGrid.innerHTML = '<div class="no-equipment-message" style="text-align:center;padding:20px;font-size:18px;">Не удалось загрузить данные об автомобиле</div>';
+  }
 }
 
-document.addEventListener('DOMContentLoaded', loadCarDetails);
+// Инициализация после загрузки DOM
+document.addEventListener('DOMContentLoaded', function() {
+  // Добавляем обработчик изменения размера окна для перевыравнивания колонок
+  window.addEventListener('resize', function() {
+    requestAnimationFrame(() => {
+      alignColumnHeights();
+    });
+  });
+
+  // Загружаем данные автомобиля
+  loadCarDetails();
+});

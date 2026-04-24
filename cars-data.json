@@ -27,6 +27,13 @@
         "ЭРА-ГЛОНАСС",
         "Крепление ISOFIX"
       ]
+    },
+    "dimensions": {
+      "length": 4400,
+      "width": 1740,
+      "height": 1470,
+      "wheelbase": 2600,
+      "ground_clearance": 160
     }
   },
   {
