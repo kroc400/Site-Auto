@@ -1048,7 +1048,7 @@ a {
   text-align: right; 
   font-weight: 700; 
   font-size: 16px;
-  background-color: red;
+  /* background-color: red; */
 }
 
 .car-height-view{

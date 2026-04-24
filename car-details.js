@@ -52,6 +52,18 @@ function fillDimensions(dimensions) {
 
 
 function updateCarDisplay(car) {
+  // #region
+
+  const titleElements = document.querySelectorAll('#car-title');
+
+  const bannerTitle = document.querySelector('.car-title-banner');
+if (bannerTitle) bannerTitle.textContent = car.title;
+
+  const specsTitle = document.getElementById('car-title');
+
+  //#endregion
+
+
   document.getElementById('car-title').textContent = car.title;
   document.getElementById('car-price').textContent = `от ${car.price}`;
   document.getElementById('car-procent').textContent = `${car.procent}`;

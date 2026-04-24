@@ -51,6 +51,13 @@
       "интерьер": [
         "тут что-то есть"
       ]
+    },
+    "dimensions": {
+      "length": 4674,
+      "width": 1801,
+      "height": 1415,
+      "wheelbase": 2736,
+      "ground_clearance": 135
     }
   },
   {
@@ -78,6 +85,13 @@
         "Спортивный руль",
         "Кнопка катапультирования в ручке КПП"
       ]
+    },
+    "dimensions": {
+      "length": 4359,
+      "width": 1733,
+      "height": 1517,
+      "wheelbase": 2634,
+      "ground_clearance": 163
     }
   }
 ]
