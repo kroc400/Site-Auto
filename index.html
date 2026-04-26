@@ -9,15 +9,6 @@
 <body>
     <header class="header">
         <div class="header-actions">
-            <!-- <button
-                class="header-burger-button"
-                type="button">
-                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <line x1="2" y1="2" x2="26" y2="2" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                <line x1="2" y1="11" x2="26" y2="11" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                <line x1="2" y1="20" x2="26" y2="20" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                </svg>
-            </button> -->
         </div>
         <a class="header-logo" href="/">
             <img
@@ -39,6 +30,9 @@
                 </li>
                 <li class="header-menu-item">
                     <a class="header-menu-link" href="/">Контакты</a>
+                </li>
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/account.html">Личный кабинет</a>
                 </li>
             </ul>
         </nav>
@@ -126,7 +120,7 @@
                     <div class="banner-beat-slogan">Перебьем предложения от конкурентов!</div>
                     <div class="banner-beat-skidki">Скидки от 10 до 25% на стоимость автомобиля </div>
                     <form class="banner-beat-form">
-                        <input class="banner-beat-input" placeholder="Ваш телефон" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
+                        <input type="text" id="phone" class="banner-beat-input">
                         <button class="banner-beat-button">Получить предложение</button>
                     </form>
                     <div class="banner-beat-smalltext">Нажимая кнопку “Отправить” Вы даете согласие на обработку своих персональных данных</div>
@@ -216,5 +210,7 @@
         
 
         <script  src="backToTopButton.js"></script>
+        <script src="https://unpkg.com/imask"></script>
+        <script src="masks.js"></script>
 </body>
 </html>

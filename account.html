@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <header></header>
+
+    <main class="content">
+        <h1 class="visually-hidden">User Profile</h1>
+        <div class="user_Profile">
+            <h2 class="user_title">Данные пользователя</h1>
+            <div class="user_data">
+                    <div class="FIO">
+                            <div>Фамилия</div>
+                            <input type="text" id="surname" placeholder="Иванов">
+                            <div>Имя</div>
+                            <input type="text" id="name" placeholder="Иван">
+                            <div>Отчество</div>
+                            <input type="text" id="patronymic" placeholder="Иванович">
+                        </div>
+                        <div class="user_contacts" >
+                            <div>Номер телефона</div>
+                            <input type="text" id="phone" placeholder="+7(800)555-35-35">
+                            <div>Email</div>
+                            <input type="text" id="email" placeholder="example@example.com">
+                            <div>
+                                <div class="profile_save_text">Save</div>
+                                <button class="profile_save_button">Сохранить</button>
+                            </div>
+                        </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script type="module" src="header.js"></script>
+    <script type="module" src="footer.js"></script>
+    <script src="backToTopButton.js"></script>
+    
+    <script src="https://unpkg.com/imask"></script>
+    <script src="masks.js"></script>
+</body>
+</html>

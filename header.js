@@ -2,15 +2,6 @@ const template = document.createElement('template');
 template.innerHTML = `
     <header class="header">
         <div class="header-actions">
-            <!-- <button
-                class="header-burger-button"
-                type="button">
-                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <line x1="2" y1="2" x2="26" y2="2" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                <line x1="2" y1="11" x2="26" y2="11" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                <line x1="2" y1="20" x2="26" y2="20" stroke="#262626" stroke-width="4" stroke-linecap="round"/>
-                </svg>
-            </button> -->
         </div>
         <a class="header-logo" href="/">
             <img
@@ -32,6 +23,9 @@ template.innerHTML = `
                 </li>
                 <li class="header-menu-item">
                     <a class="header-menu-link" href="/">Контакты</a>
+                </li>
+                <li class="header-menu-item">
+                    <a class="header-menu-link" href="/account.html">Личный кабинет</a>
                 </li>
             </ul>
         </nav>

@@ -14,13 +14,12 @@
     height: 50px;
     border: none;
     border-radius: var(--border-radius-light); /* Круглая форма */
-    background-color:var( --color-dark);
+    background-color:var(--color-dark);
     color: var(--color-light-grey);
     font-size: 20px;
     cursor: pointer;
     opacity: 0.7;
     transition: all 0.3s ease;
-    transform: translateY(20px);
   `;
 
   // Добавляем в тело документа
@@ -54,7 +53,8 @@
   });
 
   backToTopBtn.addEventListener('mouseleave', function() {
-    backToTopBtn.style.backgroundColor = 'var(--color-light-grey)';
+    backToTopBtn.style.backgroundColor = 'var(--color-dark)';
     backToTopBtn.style.transform = 'scale(1)';
+    backToTopBtn.style.opacity = '0.7';
   });
 })();
