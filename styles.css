@@ -911,60 +911,7 @@ a {
     font-size: 20px;
     margin: 0 0 15px 0;
   }
-  /* #endregion */
-
-  /*#car_specifications */
-  /* .car_dimensions_specifications{
-    margin-left: 150px;
-    margin-right: 150px;
-  }
   
-  .car_dimensions_specifications_title{
-    margin-top: 68px;
-    font-size: 40px;
-    text-align: center;
-    font-weight: 500
-  }
-
-  .car_dimensions_specifications_grid{
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 76px;
-    width: 100%;
-    overflow: visible;
-  }
-
-  .car_dimensions_specifications_column {
-  flex: 1 0 250px;
-  min-width: 250px;
-  display: flex;
-  flex-direction: column;
-  }
-
-  .car_dimensions_specifications_column img{
-    max-height: 112px;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    object-fit: contain;
-  }
-
-  .dimension_text{
-    text-align: center;
-    font-size: 16px;
-    color: var(--color-dark);
-  } */
-
-
-
-
-
-
-
-
-
 .car_dimensions_specifications_column img{
     max-height: 112px;
     width: auto;
@@ -1080,20 +1027,7 @@ a {
   margin-left: 5px; 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-  /*#endregion  */
-
-
+/* #endregion */
 
 /*#endregion */
 
