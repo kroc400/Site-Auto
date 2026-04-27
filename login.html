@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Вход в аккаунт</h2>
+        <input type="text" id="login" placeholder="Логин или Email">
+        <input type="password" id="password" placeholder="Пароль">
+        <button id="loginBtn">Войти</button>
+        <div id="message"></div>
+        <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const login = document.getElementById('login').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const msg = document.getElementById('message');
+
+            if (!login || !password) {
+                msg.textContent = 'Заполните оба поля';
+                return;
+            }
+
+            const response = await fetch('/api/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login, password })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                msg.style.color = 'green';
+                msg.textContent = 'Вход выполнен! Перенаправление...';
+                localStorage.setItem('username', result.user.username);
+                setTimeout(() => window.location.href = 'profile.html', 1000);
+            } else {
+                msg.style.color = 'red';
+                msg.textContent = result.message;
+            }
+        });
+    </script>
+</body>
+</html>

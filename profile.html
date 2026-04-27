@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мой профиль</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Личный кабинет</h2>
+        <div id="userInfo">Загрузка...</div>
+        <button id="logoutBtn">Выйти</button>
+        <p><a href="favorites.html">Моё избранное</a></p>
+        <p><a href="index.html">На главную</a></p>
+    </div>
+
+    <script>
+        async function loadProfile() {
+            const response = await fetch('/api/check_session.php');
+            const data = await response.json();
+            if (data.logged_in) {
+                document.getElementById('userInfo').innerHTML = `
+                    <p>Добро пожаловать, <strong>${data.username}</strong>!</p>
+                    <p>Роль: ${data.role}</p>
+                `;
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/logout.php');
+            window.location.href = 'login.html';
+        });
+
+        loadProfile();
+    </script>
+</body>
+</html>

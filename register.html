@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация</h2>
+        <input type="text" id="username" placeholder="Логин">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Пароль">
+        <button id="registerBtn">Зарегистрироваться</button>
+        <div id="message"></div>
+        <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+    </div>
+
+    <script>
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const msg = document.getElementById('message');
+
+            if (!username || !email || !password) {
+                msg.textContent = 'Заполните все поля';
+                return;
+            }
+
+            const response = await fetch('/api/register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                msg.style.color = 'green';
+                msg.textContent = 'Регистрация успешна! Перенаправление на вход...';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } else {
+                msg.style.color = 'red';
+                msg.textContent = result.message;
+            }
+        });
+    </script>
+</body>
+</html>
