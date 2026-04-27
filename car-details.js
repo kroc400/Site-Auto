@@ -7,16 +7,16 @@ async function loadCarDetails() {
       throw new Error('Не указан ID автомобиля');
     }
 
-    const response = await fetch('cars-data.json');
+    // Вместо cars-data.json → api/car.php
+    const response = await fetch(`api/car.php?id=${carId}`);
     if (!response.ok) throw new Error('Ошибка загрузки данных');
 
-    const cars = await response.json();
-    const car = cars.find(c => c.id === carId);
-
-    if (car) {
+    const car = await response.json();
+    
+    if (car && !car.error) {
       updateCarDisplay(car);
     } else {
-      showError('Автомобиль не найден');
+      showError(car?.error || 'Автомобиль не найден');
     }
   } catch (error) {
     console.error('Ошибка:', error);

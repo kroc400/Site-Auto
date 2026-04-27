@@ -192,21 +192,16 @@
 
 
        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.car-link').forEach(link => {
-                link.addEventListener('click', function(e) {
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.car-link').forEach(link => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-
                 const carId = this.closest('.car-container').dataset.carId;
-                openCarDetails(carId);
-                });
+                window.location.href = `car_template.html?id=${carId}`;
             });
-            });
-
-            function openCarDetails(carId) {
-            window.location.href = `car_template.html?id=${carId}`;
-            }
-        </script>
+        });
+    });
+</script>
         
 
         <script  src="backToTopButton.js"></script>
