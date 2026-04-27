@@ -83,6 +83,11 @@
                             <button class="profile_save_button" id="saveProfileBtn">Сохранить</button>
                         </div>
                     </div>
+                    <div style="text-align: right; margin-bottom: 20px;">
+                    <button id="logoutBtn" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        🚪 Выйти из аккаунта
+                    </button>
+    </div>
                 </div>
             </div>
 
@@ -120,6 +125,18 @@
                 document.getElementById('profileContent').style.display = 'none';
             }
         }
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+            const response = await fetch('/api/logout.php');
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Вы вышли из аккаунта');
+                window.location.href = 'index.html';
+            } else {
+                alert('Ошибка при выходе');
+            }
+        });
 
         // Загрузка профиля
         async function loadUserProfile() {
