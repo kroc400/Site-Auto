@@ -234,6 +234,127 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+
+// Переменная для хранения текущего ID автомобиля и статуса избранного
+let currentCarId = null;
+let favoriteStatus = false;
+
+// Функция проверки авторизации
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/check_session.php');
+        const data = await response.json();
+        return data.logged_in;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+// Функция проверки, есть ли авто в избранном
+async function checkFavoriteStatus(carId) {
+    try {
+        const response = await fetch('/api/get_favorites.php');
+        const favorites = await response.json();
+        
+        if (favorites.error) return false;
+        
+        return favorites.some(car => car.id === carId);
+    } catch (error) {
+        console.error('Ошибка проверки избранного:', error);
+        return false;
+    }
+}
+
+// Функция обновления кнопки
+function updateFavoriteButton(isFavorite) {
+    const btn = document.getElementById('favoriteBtn');
+    if (!btn) return;
+    
+    if (isFavorite) {
+        btn.textContent = '✅ В избранном';
+        btn.classList.add('active');
+    } else {
+        btn.textContent = '❤️ В избранное';
+        btn.classList.remove('active');
+    }
+    favoriteStatus = isFavorite;
+}
+
+// Функция добавления/удаления из избранного
+async function toggleFavorite(carId) {
+    const messageDiv = document.getElementById('favoriteMessage');
+    
+    // Проверяем авторизацию
+    const isLoggedIn = await checkAuthStatus();
+    if (!isLoggedIn) {
+        messageDiv.textContent = '⚠️ Войдите в аккаунт, чтобы добавить в избранное';
+        messageDiv.className = 'favorite-message error';
+        setTimeout(() => {
+            messageDiv.textContent = '';
+        }, 3000);
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/favorites_toggle.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ car_id: carId })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            updateFavoriteButton(result.action === 'added');
+            messageDiv.textContent = result.message;
+            messageDiv.className = 'favorite-message success';
+        } else {
+            messageDiv.textContent = result.message || 'Ошибка';
+            messageDiv.className = 'favorite-message error';
+        }
+        
+        setTimeout(() => {
+            messageDiv.textContent = '';
+        }, 2000);
+    } catch (error) {
+        messageDiv.textContent = 'Ошибка соединения';
+        messageDiv.className = 'favorite-message error';
+        console.error('Ошибка:', error);
+    }
+}
+
+// Модифицируем существующую функцию loadCarDetails
+// (нужно добавить сохранение ID и проверку избранного)
+const originalLoadCarDetails = loadCarDetails;
+window.loadCarDetails = async function() {
+    await originalLoadCarDetails();
+    
+    // Получаем ID из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentCarId = parseInt(urlParams.get('id'));
+    
+    if (currentCarId) {
+        // Проверяем, в избранном ли этот автомобиль
+        const isFavorite = await checkFavoriteStatus(currentCarId);
+        updateFavoriteButton(isFavorite);
+        
+        // Назначаем обработчик кнопки
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            btn.onclick = () => toggleFavorite(currentCarId);
+        }
+    }
+};
+
+// Переопределяем loadCarDetails
+loadCarDetails = window.loadCarDetails;
+
+
+
+
+
+
+
   // Загружаем данные автомобиля
   loadCarDetails();
 });
