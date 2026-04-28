@@ -482,9 +482,6 @@ a {
 /*#region Авто в наличии */
 .auto-cards{
   position: relative;
-  /* max-height: 1115px; */
-  /* max-width: 1398px; */
-  /* background-color: aquamarine; */
   margin: 64px 13.3vw 10px 13.3vw;
   align-items: center;
   text-align: center;
@@ -494,7 +491,6 @@ a {
 }
 
 .cars-grid-container{
-  /* background-color: #CA0100; */
   display: grid;
   gap: 28px;
   grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
@@ -519,22 +515,32 @@ a {
 }
 
 .car-card{
+  border-radius: var(--border-radius);
+  height: 449px;
+  width: 446px;
   background-image: url(./images/banner_bg.jpg);
   background-repeat: no-repeat;
   background-position: right center;
   overflow: hidden;
   background-blend-mode: multiply;
+  background-color: aqua;
+  position: relative;
 }
 
 .car-card-img{
-  background-color: purple;
-  max-width: 273px;
+  max-width: 290px;
   max-height: 100%;
+  position: absolute;
+  margin-top: 100px;
+  z-index: 5;
+  right: 15px;
 }
 
  .car-card-cost{
-  font-size: 22px;
-  margin-top: 100px;
+  font-size: 36px;
+  font-weight: 500;
+  margin-top: 250px;
+  margin-bottom: 0px;;
  }
  
  .car-card-button{
@@ -1141,11 +1147,85 @@ a {
     min-height: 40px;
     min-width: 250px;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .profile_save_text{
     visibility: collapse;
   }
+
+  .logoutBtn {
+    border-radius: var(--border-radius-light);
+    border: none;
+    max-width: none;
+    max-height: 65px;
+    min-height: 40px;
+    min-width: 250px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: var(--color-red);
+    color: var(--color-light);
+  }
+
+  .favorites-section{
+    background-color: var(--color-medium-grey);
+    border-radius: var(--border-radius-light);
+    margin: 10px 25px 10px 25px;
+  }
+
+  .account-favorite-title{
+    font-size: 40px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  /* Дополнительные стили для избранного */
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    background-color: purple;
+    margin: 25px 150px 20px 150px;
+
+  }
+  .favorite-card {
+    border-radius: var(--border-radius);
+    padding: 15px;
+    text-align: center;
+    background: red;
+  }
+  .favorite-card h4 {
+    font-size: 27px;
+    text-align: left;
+    font-weight: 500;
+    margin-top: 33px;
+    margin-left: 25px;
+    margin-right: 10px;
+  }
+  .favorite-card .price {
+    color: #e63946;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  .favorite-card button {
+    background: #e63946;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .favorite-card button:hover {
+    background: #c1121f;
+  }
+  .auth-warning {
+    color: red;
+    text-align: center;
+    padding: 20px;
+  }
+
+
 
 
 /*#endregion */
@@ -1261,13 +1341,30 @@ a {
     width: 290px;
   }
 
+  .car-card{
+    height: 416px;
+    width: 290px;
+  }
+
   .cars-grid-container{
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  }
+  } 
+
+  .car-card-button{
+  max-width: 250px;
+  width: 100%;
+  max-height: 50px;
+  height: 50px;
+ }
+
+ .car-card-cost{
+  margin-top: 217px;
+ }
+
 
   /* .car-container:nth-child(n + 3) {
     display: none;
-  } */
+  }
   /* #endregion*/
 
   /*#region media-news*/
@@ -1423,6 +1520,12 @@ a {
     margin: 25px 50px 20px 50px;
     gap: 25px;
     justify-content: center; 
+  }
+
+  .account-favorite-title{
+    margin-left: 30px;
+    margin-right: 30px;
+    font-size: 24px;
   }
   /*#endregion */
 

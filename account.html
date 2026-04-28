@@ -5,52 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет</title>
     <link rel="stylesheet" href="./styles.css">
-    <style>
-        /* Дополнительные стили для избранного */
-        .favorites-section {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-        }
-        .favorites-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .favorite-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            background: #f9f9f9;
-        }
-        .favorite-card h4 {
-            margin: 0 0 10px;
-            font-size: 18px;
-        }
-        .favorite-card .price {
-            color: #e63946;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .favorite-card button {
-            background: #e63946;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .favorite-card button:hover {
-            background: #c1121f;
-        }
-        .auth-warning {
-            color: red;
-            text-align: center;
-            padding: 20px;
-        }
-    </style>
+    
 </head>
 <body>
     <header></header>
@@ -83,17 +38,14 @@
                             <button class="profile_save_button" id="saveProfileBtn">Сохранить</button>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-bottom: 20px;">
-                    <button id="logoutBtn" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                        🚪 Выйти из аккаунта
-                    </button>
-    </div>
+                    <button class="logoutBtn" id="logoutBtn" >Выйти из аккаунта</button>
+                </div>
                 </div>
             </div>
 
             <!-- Блок избранного -->
             <div class="favorites-section">
-                <h2>Избранные автомобили</h2>
+                <div class="account-favorite-title">Избранные автомобили</h2>
                 <div id="favoritesGrid" class="favorites-grid">
                     <p>Загрузка...</p>
                 </div>
@@ -109,7 +61,314 @@
     <script src="https://unpkg.com/imask"></script>
     <script src="masks.js"></script>
     
+    <!-- #region DEV MODE -->
+    <!-- <script>
+    // ---------- РЕЖИМ РАЗРАБОТКИ ----------
+    // Включить через ?dev=1 в URL или localStorage.setItem('devMode', 'true') + перезагрузка
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDevMode = urlParams.has('dev') || localStorage.getItem('devMode') === 'true';
+
+    if (isDevMode) {
+        console.log('🛠️ РЕЖИМ РАЗРАБОТКИ: показываем заглушки, API не вызываются');
+    }
+
+    // ---------- Функции с заглушками ----------
+    async function checkAuth() {
+        if (isDevMode) {
+            // Режим вёрстки: показываем блок с тестовыми данными
+            const authDiv = document.getElementById('authCheck');
+            if (authDiv) {
+                authDiv.innerHTML = `<div style="background: #d4edda; padding: 10px; text-align: center;">🛠️ РЕЖИМ РАЗРАБОТКИ — данные заглушки</div>`;
+            }
+            document.getElementById('profileContent').style.display = 'block';
+            loadMockProfile();
+            loadMockFavorites();
+            return;
+        }
+
+        // Реальный режим (с БД)
+        try {
+            const response = await fetch('/api/check_session.php');
+            const data = await response.json();
+            if (data.logged_in) {
+                const authDiv = document.getElementById('authCheck');
+                if (authDiv) {
+                    authDiv.innerHTML = `<div style="background: #d4edda; padding: 10px; text-align: center;">Вы вошли как: ${data.username}</div>`;
+                }
+                document.getElementById('profileContent').style.display = 'block';
+                loadUserProfile();
+                loadFavorites();
+            } else {
+                document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a></div>`;
+                document.getElementById('profileContent').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Ошибка проверки авторизации:', error);
+            document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Ошибка соединения</div>`;
+        }
+    }
+
+    // Заглушка для профиля
+    function loadMockProfile() {
+        const surname = document.getElementById('surname');
+        const name = document.getElementById('name');
+        const patronymic = document.getElementById('patronymic');
+        const phone = document.getElementById('phone');
+        const email = document.getElementById('email');
+        if (surname) surname.value = 'Иванов';
+        if (name) name.value = 'Иван';
+        if (patronymic) patronymic.value = 'Иванович';
+        if (phone) phone.value = '+7(800)555-35-35';
+        if (email) email.value = 'dev@example.com';
+    }
+
+    // Заглушка для избранного
+    function loadMockFavorites() {
+        const container = document.getElementById('favoritesGrid');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="favorite-card">
+                <h4>Тестовый автомобиль 1</h4>
+                <div class="price">3 700 000 ₽</div>
+                <button onclick="alert('Заглушка: удаление из избранного')">Удалить</button>
+            </div>
+            <div class="favorite-card">
+                <h4>Тестовый автомобиль 2</h4>
+                <div class="price">4 200 000 ₽</div>
+                <button onclick="alert('Заглушка: удаление из избранного')">Удалить</button>
+            </div>
+        `;
+    }
+
+    // ---------- Реальные функции (для продакшена) ----------
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/api/user_profile.php');
+            const user = await response.json();
+            document.getElementById('surname').value = user.surname || '';
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('patronymic').value = user.patronymic || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('email').value = user.email || '';
+        } catch (error) {
+            console.error('Ошибка загрузки профиля:', error);
+        }
+    }
+
+    async function loadFavorites() {
+        const container = document.getElementById('favoritesGrid');
+        if (!container) return;
+        try {
+            const response = await fetch('/api/get_favorites.php');
+            const favorites = await response.json();
+            if (favorites.error) {
+                container.innerHTML = `<p>${favorites.error}</p>`;
+                return;
+            }
+            if (!favorites.length) {
+                container.innerHTML = '<p>Нет избранных автомобилей</p>';
+                return;
+            }
+            container.innerHTML = favorites.map(car => `
+                <div class="favorite-card" data-car-id="${car.id}">
+                    <h4>${escapeHtml(car.title)}</h4>
+                    <div class="price">${car.price}</div>
+                    <a href="car_template.html?id=${car.id}">Подробнее</a>
+                    <button onclick="removeFromFavorites(${car.id})">Удалить</button>
+                </div>
+            `).join('');
+        } catch (error) {
+            container.innerHTML = '<p>Ошибка загрузки избранного</p>';
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- Обработчики ----------
+    document.addEventListener('DOMContentLoaded', () => {
+        // Кнопка сохранения профиля
+        const saveBtn = document.getElementById('saveProfileBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', async () => {
+                if (isDevMode) {
+                    alert('Режим разработки: сохранение не происходит');
+                    return;
+                }
+                const data = {
+                    surname: document.getElementById('surname').value,
+                    name: document.getElementById('name').value,
+                    patronymic: document.getElementById('patronymic').value,
+                    phone: document.getElementById('phone').value
+                };
+                const response = await fetch('/api/user_profile.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                alert(result.message || 'Профиль сохранён');
+            });
+        }
+
+        // Кнопка выхода
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if (isDevMode) {
+                    alert('Режим разработки: выход не выполняется');
+                    return;
+                }
+                const response = await fetch('/api/logout.php');
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Ошибка при выходе');
+                }
+            });
+        }
+
+        // Запускаем проверку авторизации
+        checkAuth();
+    });
+
+    // Глобальная функция удаления из избранного (если нужна)
+    window.removeFromFavorites = async function(carId) {
+        if (isDevMode) {
+            alert('Режим разработки: удаление из избранного (заглушка)');
+            loadMockFavorites();
+            return;
+        }
+        const response = await fetch('/api/favorites_toggle.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ car_id: carId })
+        });
+        const result = await response.json();
+        if (result.success) {
+            loadFavorites();
+        } else {
+            alert(result.message);
+        }
+    };
+</script> -->
+<!-- #endregion -->
+
     <script>
+
+        // #region[ rgba(255, 0, 0, 0.4) ] devmode
+        // ========== РЕЖИМ РАЗРАБОТКИ (вставить ПЕРЕД основным кодом) ==========
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDev = urlParams.has('dev') || localStorage.getItem('devMode') === 'true';
+            if (!isDev) return; // обычный режим — ничего не меняем
+
+            console.log('🛠️ РЕЖИМ РАЗРАБОТКИ: данные-заглушки, API не вызываются');
+
+            // Сохраняем оригинальные функции, если они уже объявлены
+            const originalCheckAuth = window.checkAuth;
+            const originalLoadUserProfile = window.loadUserProfile;
+            const originalLoadFavorites = window.loadFavorites;
+
+            // Переопределяем checkAuth
+            window.checkAuth = async function() {
+                const authDiv = document.getElementById('authCheck');
+                if (authDiv) authDiv.innerHTML = `<div style="background: #d4edda; padding: 10px;">🛠️ DEV-режим: данные заглушки</div>`;
+                document.getElementById('profileContent').style.display = 'block';
+                if (window.loadMockProfile) window.loadMockProfile();
+                if (window.loadMockFavorites) window.loadMockFavorites();
+            };
+
+            // Заглушка профиля
+            window.loadMockProfile = function() {
+                const fields = ['surname', 'name', 'patronymic', 'phone', 'email'];
+                const values = ['Иванов', 'Иван', 'Иванович', '+7(800)555-35-35', 'dev@example.com'];
+                fields.forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = values[idx];
+                });
+            };
+
+            // Заглушка избранного
+            window.loadMockFavorites = function() {
+                const container = document.getElementById('favoritesGrid');
+                if (!container) return;
+                container.innerHTML = `
+                    <div class="favorite-card">
+                        <h4>Toyota Camry (тест)</h4>
+                        <div class="price">3 700 000 ₽</div>
+                        <button onclick="alert('DEV: удаление заглушки')">Удалить</button>
+                    </div>
+                    <div class="favorite-card">
+                        <h4>Honda Civic (тест)</h4>
+                        <div class="price">3 400 000 ₽</div>
+                        <button onclick="alert('DEV: удаление заглушки')">Удалить</button>
+                    </div>
+                `;
+            };
+
+            // Перехватываем fetch, чтобы реальные запросы не ходили
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                const url = args[0];
+                if (typeof url === 'string' && (
+                    url.includes('/api/check_session.php') ||
+                    url.includes('/api/user_profile.php') ||
+                    url.includes('/api/get_favorites.php') ||
+                    url.includes('/api/favorites_toggle.php') ||
+                    url.includes('/api/logout.php')
+                )) {
+                    console.log('DEV: перехвачен запрос к API', url);
+                    // Возвращаем пустой ответ, чтобы не ломать код
+                    return Promise.resolve(new Response(JSON.stringify({}), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    }));
+                }
+                return originalFetch.apply(this, args);
+            };
+
+            // Отключаем обработчик сохранения профиля (чтобы не слал запросы)
+            setTimeout(() => {
+                const saveBtn = document.getElementById('saveProfileBtn');
+                if (saveBtn) {
+                    const newBtn = saveBtn.cloneNode(true);
+                    saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+                    newBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        alert('DEV-режим: сохранение профиля отключено');
+                    });
+                }
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    const newLogout = logoutBtn.cloneNode(true);
+                    logoutBtn.parentNode.replaceChild(newLogout, logoutBtn);
+                    newLogout.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        alert('DEV-режим: выход не выполняется');
+                    });
+                }
+            }, 100);
+        })();
+        //#endregion ========== КОНЕЦ БЛОКА РЕЖИМА РАЗРАБОТКИ ==========
+
+        
+
+
+
+
+
+
+
+
         // Проверка авторизации
         async function checkAuth() {
             const response = await fetch('/api/check_session.php');
