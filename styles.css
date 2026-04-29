@@ -508,10 +508,11 @@ a {
 .car-card-title{
   font-size: 27px;
   text-align: left;
-  font-weight: 500;
+  font-weight: 700;
   margin-top: 33px;
   margin-left: 25px;
   margin-right: 10px;
+  overflow-wrap: break-word;
 }
 
 .car-card{
@@ -528,19 +529,25 @@ a {
 }
 
 .car-card-img{
-  max-width: 290px;
+  max-width: 400px;
   max-height: 100%;
   position: absolute;
-  margin-top: 100px;
   z-index: 5;
   right: 15px;
+  left: auto;
+  bottom: 110px;
 }
 
  .car-card-cost{
   font-size: 36px;
   font-weight: 500;
   margin-top: 250px;
-  margin-bottom: 0px;;
+  margin-bottom: 0px;
+  position: absolute;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+
  }
  
  .car-card-button{
@@ -554,6 +561,12 @@ a {
   font-weight: 700;
   border: none;
   border-radius: var(--border-radius-light);
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  bottom: 15px;
  }
 
 
@@ -1359,6 +1372,11 @@ a {
 
  .car-card-cost{
   margin-top: 217px;
+ }
+
+ .car-card-img{
+  max-width: 290px;
+  max-height: 100%;
  }
 
 
