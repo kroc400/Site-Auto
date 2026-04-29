@@ -546,7 +546,7 @@ a {
   bottom: 70px;
   left: 0;
   right: 0;
-
+  text-align: center;
  }
  
  .car-card-button{
@@ -568,6 +568,27 @@ a {
   bottom: 15px;
  }
 
+ .car-card-buttons {
+    display: flex;
+    gap: 10px;
+    position: absolute;
+    bottom: 15px;
+    left: 25px;
+    right: 25px;
+}
+
+.car-card-buttons .car-card-button {
+    flex: 1;
+    margin: 0;
+    position: static;
+}
+
+ .details-btn{
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+ }
 
 /*#endregion */
 

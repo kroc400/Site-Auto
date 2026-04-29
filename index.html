@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+    <script src="debug.js"></script>
     <header class="header">
         <div class="header-actions">
         </div>
@@ -174,77 +175,6 @@
         </section>
         
     </footer>
-
-    
-
-
-
-
-
-       <script>
-        // #region[ rgba(255, 0, 0, 0.4) ] devmode
-        // ========== РЕЖИМ РАЗРАБОТКИ ==========
-
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isDev = urlParams.has('dev') || localStorage.getItem('devMode') === 'true';
-            if (!isDev) return; // обычный режим — ничего не меняем
-
-            console.log('🛠️ DEV-режим: показываем заглушки, реальные запросы к API не идут');
-
-            // Сохраняем оригинальный fetch
-            const originalFetch = window.fetch;
-
-            // Мок-данные автомобилей
-            const mockCars = [
-                {
-                    id: 1,
-                    title: 'Toyota Camry (тест111111111111111111111111111111111111)',
-                    price: '3 700 000 ₽',
-                    image_url: './images/banner-car1.png'
-                },
-                {
-                    id: 2,
-                    title: 'Honda Civic (тест)',
-                    price: '3 400 000 ₽',
-                    image_url: './images/banner-car1.png'
-                },
-                {
-                    id: 3,
-                    title: 'Renault Logan (тест)',
-                    price: '999 999 000 ₽',
-                    image_url: './images/banner-car1.png'
-                }
-            ];
-
-            // Подменяем fetch
-            window.fetch = function(...args) {
-                const url = args[0];
-                // Если запрос к api/cars.php — возвращаем мок-данные
-                if (typeof url === 'string' && url.includes('/api/cars.php')) {
-                    console.log('DEV: перехвачен запрос к /api/cars.php, возвращаем заглушку');
-                    return Promise.resolve(new Response(JSON.stringify(mockCars), {
-                        status: 200,
-                        headers: { 'Content-Type': 'application/json' }
-                    }));
-                }
-                // Все остальные запросы идут как обычно
-                return originalFetch.apply(this, args);
-            };
-        })();
-        // ========== КОНЕЦ БЛОКА РЕЖИМА РАЗРАБОТКИ ==========
-    </script>
-
-
-        // #endregion
-
-
-
-
-
-
-
-
         <script>
         // Функция форматирования цены
         function formatPrice(price) {
