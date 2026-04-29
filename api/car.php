@@ -11,7 +11,7 @@ if ($id <= 0) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, title, price, procent, equipment, dimensions FROM cars WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, title, price_value, procent, equipment, dimensions FROM cars WHERE id = ?");
     $stmt->execute([$id]);
     $car = $stmt->fetch();
     

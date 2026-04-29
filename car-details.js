@@ -24,6 +24,11 @@ async function loadCarDetails() {
   }
 }
 
+function formatPrice(price) {
+    if (price === undefined || price === null) return '— ₽';
+    return price.toLocaleString('ru-RU') + ' ₽';
+}
+
 function fillDimensions(dimensions) {
   // Длина (боковой вид)
   const lengthEl = document.getElementById('dimension-length');
@@ -65,7 +70,7 @@ if (bannerTitle) bannerTitle.textContent = car.title;
 
 
   document.getElementById('car-title').textContent = car.title;
-  document.getElementById('car-price').textContent = `от ${car.price}`;
+  document.getElementById('car-price').textContent = `${formatPrice(car.price_value)}`;
   document.getElementById('car-procent').textContent = `${car.procent}`;
   document.title = car.title;
 

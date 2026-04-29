@@ -524,7 +524,6 @@ a {
   background-position: right center;
   overflow: hidden;
   background-blend-mode: multiply;
-  background-color: aqua;
   position: relative;
 }
 

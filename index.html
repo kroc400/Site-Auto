@@ -246,6 +246,11 @@
 
 
         <script>
+        // Функция форматирования цены
+        function formatPrice(price) {
+            if (price === undefined || price === null) return '— ₽';
+            return price.toLocaleString('ru-RU') + ' ₽';
+        }
         // Загрузка автомобилей из базы данных
         async function loadCarsFromDB() {
             const container = document.getElementById('carsGrid');
@@ -267,16 +272,18 @@
                 
                 // Генерируем карточки
                 container.innerHTML = cars.map(car => `
-                    <div class="car-card" data-car-id="${car.id}">
-                        <div class="car-card-title">${escapeHtml(car.title)}</div>
-                        <div class="car-card-img">
-                            <img src="${car.image_url || '/images/placeholder.jpg'}" 
-                                alt="${escapeHtml(car.title)}"
-                                onerror="this.src='/images/placeholder.jpg'">
-                        </div>
-                        <div class="car-card-cost">${car.price}</div>
-                        <div>
-                            <button class="car-card-button" data-id="${car.id}">Подробнее</button>
+                    <div class="car-container" data-car-id="${car.id}">
+                        <div class="car-card">
+                            <div class="car-card-title">${escapeHtml(car.title)}</div>
+                            <div class="car-card-img">
+                                <img src="${car.image_url || '/images/placeholder.jpg'}" 
+                                    alt="${escapeHtml(car.title)}"
+                                    onerror="this.src='/images/placeholder.jpg'">
+                            </div>
+                            <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                            <div>
+                                <button class="car-card-button" data-id="${car.id}">Подробнее</button>
+                            </div>
                         </div>
                     </div>
                 `).join('');
