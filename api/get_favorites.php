@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 $stmt = $pdo->prepare("
-    SELECT c.id, c.title, c.price, c.procent, c.equipment, c.dimensions
+    SELECT c.id, c.title, c.price_value, c.procent, c.image_url, c.equipment, c.dimensions
     FROM cars c
     JOIN favorites f ON c.id = f.car_id
     WHERE f.user_id = ?

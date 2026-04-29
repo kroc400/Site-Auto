@@ -45,9 +45,9 @@
 
             <!-- Блок избранного -->
             <div class="favorites-section">
-                <div class="account-favorite-title">Избранные автомобили</h2>
-                <div id="favoritesGrid" class="favorites-grid">
-                    <p>Загрузка...</p>
+                <div class="account-favorite-title">Избранные автомобили</div>
+                <div class="cars-grid-container" id="favoritesGrid">
+                    <div class="loading-spinner">Загрузка...</div>
                 </div>
             </div>
         </div>
@@ -55,8 +55,8 @@
 
     <footer></footer>
 
-    <script type="module" src="header.js"></script>
-    <script type="module" src="footer.js"></script>
+    <script type="module" async src="header.js"></script>
+    <script type="module" async src="footer.js"></script>
     <script src="backToTopButton.js"></script>
     <script src="https://unpkg.com/imask"></script>
     <script src="masks.js"></script>
@@ -366,7 +366,10 @@
 
 
 
-
+        function formatPrice(price) {
+            if (price === undefined || price === null) return '— ₽';
+            return price.toLocaleString('ru-RU') + ' ₽';
+        }
 
 
         // Проверка авторизации
@@ -435,49 +438,109 @@
         // Загрузка избранного
         async function loadFavorites() {
             const container = document.getElementById('favoritesGrid');
+            if (!container) return;
+
             try {
                 const response = await fetch('/api/get_favorites.php');
                 const favorites = await response.json();
-                
+
                 if (favorites.error) {
-                    container.innerHTML = `<p>${favorites.error}</p>`;
+                    container.innerHTML = `<div class="error-message">${favorites.error}</div>`;
                     return;
                 }
-                
+
                 if (!favorites.length) {
-                    container.innerHTML = '<p>У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</p>';
+                    container.innerHTML = '<div class="no-cars">У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</div>';
                     return;
                 }
-                
+
+                // Генерируем карточки, точно как на главной
                 container.innerHTML = favorites.map(car => `
-                    <div class="favorite-card" data-car-id="${car.id}">
-                        <h4>${car.title}</h4>
-                        <div class="price">${car.price}</div>
-                        <a href="car_template.html?id=${car.id}" style="display: inline-block; margin: 10px 0; color: #0066cc;">Подробнее</a>
-                        <button onclick="removeFromFavorites(${car.id})">Удалить из избранного</button>
+                    <div class="car-container" data-car-id="${car.id}">
+                        <div class="car-card">
+                            <div class="car-card-title">${escapeHtml(car.title)}</div>
+                            <div class="car-card-img">
+                                <img src="${car.image_url || '/images/placeholder.jpg'}" 
+                                    alt="${escapeHtml(car.title)}"
+                                    onerror="this.src='/images/placeholder.jpg'">
+                            </div>
+                            <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                            <div>
+                                <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
+                            </div>
+                        </div>
                     </div>
                 `).join('');
+
+                // Назначаем обработчики для кнопок удаления
+                document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        const carId = btn.getAttribute('data-id');
+                        await removeFromFavorites(carId);
+                    });
+                });
+
             } catch (error) {
-                container.innerHTML = '<p>Ошибка загрузки избранного</p>';
+                console.error('Ошибка:', error);
+                container.innerHTML = '<div class="error-message">Ошибка загрузки избранного</div>';
             }
         }
 
-        // Удаление из избранного
-        window.removeFromFavorites = async function(carId) {
-            const response = await fetch('/api/favorites_toggle.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ car_id: carId })
-            });
-            const result = await response.json();
-            
-            if (result.success) {
-                loadFavorites(); // обновляем список
-                alert(result.message);
-            } else {
-                alert('Ошибка: ' + result.message);
+        // Функция удаления из избранного
+        async function removeFromFavorites(carId) {
+            try {
+                const response = await fetch('/api/favorites_toggle.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ car_id: carId })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Обновляем список избранного
+                    await loadFavorites();
+                    // Показываем уведомление (опционально)
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message || 'Ошибка при удалении', 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка соединения', 'error');
             }
-        };
+        }
+
+        // Простое уведомление (можно улучшить)
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#e63946'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Функция escapeHtml для защиты от XSS (если нет, добавить)
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
 
         // Запуск проверки авторизации
         checkAuth();

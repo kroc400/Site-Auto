@@ -1,0 +1,18 @@
+# ВКЛЮЧАЕМ СЖАТИЕ
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+
+# НАСТРАИВАЕМ КЭШИРОВАНИЕ
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Кэшировать картинки на 1 месяц
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+
+    # Кэшировать CSS и JS на 1 неделю
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
