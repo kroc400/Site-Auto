@@ -528,13 +528,16 @@ a {
 }
 
 .car-card-img{
-  max-width: 400px;
-  max-height: 100%;
+  max-width: 1000px;
+  width: auto;
   position: absolute;
   z-index: 5;
-  right: 15px;
+  right: -50px;
   left: auto;
-  bottom: 110px;
+  bottom: 90px;
+  overflow: hidden;
+  object-fit: contain;
+  scale: 1.1;
 }
 
  .car-card-cost{
@@ -1117,7 +1120,7 @@ a {
   .user_Profile {
     background-color: var(--color-medium-grey);
     border-radius: var(--border-radius-light);
-    margin: 10px 25px 10px 25px;
+    margin: 64px 13.3vw 10px 13.3vw;
   }
 
   .user_title{
@@ -1204,7 +1207,7 @@ a {
   .favorites-section{
     background-color: var(--color-medium-grey);
     border-radius: var(--border-radius-light);
-    margin: 10px 25px 10px 25px;
+    margin: 64px 13.3vw 10px 13.3vw;
   }
 
   .account-favorite-title{
@@ -1395,10 +1398,13 @@ a {
  }
 
  .car-card-img{
-  max-width: 290px;
+  max-width: 1290px;
+  scale: 1.4;
   max-height: 100%;
+  right: 0px;
+  left: auto;
+  bottom: 110px;
  }
-
 
   /* .car-container:nth-child(n + 3) {
     display: none;
@@ -1564,6 +1570,14 @@ a {
     margin-left: 30px;
     margin-right: 30px;
     font-size: 24px;
+  }
+
+  .favorites-section{
+    margin: 60px 15px 40px 15px;
+  }
+
+  .user_Profile{
+    margin: 60px 15px 40px 15px;
   }
   /*#endregion */
 

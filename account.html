@@ -159,9 +159,9 @@
                     <div class="car-card">
                         <div class="car-card-title">${escapeHtml(car.title)}</div>
                         <div class="car-card-img">
-                            <img src="${car.image_url || '/images/placeholder.jpg'}" 
+                            <img src="${car.image_url || '/images/placeholder.png'}" 
                                 alt="${escapeHtml(car.title)}"
-                                onerror="this.src='/images/placeholder.jpg'">
+                                onerror="this.src='/images/placeholder.png'">
                         </div>
                         <div class="car-card-cost">${formatPrice(car.price_value)}</div>
                         <div class="car-card-buttons">

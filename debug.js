@@ -66,7 +66,7 @@
             title: 'Toyota Camry (тест)',
             price_value: 5000000,
             procent: 'Кредит от 31,9%',
-            image_url: '/images/banner-car1.png',
+            image_url: '/images/Audi RS6 GT Avant/Audi RS6 GT Avant red.png',
             equipment: {
                 безопасность: ['ABS', 'ESP', 'Подушки безопасности'],
                 экстерьер: ['Легкосплавные диски', 'Рейлинги'],
@@ -85,7 +85,7 @@
             title: 'Honda Civic (тест)',
             price_value: 3400000,
             procent: 'Кредит от 6,2%',
-            image_url: '/images/banner-car1.png',
+            image_url: '/images/Audi RS5/Audi RS5 red.png',
             equipment: {
                 безопасность: ['ABS', 'EBD'],
                 экстерьер: ['Спортивный обвес'],
@@ -104,7 +104,7 @@
             title: 'Renault Logan (тест)',
             price_value: 999999000,
             procent: 'Кредит от 666,6%',
-            image_url: '/images/banner-car1.png',
+            image_url: '/images/Audi RS7 Sportback/Audi RS7 Sportback red.png',
             equipment: {
                 безопасность: ['ABS', 'Подушка водителя'],
                 экстерьер: ['Стальные диски'],
