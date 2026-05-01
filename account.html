@@ -73,17 +73,22 @@
 
         // Проверка авторизации
         async function checkAuth() {
-            const response = await fetch('/api/check_session.php');
-            const data = await response.json();
-            
-            if (data.logged_in) {
-                document.getElementById('authCheck').innerHTML = `<div style="background: #d4edda; padding: 10px; text-align: center;">Вы вошли как: ${data.username}</div>`;
-                document.getElementById('profileContent').style.display = 'block';
-                loadUserProfile();
-                loadFavorites();
-            } else {
-                document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a> в аккаунт</div>`;
+            try {
+                const response = await fetch('/api/check_session.php');
+                const data = await response.json();
+                if (data.logged_in === true) {
+                    document.getElementById('profileContent').style.display = 'block';
+                    document.getElementById('authCheck').innerHTML = `<div style="background: #d4edda; padding: 10px;">Вы вошли как: ${data.username}</div>`;
+                    loadUserProfile();
+                    loadFavorites();
+                } else {
+                    document.getElementById('profileContent').style.display = 'none';
+                    document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a></div>`;
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
                 document.getElementById('profileContent').style.display = 'none';
+                document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Ошибка соединения</div>`;
             }
         }
 
@@ -135,9 +140,75 @@
         });
 
         // Загрузка избранного
-        async function loadFavorites() {
+        // async function loadFavorites() {
+        //     const container = document.getElementById('favoritesGrid');
+        //     if (!container) return;
+            
+        //     try {
+        //         const response = await fetch('/api/get_favorites.php');
+        //         const favorites = await response.json();
+
+        //         if (favorites.error) {
+        //             container.innerHTML = `<div class="error-message">${favorites.error}</div>`;
+        //             return;
+        //         }
+
+        //         if (!favorites.length) {
+        //             container.innerHTML = '<div class="no-cars">У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</div>';
+        //             return;
+        //         }
+
+        //         // Генерируем карточки, точно как на главной
+        //         container.innerHTML = favorites.map(car => `
+        //         <div class="car-container" data-car-id="${car.id}">
+        //             <div class="car-card">
+        //                 <div class="car-card-title">${escapeHtml(car.title)}</div>
+        //                 <div class="car-card-img">
+        //                     <img src="${car.image_url || '/images/placeholder.png'}" 
+        //                         alt="${escapeHtml(car.title)}"
+        //                         onerror="this.src='/images/placeholder.png'">
+        //                 </div>
+        //                 <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+        //                 <div class="car-card-buttons">
+        //                     <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
+        //                     <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     `).join('');
+
+        //         // Назначаем обработчики для кнопок удаления
+        //         document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+        //             btn.addEventListener('click', async (e) => {
+        //                 e.preventDefault();
+        //                 const carId = btn.getAttribute('data-id');
+        //                 await removeFromFavorites(carId);
+        //             });
+        //         });
+
+        //     } catch (error) {
+        //         console.error('Ошибка:', error);
+        //         container.innerHTML = '<div class="error-message">Ошибка загрузки избранного</div>';
+        //     }
+        // }
+
+            async function loadFavorites() {
             const container = document.getElementById('favoritesGrid');
             if (!container) return;
+
+            // Дополнительная проверка авторизации (на случай, если блок profileContent показан ошибочно)
+            try {
+                const authResponse = await fetch('/api/check_session.php');
+                const authData = await authResponse.json();
+                if (!authData.logged_in) {
+                    container.innerHTML = '<div class="auth-warning">Необходимо <a href="login.html">войти</a>, чтобы видеть избранное</div>';
+                    return;
+                }
+            } catch (err) {
+                console.error('Ошибка проверки авторизации в loadFavorites:', err);
+                container.innerHTML = '<div class="error-message">Ошибка соединения. Попробуйте позже.</div>';
+                return;
+            }
 
             try {
                 const response = await fetch('/api/get_favorites.php');
@@ -153,26 +224,24 @@
                     return;
                 }
 
-                // Генерируем карточки, точно как на главной
                 container.innerHTML = favorites.map(car => `
-                <div class="car-container" data-car-id="${car.id}">
-                    <div class="car-card">
-                        <div class="car-card-title">${escapeHtml(car.title)}</div>
-                        <div class="car-card-img">
-                            <img src="${car.image_url || '/images/placeholder.png'}" 
-                                alt="${escapeHtml(car.title)}"
-                                onerror="this.src='/images/placeholder.png'">
-                        </div>
-                        <div class="car-card-cost">${formatPrice(car.price_value)}</div>
-                        <div class="car-card-buttons">
-                            <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
-                            <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
+                    <div class="car-container" data-car-id="${car.id}">
+                        <div class="car-card">
+                            <div class="car-card-title">${escapeHtml(car.title)}</div>
+                            <div class="car-card-img">
+                                <img src="${car.image_url || '/images/placeholder.png'}" 
+                                    alt="${escapeHtml(car.title)}"
+                                    onerror="this.src='/images/placeholder.png'">
+                            </div>
+                            <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                            <div class="car-card-buttons">
+                                <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
+                                <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-                // Назначаем обработчики для кнопок удаления
                 document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.preventDefault();
