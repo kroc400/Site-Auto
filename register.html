@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <header></header>
+    <!-- <div class="container">
         <h2>Регистрация</h2>
         <input type="text" id="username" placeholder="Логин">
         <input type="email" id="email" placeholder="Email">
@@ -14,7 +15,22 @@
         <button id="registerBtn">Зарегистрироваться</button>
         <div id="message"></div>
         <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+    </div> -->
+
+    <div class="registation-block">
+        <div class="registation-title">Регистрация</div>
+        <div class="registation-inputs">
+            <input type="text" id="username" placeholder="Логин">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Пароль">
+            <button id="registerBtn" class="regButton">Зарегистрироваться</button>
+            <div id="message"></div>
+            <p class="loginRedirect">Уже есть аккаунт? <a href="login.html">Войти</a></p>
+        </div>
     </div>
+
+    <script type="module" src="header.js"></script>
+    <script type="module" src="footer.js"></script>
 
     <script>
         document.getElementById('registerBtn').addEventListener('click', async () => {
@@ -45,5 +61,7 @@
             }
         });
     </script>
+
+    <footer></footer>
 </body>
 </html>

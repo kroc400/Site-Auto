@@ -810,6 +810,10 @@ a {
 /*#endregion */
 
 /* #region footer */
+.footer{
+  
+}
+
 .footer-section {
   margin: 0 auto;
 }
@@ -1266,6 +1270,118 @@ a {
 
 /*#endregion */
 
+/* #region registr page */
+  .registation-block{
+    background-color: var(--color-medium-grey);
+    border-radius: var(--border-radius-light);
+    margin: 64px 13.3vw 10px 13.3vw;
+  }
+
+  .registation-title{
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .registation-inputs{
+    display: flex;
+    flex-direction: column;
+    padding: 0 150px;
+  }
+
+  .registation-inputs input{
+    margin: 15px 0;
+    border-radius: var(--border-radius-light);
+    border: none;
+    max-width: none;
+    max-height: 65px;
+    font-size: 16px;
+    min-height: 40px;
+    min-width: 250px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    color: var(--color-dark);
+    width: 100%;
+  }
+
+  .regButton {
+    border-radius: var(--border-radius-light);
+    border: none;
+    max-width: none;
+    max-height: 65px;
+    min-height: 40px;
+    min-width: 250px;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 15px;
+  }
+
+  .loginRedirect{
+    font-size: 16px;
+    text-align: center;
+    color: var(--color-dark);
+    margin-bottom: 15px;
+  }
+/* #endregion */
+
+/* #region login-page */
+  .login-block{
+    background-color: var(--color-medium-grey);
+    border-radius: var(--border-radius-light);
+    margin: 64px 13.3vw 10px 13.3vw;
+  }
+
+  .login-title{
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .login-inputs{
+    display: flex;
+    flex-direction: column;
+    padding: 0 150px;
+  }
+
+  .login-inputs input{
+    margin: 15px 0;
+    border-radius: var(--border-radius-light);
+    border: none;
+    max-width: none;
+    max-height: 65px;
+    font-size: 16px;
+    min-height: 40px;
+    min-width: 250px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    color: var(--color-dark);
+    width: 100%;
+  }
+
+  .loginButton {
+    border-radius: var(--border-radius-light);
+    border: none;
+    max-width: none;
+    max-height: 65px;
+    min-height: 40px;
+    min-width: 250px;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 15px;
+  }
+
+  .loginRedirect{
+    font-size: 16px;
+    text-align: center;
+    color: var(--color-dark);
+    margin-bottom: 15px;
+  }
+/* #endregion */
+
 /*#region media */
 @media (max-width: 920px) {
   /*#region media-header*/
@@ -1409,6 +1525,7 @@ a {
   /* .car-container:nth-child(n + 3) {
     display: none;
   }
+
   /* #endregion*/
 
   /*#region media-news*/
@@ -1580,6 +1697,34 @@ a {
     margin: 60px 15px 40px 15px;
   }
   /*#endregion */
+
+  /* region registration page */
+  .registation-block{
+    margin: 60px 15px 40px 15px;
+  }
+
+  .registation-inputs {
+    padding: 0 20px;
+  }
+
+  .registation-inputs input{
+  }
+
+  /* #endregion */
+
+  /* region login page */
+  .login-block{
+    margin: 60px 15px 40px 15px;
+  }
+
+  .login-inputs {
+    padding: 0 20px;
+  }
+
+  .login-inputs input{
+  }
+
+  /* #endregion */
 
 }
 
