@@ -40,8 +40,8 @@
                     </div>
                     <button class="logoutBtn" id="logoutBtn" >Выйти из аккаунта</button>
                 </div>
-                </div>
             </div>
+            
 
             <!-- Блок избранного -->
             <div class="favorites-section">
@@ -78,7 +78,13 @@
                 const data = await response.json();
                 if (data.logged_in === true) {
                     document.getElementById('profileContent').style.display = 'block';
-                    document.getElementById('authCheck').innerHTML = `<div style="background: #d4edda; padding: 10px;">Вы вошли как: ${data.username}</div>`;
+                    // document.getElementById('authCheck').innerHTML = `<div style="background: #d4edda; padding: 10px;">Вы вошли как: ${data.username}</div>`;
+                    const userTitle = document.querySelector('.user_title');
+                    if (userTitle) {
+                        userTitle.textContent = `Вы вошли как: ${data.username}`;
+                    }
+            // Блок authCheck можно скрыть или очистить
+            document.getElementById('authCheck').style.display = 'none';
                     loadUserProfile();
                     loadFavorites();
                 } else {

@@ -153,6 +153,17 @@ body {
     Унифицированный интерлиньяж
    */
   line-height: 1.5;
+
+  /* ФУТЕР К НИЗУ FOOTER */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ФУТЕР К НИЗУ FOOTER */
+.content {
+    flex: 1; /* Занимает всё доступное пространство между header и footer */
 }
 
 /**
@@ -810,10 +821,6 @@ a {
 /*#endregion */
 
 /* #region footer */
-.footer{
-  
-}
-
 .footer-section {
   margin: 0 auto;
 }
@@ -1218,6 +1225,7 @@ a {
     font-size: 40px;
     text-align: center;
     font-weight: 700;
+    margin-bottom: 25px;
   }
 
   /* Дополнительные стили для избранного */
@@ -1382,7 +1390,25 @@ a {
   }
 /* #endregion */
 
+/* #region company_info.html */
+  .company_info{
+    margin: 20px 13.3vw 10px 13.3vw;
+  }
+
+  .company_info_title{
+    font-size: 70px;
+    font-weight: 700;
+    margin-bottom: 80px;
+  }
+
+  .company_info_text{
+    font-size: 16px;
+  }
+
+/* #endregion  */
+
 /*#region media */
+
 @media (max-width: 920px) {
   /*#region media-header*/
   .header {
@@ -1712,7 +1738,7 @@ a {
 
   /* #endregion */
 
-  /* region login page */
+  /*#region login page */
   .login-block{
     margin: 60px 15px 40px 15px;
   }
@@ -1723,8 +1749,24 @@ a {
 
   .login-inputs input{
   }
-
   /* #endregion */
+
+  /*#region company_info.html */
+
+  .company_info{
+    margin: 15px
+  }
+
+  .company_info_title{
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 44px;
+  }
+
+  .company_info_text{
+    font-size: 14px;
+  }
+  /*#endregion */
 
 }
 
