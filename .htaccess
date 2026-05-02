@@ -16,3 +16,5 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javasc
     ExpiresByType text/css "access plus 1 week"
     ExpiresByType application/javascript "access plus 1 week"
 </IfModule>
+
+ErrorDocument 404 /error404.html

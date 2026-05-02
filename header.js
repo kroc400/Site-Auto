@@ -16,13 +16,13 @@ template.innerHTML = `
                     <a class="header-menu-link" href="/company_info.html">О компании</a>
                 </li>
                 <li class="header-menu-item">
-                    <a class="header-menu-link" href="/">Техцентр</a>
+                    <a class="header-menu-link" href="/technical_center.html">Техцентр</a>
                 </li>
                 <li class="header-menu-item">
                     <a class="header-menu-link" href="/">Отзывы</a>
                 </li>
                 <li class="header-menu-item">
-                    <a class="header-menu-link" href="/">Контакты</a>
+                    <a class="header-menu-link" href="/contacts.html">Контакты</a>
                 </li>
                 <li class="header-menu-item">
                     <a class="header-menu-link" href="/account.html">Личный кабинет</a>
