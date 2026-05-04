@@ -1,17 +1,22 @@
-// ========== ОСНОВНЫЕ ФУНКЦИИ (без изменений) ==========
+// ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 async function loadCarDetails() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const carId = parseInt(urlParams.get('id'));
-    if (!carId) throw new Error('Не указан ID автомобиля');
+
+    if (!carId) {
+      throw new Error('Не указан ID автомобиля');
+    }
 
     const response = await fetch(`api/car.php?id=${carId}`);
     if (!response.ok) throw new Error('Ошибка загрузки данных');
 
     const car = await response.json();
+    
     if (car && !car.error) {
       updateCarDisplay(car);
-      initBooking(car);
+      // Сохраняем данные автомобиля для бронирования
+      setupBooking(car);
     } else {
       showError(car?.error || 'Автомобиль не найден');
     }
@@ -88,7 +93,7 @@ function updateCarDisplay(car) {
     if (!hasVisibleCategories) {
       equipmentGrid.innerHTML = '<div class="no-equipment-message">Информация о комплектации отсутствует</div>';
     } else {
-      alignColumnHeights();
+      setTimeout(alignColumnHeights, 100);
     }
   }
 }
@@ -142,82 +147,139 @@ function showError(message) {
   if (equipmentGrid) equipmentGrid.innerHTML = '<div class="no-equipment-message">Не удалось загрузить данные</div>';
 }
 
-// ========== БРОНИРОВАНИЕ (ТОЛЬКО ДЛЯ CAR_TEMPLATE) ==========
+// ========== БРОНИРОВАНИЕ (РАБОТАЕТ С СУЩЕСТВУЮЩИМИ ЭЛЕМЕНТАМИ) ==========
 let currentBookingCar = null;
 
-function initBooking(car) {
+function setupBooking(car) {
     currentBookingCar = {
         id: car.id,
         title: car.title,
         price: formatPrice(car.price_value)
     };
     
-    // Ищем контейнер для кнопки
-    let targetContainer = document.querySelector('.Toyota_Camry_banner-body') || 
-                          document.querySelector('.car-gift-container')?.parentElement ||
-                          document.querySelector('.banner .Toyota_Camry_banner-body');
+    // Находим существующие элементы на странице
+    const bookingBtn = document.getElementById('bookingBtn');
+    const modal = document.getElementById('bookingModal');
+    const closeBtn = document.querySelector('.modal-close');
+    const submitBtn = document.getElementById('submitBookingBtn');
     
-    if (targetContainer && !document.getElementById('bookingBtn')) {
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'booking-container';
-        buttonContainer.style.marginTop = '20px';
-        buttonContainer.style.textAlign = 'center';
-        buttonContainer.innerHTML = `<button id="bookingBtn" class="booking-btn" style="background-color: #e63946; color: white; border: none; padding: 12px 24px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; max-width: 300px; font-weight: bold;">📞 Забронировать</button>`;
-        targetContainer.appendChild(buttonContainer);
-        
-        if (!document.getElementById('bookingModal')) {
-            const modalHTML = `
-                <div id="bookingModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
-                    <div style="background-color: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; margin: auto;">
-                        <span id="bookingModalClose" style="position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer;">&times;</span>
-                        <h3 style="margin-top: 0;">Бронирование автомобиля</h3>
-                        <div id="bookingCarInfo"></div>
-                        <input type="text" id="bookingName" placeholder="Ваше имя" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
-                        <input type="tel" id="bookingPhone" placeholder="+7 (XXX) XXX-XX-XX" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
-                        <button id="submitBookingBtn" style="background-color: #1a1a1a; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px;">Отправить заявку</button>
-                        <div id="bookingMessage" style="margin-top: 10px; text-align: center;"></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
+    if (!bookingBtn) {
+        console.error('Кнопка бронирования не найдена в DOM');
+        return;
+    }
+    
+    // Удаляем старые обработчики, если есть (через clone + replace)
+    const newBookingBtn = bookingBtn.cloneNode(true);
+    bookingBtn.parentNode.replaceChild(newBookingBtn, bookingBtn);
+    
+    // Назначаем обработчик открытия
+    newBookingBtn.addEventListener('click', () => {
+        console.log('Кнопка бронирования нажата');
+        if (!currentBookingCar) {
+            console.error('Нет данных об автомобиле');
+            return;
         }
-        
-        // Назначаем обработчики
-        const bookingBtn = document.getElementById('bookingBtn');
-        const modal = document.getElementById('bookingModal');
-        const closeBtn = document.getElementById('bookingModalClose');
-        
-        if (bookingBtn) {
-            bookingBtn.onclick = () => {
-                document.getElementById('bookingCarInfo').innerHTML = `<p><strong>${currentBookingCar.title}</strong><br>Цена: ${currentBookingCar.price}</p>`;
-                fetch('/api/user_profile.php').then(res => res.json()).then(user => { if (user.name) document.getElementById('bookingName').value = user.name; }).catch(() => {});
-                if (modal) modal.style.display = 'flex';
-            };
+        // Заполняем информацию об авто
+        const carInfoDiv = document.getElementById('bookingCarInfo');
+        if (carInfoDiv) {
+            carInfoDiv.innerHTML = `<p><strong>${currentBookingCar.title}</strong><br>Цена: ${currentBookingCar.price}</p>`;
         }
-        if (closeBtn) closeBtn.onclick = () => { if (modal) modal.style.display = 'none'; };
-        window.onclick = (e) => { if (e.target === modal && modal) modal.style.display = 'none'; };
+        // Подставляем имя, если пользователь авторизован
+        fetch('/api/user_profile.php')
+            .then(res => res.json())
+            .then(user => {
+                const nameInput = document.getElementById('bookingName');
+                if (nameInput && user.name) nameInput.value = user.name;
+            })
+            .catch(() => {});
+        // Показываем модальное окно
+        if (modal) modal.style.display = 'flex';
+    });
+    
+    // Закрытие модального окна
+    if (closeBtn) {
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        newCloseBtn.addEventListener('click', () => {
+            if (modal) modal.style.display = 'none';
+        });
+    }
+    
+    // Клик вне модального окна
+    if (modal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+    
+    // Отправка формы
+    if (submitBtn) {
+        const newSubmitBtn = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
         
-        const submitBtn = document.getElementById('submitBookingBtn');
-        if (submitBtn) {
-            submitBtn.onclick = async () => {
-                const name = document.getElementById('bookingName').value.trim();
-                const phone = document.getElementById('bookingPhone').value.trim();
-                const messageDiv = document.getElementById('bookingMessage');
-                if (!name || !phone) { messageDiv.textContent = 'Заполните имя и телефон'; messageDiv.style.color = 'red'; return; }
-                submitBtn.disabled = true; submitBtn.textContent = 'Отправка...';
-                try {
-                    const response = await fetch('/api/callback.php', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, phone, car_id: currentBookingCar.id, car_title: currentBookingCar.title, car_price: currentBookingCar.price })
-                    });
-                    const result = await response.json();
-                    if (response.ok && result.success) {
-                        messageDiv.textContent = result.message; messageDiv.style.color = 'green';
-                        setTimeout(() => { if (modal) modal.style.display = 'none'; document.getElementById('bookingName').value = ''; document.getElementById('bookingPhone').value = ''; messageDiv.textContent = ''; }, 3000);
-                    } else { messageDiv.textContent = result.error || 'Ошибка отправки'; messageDiv.style.color = 'red'; submitBtn.disabled = false; submitBtn.textContent = 'Отправить заявку'; }
-                } catch (error) { messageDiv.textContent = 'Ошибка соединения'; messageDiv.style.color = 'red'; submitBtn.disabled = false; submitBtn.textContent = 'Отправить заявку'; }
-            };
-        }
+        newSubmitBtn.addEventListener('click', async () => {
+            const nameInput = document.getElementById('bookingName');
+            const phoneInput = document.getElementById('bookingPhone');
+            const messageDiv = document.getElementById('bookingMessage');
+            
+            const name = nameInput ? nameInput.value.trim() : '';
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+            
+            if (!name || !phone) {
+                if (messageDiv) {
+                    messageDiv.textContent = 'Заполните имя и телефон';
+                    messageDiv.style.color = 'red';
+                }
+                return;
+            }
+            
+            newSubmitBtn.disabled = true;
+            newSubmitBtn.textContent = 'Отправка...';
+            
+            try {
+                const response = await fetch('/api/callback.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        phone: phone,
+                        car_id: currentBookingCar.id,
+                        car_title: currentBookingCar.title,
+                        car_price: currentBookingCar.price
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    if (messageDiv) {
+                        messageDiv.textContent = result.message;
+                        messageDiv.style.color = 'green';
+                    }
+                    setTimeout(() => {
+                        if (modal) modal.style.display = 'none';
+                        if (nameInput) nameInput.value = '';
+                        if (phoneInput) phoneInput.value = '';
+                        if (messageDiv) messageDiv.textContent = '';
+                    }, 3000);
+                } else {
+                    if (messageDiv) {
+                        messageDiv.textContent = result.error || 'Ошибка отправки';
+                        messageDiv.style.color = 'red';
+                    }
+                    newSubmitBtn.disabled = false;
+                    newSubmitBtn.textContent = 'Отправить заявку';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                if (messageDiv) {
+                    messageDiv.textContent = 'Ошибка соединения';
+                    messageDiv.style.color = 'red';
+                }
+                newSubmitBtn.disabled = false;
+                newSubmitBtn.textContent = 'Отправить заявку';
+            }
+        });
     }
 }
 
@@ -242,14 +304,23 @@ function updateFavoriteButton(isFavorite) {
 async function toggleFavorite(carId) {
     const messageDiv = document.getElementById('favoriteMessage');
     const isLoggedIn = await checkAuthStatus();
-    if (!isLoggedIn) { messageDiv.textContent = '⚠️ Войдите в аккаунт'; messageDiv.className = 'favorite-message error'; setTimeout(() => { messageDiv.textContent = ''; }, 3000); return; }
+    if (!isLoggedIn) { 
+        if (messageDiv) { messageDiv.textContent = '⚠️ Войдите в аккаунт'; messageDiv.className = 'favorite-message error'; setTimeout(() => { if (messageDiv) messageDiv.textContent = ''; }, 3000); }
+        return; 
+    }
     try {
         const response = await fetch('/api/favorites_toggle.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ car_id: carId }) });
         const result = await response.json();
-        if (result.success) { updateFavoriteButton(result.action === 'added'); messageDiv.textContent = result.message; messageDiv.className = 'favorite-message success'; } 
-        else { messageDiv.textContent = result.message || 'Ошибка'; messageDiv.className = 'favorite-message error'; }
-        setTimeout(() => { messageDiv.textContent = ''; }, 2000);
-    } catch { messageDiv.textContent = 'Ошибка соединения'; messageDiv.className = 'favorite-message error'; }
+        if (result.success) { 
+            updateFavoriteButton(result.action === 'added'); 
+            if (messageDiv) { messageDiv.textContent = result.message; messageDiv.className = 'favorite-message success'; }
+        } else { 
+            if (messageDiv) { messageDiv.textContent = result.message || 'Ошибка'; messageDiv.className = 'favorite-message error'; }
+        }
+        setTimeout(() => { if (messageDiv) messageDiv.textContent = ''; }, 2000);
+    } catch { 
+        if (messageDiv) { messageDiv.textContent = 'Ошибка соединения'; messageDiv.className = 'favorite-message error'; }
+    }
 }
 
 async function setupFavorites() {
@@ -259,10 +330,15 @@ async function setupFavorites() {
         const isFavorite = await checkFavoriteStatus(currentCarId);
         updateFavoriteButton(isFavorite);
         const btn = document.getElementById('favoriteBtn');
-        if (btn) btn.onclick = () => toggleFavorite(currentCarId);
+        if (btn) {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', () => toggleFavorite(currentCarId));
+        }
     }
 }
 
+// ========== ЗАПУСК ==========
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => requestAnimationFrame(() => alignColumnHeights()));
     loadCarDetails();
