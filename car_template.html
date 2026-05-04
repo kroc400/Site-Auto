@@ -42,8 +42,23 @@
                     </div>
                     <div>
                         <div class="favorite-button-container">
-                        <button id="favoriteBtn" class="favorite-btn">❤️ В избранное</button>
+                            <button id="favoriteBtn" class="favorite-btn">❤️ В избранное</button>
                         <div id="favoriteMessage" class="favorite-message"></div>
+                        </div>
+                    </div>
+                    <div class="booking-section">
+                        <button id="bookingBtn" class="booking-btn">📞 Забронировать</button>
+                    </div>
+                    <!-- Модальное окно для ввода имени и телефона -->
+                    <div id="bookingModal" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <span class="modal-close">&times;</span>
+                            <h3>Бронирование автомобиля</h3>
+                            <div id="bookingCarInfo"></div>
+                            <input type="text" id="bookingName" placeholder="Ваше имя" value="">
+                            <input type="tel" id="bookingPhone" placeholder="+7 (XXX) XXX-XX-XX">
+                            <button id="submitBookingBtn">Отправить заявку</button>
+                            <div id="bookingMessage"></div>
                         </div>
                     </div>
                 </div>
