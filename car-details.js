@@ -1,3 +1,4 @@
+// ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 async function loadCarDetails() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -7,7 +8,6 @@ async function loadCarDetails() {
       throw new Error('Не указан ID автомобиля');
     }
 
-    // Вместо cars-data.json → api/car.php
     const response = await fetch(`api/car.php?id=${carId}`);
     if (!response.ok) throw new Error('Ошибка загрузки данных');
 
@@ -15,8 +15,8 @@ async function loadCarDetails() {
     
     if (car && !car.error) {
       updateCarDisplay(car);
-      // Сохраняем данные авто для бронирования
-      setupBooking(car);
+      // Сохраняем данные авто для бронирования и создаём кнопку
+      initBooking(car);
     } else {
       showError(car?.error || 'Автомобиль не найден');
     }
@@ -32,39 +32,30 @@ function formatPrice(price) {
 }
 
 function fillDimensions(dimensions) {
-  // Длина (боковой вид)
   const lengthEl = document.getElementById('dimension-length');
   if (lengthEl && dimensions.length !== undefined) {
     lengthEl.textContent = dimensions.length;
   }
 
-  // Ширина (вид сзади)
   const widthBackEl = document.getElementById('dimension-width-back');
   if (widthBackEl && dimensions.width !== undefined) {
     widthBackEl.textContent = dimensions.width;
   }
 
-  // Ширина (вид спереди)
   const widthFrontEl = document.getElementById('dimension-width-front');
   if (widthFrontEl && dimensions.width !== undefined) {
     widthFrontEl.textContent = dimensions.width;
   }
 
-  // Высота кузова
   const heightEl = document.getElementById('dimension-height');
   if (heightEl && dimensions.height !== undefined) {
     heightEl.textContent = dimensions.height;
   }
 }
 
-
 function updateCarDisplay(car) {
-  // #region
-  const titleElements = document.querySelectorAll('#car-title');
   const bannerTitle = document.querySelector('.car-title-banner');
   if (bannerTitle) bannerTitle.textContent = car.title;
-  const specsTitle = document.getElementById('car-title');
-  //#endregion
 
   document.getElementById('car-title').textContent = car.title;
   document.getElementById('car-price').textContent = `${formatPrice(car.price_value)}`;
@@ -74,8 +65,6 @@ function updateCarDisplay(car) {
   if (car.dimensions) {
     fillDimensions(car.dimensions);
     fillSpecsTable(car.dimensions);
-  } else {
-    console.warn('Данные о размерах отсутствуют для автомобиля:', car.title);
   }
 
   const equipment = car.equipment || {};
@@ -136,10 +125,8 @@ function updateCarDisplay(car) {
       noEquipmentMessage.style.fontSize = '18px';
       equipmentGrid.appendChild(noEquipmentMessage);
     } else {
-      const resizeObserver = new ResizeObserver(entries => {
-        requestAnimationFrame(() => {
-          alignColumnHeights();
-        });
+      const resizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => alignColumnHeights());
       });
       resizeObserver.observe(equipmentGrid);
       alignColumnHeights();
@@ -209,7 +196,6 @@ function showError(message) {
     priceElem.style.color = 'red';
   }
 
-  // Скрываем блоки с размерами, если есть ошибка
   const dimensionContainers = [
     '.car-side-view',
     '.car-back-view',
@@ -222,21 +208,18 @@ function showError(message) {
     if (element) element.style.display = 'none';
   });
 
-  // Очищаем таблицу характеристик
   document.querySelectorAll('.specs-table .specs-value').forEach(el => {
     el.textContent = '—';
   });
 
-  // Очищаем блок комплектации
   const equipmentGrid = document.querySelector('.equipment-grid');
   if (equipmentGrid) {
-    equipmentGrid.innerHTML = '<div class="no-equipment-message" style="text-align:center;padding:20px;font-size:18px;">Не удалось загрузить данные об автомобиле</div>';
+    equipmentGrid.innerHTML = '<div class="no-equipment-message">Не удалось загрузить данные об автомобиле</div>';
   }
 }
 
 // ========== ИЗБРАННОЕ ==========
 let currentCarId = null;
-let favoriteStatus = false;
 
 async function checkAuthStatus() {
     try {
@@ -253,9 +236,7 @@ async function checkFavoriteStatus(carId) {
     try {
         const response = await fetch('/api/get_favorites.php');
         const favorites = await response.json();
-        
         if (favorites.error) return false;
-        
         return favorites.some(car => car.id === carId);
     } catch (error) {
         console.error('Ошибка проверки избранного:', error);
@@ -274,7 +255,6 @@ function updateFavoriteButton(isFavorite) {
         btn.textContent = '❤️ В избранное';
         btn.classList.remove('active');
     }
-    favoriteStatus = isFavorite;
 }
 
 async function toggleFavorite(carId) {
@@ -317,127 +297,78 @@ async function toggleFavorite(carId) {
     }
 }
 
-// ========== БРОНИРОВАНИЕ ==========
+// ========== БРОНИРОВАНИЕ (ИСПРАВЛЕННОЕ) ==========
 let currentBookingCar = null;
 
-function setupBooking(car) {
+function initBooking(car) {
     currentBookingCar = {
         id: car.id,
         title: car.title,
         price: formatPrice(car.price_value)
     };
     
-    // Создаём кнопку бронирования, если её ещё нет
-    if (!document.getElementById('bookingBtn')) {
-        const bannerBody = document.querySelector('.Toyota_Camry_banner-body');
-        if (bannerBody) {
-            const bookingHTML = `
-                <div class="booking-section" style="margin-top: 20px;">
-                    <button id="bookingBtn" class="booking-btn">📞 Забронировать</button>
-                </div>
-                <div id="bookingModal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="modal-close">&times;</span>
-                        <h3>Бронирование автомобиля</h3>
+    // Ищем контейнер для кнопки (блок .Toyota_Camry_banner-body или .car-gift-container)
+    let targetContainer = document.querySelector('.Toyota_Camry_banner-body');
+    if (!targetContainer) {
+        targetContainer = document.querySelector('.car-gift-container')?.parentElement;
+    }
+    if (!targetContainer) {
+        targetContainer = document.querySelector('.banner .Toyota_Camry_banner-body');
+    }
+    
+    console.log('Target container for booking button:', targetContainer);
+    
+    if (targetContainer && !document.getElementById('bookingBtn')) {
+        // Создаём контейнер для кнопки
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'booking-container';
+        buttonContainer.style.marginTop = '20px';
+        buttonContainer.style.textAlign = 'center';
+        buttonContainer.innerHTML = `
+            <button id="bookingBtn" class="booking-btn" style="
+                background-color: #e63946;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                font-size: 18px;
+                border-radius: 8px;
+                cursor: pointer;
+                width: 100%;
+                max-width: 300px;
+                font-weight: bold;
+            ">📞 Забронировать</button>
+        `;
+        targetContainer.appendChild(buttonContainer);
+        
+        // Добавляем HTML модального окна в конец body
+        if (!document.getElementById('bookingModal')) {
+            const modalHTML = `
+                <div id="bookingModal" class="booking-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+                    <div style="background-color: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; margin: auto;">
+                        <span id="bookingModalClose" style="position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer;">&times;</span>
+                        <h3 style="margin-top: 0;">Бронирование автомобиля</h3>
                         <div id="bookingCarInfo"></div>
-                        <input type="text" id="bookingName" placeholder="Ваше имя" autocomplete="name">
-                        <input type="tel" id="bookingPhone" placeholder="+7 (XXX) XXX-XX-XX" autocomplete="tel">
-                        <button id="submitBookingBtn">Отправить заявку</button>
-                        <div id="bookingMessage"></div>
+                        <input type="text" id="bookingName" placeholder="Ваше имя" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                        <input type="tel" id="bookingPhone" placeholder="+7 (XXX) XXX-XX-XX" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                        <button id="submitBookingBtn" style="background-color: #1a1a1a; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px;">Отправить заявку</button>
+                        <div id="bookingMessage" style="margin-top: 10px; text-align: center;"></div>
                     </div>
                 </div>
             `;
-            bannerBody.insertAdjacentHTML('beforeend', bookingHTML);
-            
-            // Добавляем стили для модального окна, если их нет
-            if (!document.getElementById('bookingStyles')) {
-                const styles = document.createElement('style');
-                styles.id = 'bookingStyles';
-                styles.textContent = `
-                    .modal {
-                        position: fixed;
-                        z-index: 1000;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: rgba(0,0,0,0.5);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .modal-content {
-                        background-color: #fff;
-                        padding: 30px;
-                        border-radius: 12px;
-                        width: 90%;
-                        max-width: 400px;
-                        position: relative;
-                    }
-                    .modal-close {
-                        position: absolute;
-                        top: 10px;
-                        right: 15px;
-                        font-size: 24px;
-                        cursor: pointer;
-                    }
-                    .modal-content input {
-                        width: 100%;
-                        padding: 10px;
-                        margin: 10px 0;
-                        border: 1px solid #ddd;
-                        border-radius: 6px;
-                        box-sizing: border-box;
-                    }
-                    .booking-btn {
-                        background-color: #e63946;
-                        color: white;
-                        border: none;
-                        padding: 12px 24px;
-                        font-size: 18px;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        width: 100%;
-                    }
-                    .booking-btn:hover {
-                        background-color: #c1121f;
-                    }
-                    #submitBookingBtn {
-                        background-color: #1a1a1a;
-                        color: white;
-                        border: none;
-                        padding: 12px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        width: 100%;
-                        margin-top: 10px;
-                    }
-                    #submitBookingBtn:hover {
-                        background-color: #e63946;
-                    }
-                `;
-                document.head.appendChild(styles);
-            }
-            
-            initBookingListeners();
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
-    }
-}
-
-function initBookingListeners() {
-    // Открытие модального окна
-    const bookingBtn = document.getElementById('bookingBtn');
-    const modal = document.getElementById('bookingModal');
-    const closeBtn = document.querySelector('.modal-close');
-    
-    if (bookingBtn) {
-        bookingBtn.addEventListener('click', () => {
-            if (currentBookingCar) {
-                const carInfoDiv = document.getElementById('bookingCarInfo');
-                if (carInfoDiv) {
-                    carInfoDiv.innerHTML = `<p><strong>${currentBookingCar.title}</strong><br>Цена: ${currentBookingCar.price}</p>`;
+        
+        // Назначаем обработчики
+        const bookingBtn = document.getElementById('bookingBtn');
+        const modal = document.getElementById('bookingModal');
+        const closeBtn = document.getElementById('bookingModalClose');
+        
+        if (bookingBtn) {
+            bookingBtn.onclick = () => {
+                console.log('Booking button clicked!');
+                if (currentBookingCar) {
+                    document.getElementById('bookingCarInfo').innerHTML = `<p><strong>${currentBookingCar.title}</strong><br>Цена: ${currentBookingCar.price}</p>`;
                 }
-                
                 // Подставляем имя, если пользователь авторизован
                 fetch('/api/user_profile.php')
                     .then(res => res.json())
@@ -445,109 +376,109 @@ function initBookingListeners() {
                         if (user.name) document.getElementById('bookingName').value = user.name;
                     })
                     .catch(() => {});
-            }
-            if (modal) modal.style.display = 'flex';
-        });
-    }
-    
-    // Закрытие модального окна
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            if (modal) modal.style.display = 'none';
-        });
-    }
-    
-    // Клик вне модального окна
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-    
-    // Отправка заявки
-    const submitBtn = document.getElementById('submitBookingBtn');
-    if (submitBtn) {
-        submitBtn.addEventListener('click', async () => {
-            const name = document.getElementById('bookingName').value.trim();
-            const phone = document.getElementById('bookingPhone').value.trim();
-            const messageDiv = document.getElementById('bookingMessage');
-            
-            if (!name || !phone) {
-                messageDiv.textContent = 'Заполните имя и телефон';
-                messageDiv.style.color = 'red';
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Отправка...';
-            
-            try {
-                const response = await fetch('/api/callback.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: name,
-                        phone: phone,
-                        car_id: currentBookingCar.id,
-                        car_title: currentBookingCar.title,
-                        car_price: currentBookingCar.price
-                    })
-                });
+                if (modal) modal.style.display = 'flex';
+            };
+        }
+        
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                if (modal) modal.style.display = 'none';
+            };
+        }
+        
+        window.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        };
+        
+        const submitBtn = document.getElementById('submitBookingBtn');
+        if (submitBtn) {
+            submitBtn.onclick = async () => {
+                const name = document.getElementById('bookingName').value.trim();
+                const phone = document.getElementById('bookingPhone').value.trim();
+                const messageDiv = document.getElementById('bookingMessage');
                 
-                const result = await response.json();
+                if (!name || !phone) {
+                    messageDiv.textContent = 'Заполните имя и телефон';
+                    messageDiv.style.color = 'red';
+                    return;
+                }
                 
-                if (response.ok && result.success) {
-                    messageDiv.textContent = result.message;
-                    messageDiv.style.color = 'green';
-                    setTimeout(() => {
-                        const modal = document.getElementById('bookingModal');
-                        if (modal) modal.style.display = 'none';
-                        messageDiv.textContent = '';
-                    }, 3000);
-                } else {
-                    messageDiv.textContent = result.error || 'Ошибка отправки';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                messageDiv.textContent = '';
+                
+                try {
+                    const response = await fetch('/api/callback.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: name,
+                            phone: phone,
+                            car_id: currentBookingCar.id,
+                            car_title: currentBookingCar.title,
+                            car_price: currentBookingCar.price
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        messageDiv.textContent = result.message;
+                        messageDiv.style.color = 'green';
+                        setTimeout(() => {
+                            if (modal) modal.style.display = 'none';
+                            document.getElementById('bookingName').value = '';
+                            document.getElementById('bookingPhone').value = '';
+                            messageDiv.textContent = '';
+                        }, 3000);
+                    } else {
+                        messageDiv.textContent = result.error || 'Ошибка отправки';
+                        messageDiv.style.color = 'red';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Отправить заявку';
+                    }
+                } catch (error) {
+                    messageDiv.textContent = 'Ошибка соединения';
                     messageDiv.style.color = 'red';
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Отправить заявку';
                 }
-            } catch (error) {
-                messageDiv.textContent = 'Ошибка соединения';
-                messageDiv.style.color = 'red';
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Отправить заявку';
-            }
-        });
+            };
+        }
+        
+        console.log('Booking button created and initialized');
+    } else if (targetContainer && document.getElementById('bookingBtn')) {
+        console.log('Booking button already exists');
+    } else {
+        console.error('Target container not found for booking button');
     }
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ========== НАСТРОЙКА ИЗБРАННОГО ==========
+async function setupFavorites() {
+    const urlParams = new URLSearchParams(window.location.search);
+    currentCarId = parseInt(urlParams.get('id'));
+    
+    if (currentCarId) {
+        const isFavorite = await checkFavoriteStatus(currentCarId);
+        updateFavoriteButton(isFavorite);
+        
+        const btn = document.getElementById('favoriteBtn');
+        if (btn) {
+            btn.onclick = () => toggleFavorite(currentCarId);
+        }
+    }
+}
+
+// ========== ЗАПУСК ==========
 document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
-        requestAnimationFrame(() => {
-            alignColumnHeights();
-        });
+        requestAnimationFrame(() => alignColumnHeights());
     });
-
-    // Загружаем данные автомобиля
+    
+    // Загружаем данные автомобиля (внутри вызовется initBooking)
     loadCarDetails();
     
-    // Настройка избранного после загрузки авто
-    const originalLoadComplete = loadCarDetails;
-    window.loadCarDetailsWithFav = async function() {
-        await originalLoadComplete();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        currentCarId = parseInt(urlParams.get('id'));
-        
-        if (currentCarId) {
-            const isFavorite = await checkFavoriteStatus(currentCarId);
-            updateFavoriteButton(isFavorite);
-            
-            const btn = document.getElementById('favoriteBtn');
-            if (btn) {
-                btn.onclick = () => toggleFavorite(currentCarId);
-            }
-        }
-    };
-    
-    loadCarDetails = window.loadCarDetailsWithFav;
-    loadCarDetails();
+    // Немного ждём загрузки кнопки избранного
+    setTimeout(setupFavorites, 500);
 });
