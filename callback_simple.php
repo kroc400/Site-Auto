@@ -5,8 +5,8 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 
 // --- НАСТРОЙКИ ZVONOK ---
-$api_key = 'ВАШ_API_KEY';
-$campaign_id = 'ВАШ_ID_КАМПАНИИ'; // Для простых звонков
+$api_key = '4e2eb28ce583afde38e7d9c6436fb826';
+$campaign_id = '573230408'; // Для простых звонков
 // ---
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
