@@ -110,11 +110,11 @@
                 <div class="banner-beat-right">
                     <div class="banner-beat-slogan">Перебьем предложения от конкурентов!</div>
                     <div class="banner-beat-skidki">Скидки от 10 до 25% на стоимость автомобиля </div>
-                    <form class="banner-beat-form" id="callbackForm">
-                        <input type="text" id="callbackPhone" name="phone" class="banner-beat-input" required>
+                    <form class="banner-beat-form" id="callbackSimpleForm">
+                        <input type="tel" id="callbackSimplePhone" class="banner-beat-input" placeholder="+7 (XXX) XXX-XX-XX" required>
                         <button type="submit" class="banner-beat-button">Получить предложение</button>
                     </form>
-                    <div id="callbackMessage" style="color: white; margin-top: 10px;"></div>
+                    <div id="callbackSimpleMessage" class="callback-message"></div>
                     <div class="banner-beat-smalltext">Нажимая кнопку “Отправить” Вы даете согласие на обработку своих персональных данных</div>
                 </div>
             </div>
@@ -178,53 +178,51 @@
     </footer>
 
         <script>
-            // Обработчик отправки формы
-            document.getElementById('callbackForm').addEventListener('submit', async function(event) {
-                event.preventDefault(); // Отменяем стандартную перезагрузку страницы
-
-                const phoneInput = document.getElementById('callbackPhone');
-                const messageDiv = document.getElementById('callbackMessage');
-                const phone = phoneInput.value.trim();
-                const submitBtn = document.querySelector('.banner-beat-button');
-
-                // Простейшая маска/валидация для демонстрации
-                if (!phone || phone.length < 10) {
-                    messageDiv.innerText = 'Пожалуйста, введите корректный номер телефона.';
-                    messageDiv.style.color = 'red';
-                    return;
-                }
-
-                // Отключаем кнопку, пока идёт запрос
-                submitBtn.disabled = true;
-                submitBtn.innerText = 'Отправка...';
-                messageDiv.innerText = '';
-
-                try {
-                    const response = await fetch('/api/callback.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: phone })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        messageDiv.innerText = result.message || 'Спасибо! Ожидайте звонка.';
-                        messageDiv.style.color = 'lightgreen';
-                        phoneInput.value = ''; // Очищаем поле
-                    } else {
-                        messageDiv.innerText = result.error || 'Произошла ошибка. Попробуйте позже.';
+            // Простой звонок (без привязки к авто)
+            const simpleForm = document.getElementById('callbackSimpleForm');
+            if (simpleForm) {
+                simpleForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const phoneInput = document.getElementById('callbackSimplePhone');
+                    const messageDiv = document.getElementById('callbackSimpleMessage');
+                    const phone = phoneInput.value.trim();
+                    const submitBtn = simpleForm.querySelector('button');
+                    
+                    if (!phone || phone.length < 10) {
+                        messageDiv.textContent = 'Введите корректный номер телефона';
                         messageDiv.style.color = 'red';
+                        return;
                     }
-                } catch (error) {
-                    console.error('Ошибка:', error);
-                    messageDiv.innerText = 'Не удалось отправить запрос. Проверьте соединение.';
-                    messageDiv.style.color = 'red';
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'Позвоните мне'; // Возвращаем исходный текст кнопки
-                }
-            });
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Отправка...';
+                    
+                    try {
+                        const response = await fetch('/api/callback_simple.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phone: phone })
+                        });
+                        const result = await response.json();
+                        
+                        if (response.ok && result.success) {
+                            messageDiv.textContent = result.message;
+                            messageDiv.style.color = 'green';
+                            phoneInput.value = '';
+                        } else {
+                            messageDiv.textContent = result.error || 'Ошибка отправки';
+                            messageDiv.style.color = 'red';
+                        }
+                    } catch (error) {
+                        messageDiv.textContent = 'Ошибка соединения';
+                        messageDiv.style.color = 'red';
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Получить предложение';
+                        setTimeout(() => { messageDiv.textContent = ''; }, 5000);
+                    }
+                });
+            }
         </script>
 
 
