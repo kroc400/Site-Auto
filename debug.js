@@ -272,4 +272,112 @@
             window.checkAuth();
         }
     });
+
+
+        // ========== DEV-РЕЖИМ: ПОДДЕРЖКА МОДАЛЬНОГО ОКНА БРОНИРОВАНИЯ ==========
+    // Функция для принудительной инициализации модального окна на car_template.html
+    function initBookingModalForDev() {
+        // Проверяем, что мы на странице car_template (есть элементы бронирования)
+        const bookingBtn = document.getElementById('bookingBtn');
+        const modal = document.getElementById('bookingModal');
+        if (!bookingBtn || !modal) return;
+
+        console.log('[DEV] Принудительная инициализация модального окна бронирования');
+
+        // 1. Если нет данных об автомобиле, создаём фейковые
+        if (!window.currentBookingCar) {
+            window.currentBookingCar = {
+                id: 999,
+                title: 'Тестовый автомобиль (DEV)',
+                price: '5 000 000 ₽'
+            };
+            console.log('[DEV] Созданы фейковые данные автомобиля для модалки');
+        }
+
+        // 2. Удаляем старые обработчики, если были
+        const newBtn = bookingBtn.cloneNode(true);
+        bookingBtn.parentNode.replaceChild(newBtn, bookingBtn);
+
+        // 3. Назначаем обработчик открытия
+        newBtn.addEventListener('click', () => {
+            console.log('[DEV] Открытие модального окна (тестовая верстка)');
+            const carInfoDiv = document.getElementById('bookingCarInfo');
+            if (carInfoDiv && window.currentBookingCar) {
+                carInfoDiv.innerHTML = `<p><strong>${window.currentBookingCar.title}</strong><br>Цена: ${window.currentBookingCar.price}</p>`;
+            }
+            modal.style.display = 'flex';
+        });
+
+        // 4. Закрытие по крестику
+        const closeBtn = modal.querySelector('.modal-close');
+        if (closeBtn) {
+            const newClose = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newClose, closeBtn);
+            newClose.addEventListener('click', () => modal.style.display = 'none');
+        }
+
+        // 5. Закрытие по клику вне окна
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // 6. Обработка отправки (заглушка, чтобы не отправляло реальный запрос)
+        const submitBtn = document.getElementById('submitBookingBtn');
+        if (submitBtn) {
+            const newSubmit = submitBtn.cloneNode(true);
+            submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+            newSubmit.addEventListener('click', () => {
+                const name = document.getElementById('bookingName')?.value.trim() || 'Тест';
+                const phone = document.getElementById('bookingPhone')?.value.trim() || '+79991234567';
+                const messageDiv = document.getElementById('bookingMessage');
+                if (!name || !phone) {
+                    if (messageDiv) {
+                        messageDiv.textContent = 'Заполните имя и телефон';
+                        messageDiv.style.color = 'red';
+                    }
+                    return;
+                }
+                // Имитируем успешную отправку
+                if (messageDiv) {
+                    messageDiv.textContent = '✅ Заявка принята (тест). Номер заказа: 999.';
+                    messageDiv.style.color = 'green';
+                }
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    if (messageDiv) messageDiv.textContent = '';
+                    const nameInput = document.getElementById('bookingName');
+                    const phoneInput = document.getElementById('bookingPhone');
+                    if (nameInput) nameInput.value = '';
+                    if (phoneInput) phoneInput.value = '';
+                }, 2000);
+            });
+        }
+    }
+
+    // Запускаем инициализацию после загрузки DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBookingModalForDev);
+    } else {
+        initBookingModalForDev();
+    }
+
+    // Перехватываем запрос к /api/callback.php, чтобы в режиме dev не ходить на реальный сервер
+    const originalFetchForDev = window.fetch;
+    window.fetch = async function(...args) {
+        const urlStr = args[0];
+        if (typeof urlStr === 'string' && urlStr.includes('/api/callback.php')) {
+            console.log('[DEV] Перехват отправки формы бронирования – возвращаем заглушку');
+            return new Response(JSON.stringify({
+                success: true,
+                message: 'Заявка принята (тестовый режим). Номер заказа: 999.'
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        return originalFetchForDev.apply(this, args);
+    };
+
+
+
 })();
