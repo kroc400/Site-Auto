@@ -342,14 +342,12 @@
                     messageDiv.textContent = '✅ Заявка принята (тест). Номер заказа: 999.';
                     messageDiv.style.color = 'green';
                 }
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    if (messageDiv) messageDiv.textContent = '';
-                    const nameInput = document.getElementById('bookingName');
-                    const phoneInput = document.getElementById('bookingPhone');
-                    if (nameInput) nameInput.value = '';
-                    if (phoneInput) phoneInput.value = '';
-                }, 2000);
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '✓ Заявка отправлена';
+                }
+                if (nameInput) nameInput.value = '';
+                if (phoneInput) phoneInput.value = '';
             });
         }
     }

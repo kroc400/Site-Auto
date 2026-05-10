@@ -919,8 +919,7 @@ a {
   .car-RUB {
     background-color: var(--color-light);
     border-radius: var(--border-radius-light);
-    width: 219px;
-    height: 52px;
+    width: 219px;    height: 52px;
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -1147,6 +1146,19 @@ a {
     width: 90%;
     max-width: 400px;
     position: relative;
+    font-size: 15px;
+}
+
+.modal-content h3{
+  font-size: 24px;
+}
+
+.modal-content button {
+  border: none;
+  border-radius: var(--border-radius-light);
+  width: 100%;
+  min-height: 65px;
+  margin-top: 25px;
 }
 
 .modal-close {
@@ -1166,21 +1178,43 @@ a {
 }
 
 .booking-btn {
-    background-color: #e63946;
+    background-color: var(--color-red);
     color: white;
     border: none;
-    padding: 12px 24px;
-    font-size: 18px;
+    font-size: 14px;
     border-radius: 8px;
     cursor: pointer;
-    margin-top: 20px;
-    width: 100%;
+    width: 164px;
+    height: 50px;
+    flex-shrink: 0
 }
 
-.booking-btn:hover {
-    background-color: #c1121f;
-}
 /*#endregion */
+
+/*#region кнопка в избранное */
+
+
+
+.favorite-btn{
+  border: none;
+  border-radius: var(--border-radius-light);
+  height: 50px;
+  width: 50px;
+  font-size: 15px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  background-color: var(--color-light);
+  flex-shrink: 0
+}
+
+.actions-container {
+  display: flex;
+  gap: 5px; /* расстояние между элементами */
+  align-items: center; /* выравнивание по вертикали */
+  margin-top: 20px; /* отступ сверху */
+  flex-shrink: 0
+}
+/* #endregion */
 
 /*#endregion */
 

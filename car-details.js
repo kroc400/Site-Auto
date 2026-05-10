@@ -233,6 +233,7 @@ function setupBooking(car) {
                 return;
             }
             
+            // Блокируем кнопку во время отправки
             newSubmitBtn.disabled = true;
             newSubmitBtn.textContent = 'Отправка...';
             
@@ -252,17 +253,20 @@ function setupBooking(car) {
                 const result = await response.json();
                 
                 if (response.ok && result.success) {
+                    // УСПЕХ – показываем сообщение, НЕ закрываем модалку
                     if (messageDiv) {
                         messageDiv.textContent = result.message;
                         messageDiv.style.color = 'green';
                     }
-                    setTimeout(() => {
-                        if (modal) modal.style.display = 'none';
-                        if (nameInput) nameInput.value = '';
-                        if (phoneInput) phoneInput.value = '';
-                        if (messageDiv) messageDiv.textContent = '';
-                    }, 3000);
+                    // Меняем текст кнопки, чтобы нельзя было отправить повторно
+                    newSubmitBtn.textContent = '✓ Заявка отправлена';
+                    // Очищаем поля ввода (опционально)
+                    if (nameInput) nameInput.value = '';
+                    if (phoneInput) phoneInput.value = '';
+                    // Модальное окно НЕ закрывается, сообщение НЕ стирается
+                    // Пользователь сам закроет окно крестиком или кликом вне
                 } else {
+                    // ОШИБКА – показываем, кнопку разблокируем
                     if (messageDiv) {
                         messageDiv.textContent = result.error || 'Ошибка отправки';
                         messageDiv.style.color = 'red';
@@ -297,8 +301,8 @@ async function checkFavoriteStatus(carId) {
 function updateFavoriteButton(isFavorite) {
     const btn = document.getElementById('favoriteBtn');
     if (!btn) return;
-    if (isFavorite) { btn.textContent = '✅ В избранном'; btn.classList.add('active'); } 
-    else { btn.textContent = '❤️ В избранное'; btn.classList.remove('active'); }
+    if (isFavorite) { btn.textContent = '✅ '; btn.classList.add('active'); } 
+    else { btn.textContent = '❤️ '; btn.classList.remove('active'); }
 }
 
 async function toggleFavorite(carId) {
