@@ -1214,6 +1214,26 @@ a {
   margin-top: 20px; /* отступ сверху */
   flex-shrink: 0
 }
+
+.favorite-button-container {
+    position: relative;
+}
+
+.favorite-message {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 5px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    z-index: 100;
+    white-space: nowrap;
+    animation: fadeIn 0.3s ease;
+}
+
 /* #endregion */
 
 /*#endregion */

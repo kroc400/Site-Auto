@@ -301,8 +301,8 @@ async function checkFavoriteStatus(carId) {
 function updateFavoriteButton(isFavorite) {
     const btn = document.getElementById('favoriteBtn');
     if (!btn) return;
-    if (isFavorite) { btn.textContent = '✅ '; btn.classList.add('active'); } 
-    else { btn.textContent = '❤️ '; btn.classList.remove('active'); }
+    if (isFavorite) { btn.textContent = '✅'; btn.classList.add('active'); } 
+    else { btn.textContent = '❤️'; btn.classList.remove('active'); }
 }
 
 async function toggleFavorite(carId) {
