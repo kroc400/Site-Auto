@@ -55,6 +55,16 @@ function updateCarDisplay(car) {
     fillSpecsTable(car.dimensions);
   }
 
+    // Установка изображения автомобиля в баннере
+    const bannerImg = document.querySelector('.Toyota_Camry-banner-img');
+    if (bannerImg && car.image_url) {
+        bannerImg.src = car.image_url;
+        bannerImg.alt = car.title;
+        bannerImg.onerror = function() {
+            this.src = '/images/placeholder.jpg'; // запасной вариант, если картинка не загрузилась
+        };
+    }
+
   const equipment = car.equipment || {};
   const equipmentGrid = document.querySelector('.equipment-grid');
   if (equipmentGrid) {
