@@ -146,6 +146,42 @@
         }));
     }
 
+    // ========== МОК-ДАННЫЕ ДЛЯ ОТЗЫВОВ ==========
+    const mockReviews = [
+        {
+            id: 1,
+            user_name: 'Алексей (тест)',
+            rating: 10,
+            comment: 'Отличный автосалон! Купил Toyota Camry, всё понравилось. Менеджеры вежливые, дали хорошую скидку. Рекомендую!',
+            date: '15.05.2024'
+        },
+        {
+            id: 2,
+            user_name: 'Екатерина (тест)',
+            rating: 9,
+            comment: 'Хороший выбор автомобилей. Быстро оформили сделку, помогли с кредитом. Спасибо!',
+            date: '10.05.2024'
+        },
+        {
+            id: 3,
+            user_name: 'Дмитрий (тест)',
+            rating: 8,
+            comment: 'Неплохой салон, но долго ждал ответа менеджера. В остальном всё хорошо, машину получил вовремя.',
+            date: '05.05.2024'
+        },
+        {
+            id: 4,
+            user_name: 'Ольга (тест)',
+            rating: 10,
+            comment: 'Всё супер! Огромное спасибо менеджеру Ивану за помощь в выборе автомобиля. Обязательно приду ещё',
+            date: '01.05.2024'
+        }
+    ];
+
+    function getMockReviews() {
+        return mockReviews;
+    }
+
     // ========== ПЕРЕХВАТ FETCH ==========
     const originalFetch = window.fetch;
 
@@ -233,13 +269,33 @@
             });
         }
 
+        // ----- 9. Получение списка отзывов -----
+        if (urlStr.includes('/api/get_reviews.php')) {
+            console.log('[DEV] Возвращаем мок-список отзывов');
+            return new Response(JSON.stringify(getMockReviews()), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // ----- 10. Добавление нового отзыва -----
+        if (urlStr.includes('/api/add_review.php')) {
+            console.log('[DEV] Добавление нового отзыва (заглушка)');
+            return new Response(JSON.stringify({
+                success: true,
+                message: 'Ваш отзыв добавлен! (тестовый режим)'
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         // Все остальные запросы (например, статика, картинки) идут в реальность
         console.log('[DEV] Проксируем запрос (не мок):', urlStr);
         return originalFetch.apply(this, args);
     };
 
     // ========== ДОПОЛНИТЕЛЬНО: ГЛОБАЛЬНАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ЦЕНЫ ==========
-    // Если её ещё нет на странице, добавляем
     if (typeof window.formatPrice !== 'function') {
         window.formatPrice = function(price) {
             if (price === undefined || price === null) return '— ₽';
@@ -248,43 +304,38 @@
         console.log('[DEV] Добавлена глобальная функция formatPrice');
     }
 
-    // Для страниц, где используется авто-загрузка данных, можно принудительно перезапустить их
-    // (но лучше, чтобы они сами перевызвали свои функции после загрузки)
+    // Перезапуск функций на странице
     document.addEventListener('DOMContentLoaded', function() {
-        // Если на странице есть функция loadCarsFromDB – перезапускаем
         if (typeof window.loadCarsFromDB === 'function') {
-            console.log('[DEV] Вызываем loadCarsFromDB (перезагрузка карточек)');
+            console.log('[DEV] Вызываем loadCarsFromDB');
             window.loadCarsFromDB();
         }
-        // Если на странице есть функция loadFavorites – перезапускаем
         if (typeof window.loadFavorites === 'function') {
-            console.log('[DEV] Вызываем loadFavorites (обновление избранного)');
+            console.log('[DEV] Вызываем loadFavorites');
             window.loadFavorites();
         }
-        // Если на странице есть функция loadUserProfile – перезапускаем
         if (typeof window.loadUserProfile === 'function') {
             console.log('[DEV] Вызываем loadUserProfile');
             window.loadUserProfile();
         }
-        // Если на странице есть функция checkAuth – перезапускаем
         if (typeof window.checkAuth === 'function') {
             console.log('[DEV] Вызываем checkAuth');
             window.checkAuth();
         }
+        if (typeof window.loadReviewsFromDB === 'function') {
+            console.log('[DEV] Вызываем loadReviewsFromDB');
+            window.loadReviewsFromDB();
+        }
     });
 
-
-        // ========== DEV-РЕЖИМ: ПОДДЕРЖКА МОДАЛЬНОГО ОКНА БРОНИРОВАНИЯ ==========
-    // Функция для принудительной инициализации модального окна на car_template.html
+    // ========== DEV-РЕЖИМ: ПОДДЕРЖКА МОДАЛЬНОГО ОКНА БРОНИРОВАНИЯ ==========
     function initBookingModalForDev() {
-        // Проверяем, что мы на странице car_template (есть элементы бронирования)
         const bookingBtn = document.getElementById('bookingBtn');
         const modal = document.getElementById('bookingModal');
         if (!bookingBtn || !modal) return;
 
         console.log('[DEV] Принудительная инициализация модального окна бронирования');
 
-        // 1. Если нет данных об автомобиле, создаём фейковые
         if (!window.currentBookingCar) {
             window.currentBookingCar = {
                 id: 999,
@@ -294,11 +345,9 @@
             console.log('[DEV] Созданы фейковые данные автомобиля для модалки');
         }
 
-        // 2. Удаляем старые обработчики, если были
         const newBtn = bookingBtn.cloneNode(true);
         bookingBtn.parentNode.replaceChild(newBtn, bookingBtn);
 
-        // 3. Назначаем обработчик открытия
         newBtn.addEventListener('click', () => {
             console.log('[DEV] Открытие модального окна (тестовая верстка)');
             const carInfoDiv = document.getElementById('bookingCarInfo');
@@ -308,7 +357,6 @@
             modal.style.display = 'flex';
         });
 
-        // 4. Закрытие по крестику
         const closeBtn = modal.querySelector('.modal-close');
         if (closeBtn) {
             const newClose = closeBtn.cloneNode(true);
@@ -316,20 +364,20 @@
             newClose.addEventListener('click', () => modal.style.display = 'none');
         }
 
-        // 5. Закрытие по клику вне окна
         window.addEventListener('click', (e) => {
             if (e.target === modal) modal.style.display = 'none';
         });
 
-        // 6. Обработка отправки (заглушка, чтобы не отправляло реальный запрос)
         const submitBtn = document.getElementById('submitBookingBtn');
         if (submitBtn) {
             const newSubmit = submitBtn.cloneNode(true);
             submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
             newSubmit.addEventListener('click', () => {
-                const name = document.getElementById('bookingName')?.value.trim() || 'Тест';
-                const phone = document.getElementById('bookingPhone')?.value.trim() || '+79991234567';
+                const nameInput = document.getElementById('bookingName');
+                const phoneInput = document.getElementById('bookingPhone');
                 const messageDiv = document.getElementById('bookingMessage');
+                const name = nameInput?.value.trim() || 'Тест';
+                const phone = phoneInput?.value.trim() || '+79991234567';
                 if (!name || !phone) {
                     if (messageDiv) {
                         messageDiv.textContent = 'Заполните имя и телефон';
@@ -337,29 +385,25 @@
                     }
                     return;
                 }
-                // Имитируем успешную отправку
                 if (messageDiv) {
                     messageDiv.textContent = '✅ Заявка принята (тест). Номер заказа: 999.';
                     messageDiv.style.color = 'green';
                 }
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = '✓ Заявка отправлена';
-                }
+                newSubmit.disabled = true;
+                newSubmit.textContent = '✓ Заявка отправлена';
                 if (nameInput) nameInput.value = '';
                 if (phoneInput) phoneInput.value = '';
             });
         }
     }
 
-    // Запускаем инициализацию после загрузки DOM
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initBookingModalForDev);
     } else {
         initBookingModalForDev();
     }
 
-    // Перехватываем запрос к /api/callback.php, чтобы в режиме dev не ходить на реальный сервер
+    // Перехват callback.php
     const originalFetchForDev = window.fetch;
     window.fetch = async function(...args) {
         const urlStr = args[0];
@@ -375,7 +419,5 @@
         }
         return originalFetchForDev.apply(this, args);
     };
-
-
 
 })();

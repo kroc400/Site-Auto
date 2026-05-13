@@ -19,7 +19,7 @@ template.innerHTML = `
                     <a class="header-menu-link" href="/technical_center.html">Техцентр</a>
                 </li>
                 <li class="header-menu-item">
-                    <a class="header-menu-link" href="/">Отзывы</a>
+                    <a class="header-menu-link" href="/reviews.html">Отзывы</a>
                 </li>
                 <li class="header-menu-item">
                     <a class="header-menu-link" href="/contacts.html">Контакты</a>

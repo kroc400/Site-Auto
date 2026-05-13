@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+
+<body>
+    <header></header>
+
+    <main class="content">
+        <section class="reviews-section">
+            <h3>Отзывы наших клиентов</h3>
+            <div class="reviews-grid-container" id="reviewsGrid">
+                <div class="loading-spinner">Загрузка отзывов...</div>
+            </div>
+        </section>
+
+        <!-- Форма добавления отзыва (показывается только авторизованным) -->
+        <div id="reviewFormContainer" style="display: none;">
+            <h4>Оставить отзыв</h4>
+            <div class="rating-input">
+                <span>Ваша оценка: </span>
+                <input type="number" id="reviewRating" min="1" max="10" placeholder="от 1 до 10">
+            </div>
+            <textarea id="reviewComment" rows="4" placeholder="Ваш комментарий..."></textarea>
+            <button id="submitReviewBtn">Отправить отзыв</button>
+            <div id="reviewMessage"></div>
+        </div>
+    </main>
+
+    <footer></footer>
+    <script type="module" src="header.js"></script>
+    <script type="module" src="footer.js"></script>
+    <script src="debug.js"></script>
+    <script src="reviews.js"></script>
+</body>
+
+
+</html>

@@ -1628,6 +1628,128 @@ a {
 
 /* #endregion */
 
+/*#region reviews.html */
+/* ========== СТРАНИЦА ОТЗЫВОВ ========== */
+.reviews-section {
+    margin: 20px 13.3vw 10px 13.3vw;
+}
+
+.reviews-section h3 {
+    font-size: 70px;
+    font-weight: 700;
+    margin-bottom: 80px;
+    margin-top: 0;
+}
+
+.reviews-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(446px, 1fr));
+    gap: 25px;
+}
+
+.review-card {
+    background: var(--color-light-grey);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.review-header strong {
+    font-size: 20px;
+    color: var(--color-black);
+    font-weight: 700;
+}
+
+.review-rating {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--color-red);
+}
+
+.review-date {
+    font-size: 12px;
+    color: var(--color-dark);
+    margin-bottom: 12px;
+}
+
+.review-comment {
+    line-height: 1.4;
+    color: var(--color-dark);
+    font-size: 16px;
+}
+
+#reviewFormContainer {
+    background: var(--color-light-grey);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px 13.3vw;
+}
+
+#reviewFormContainer h4 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.rating-input {
+    margin-bottom: 15px;
+}
+
+.rating-input span {
+    margin-right: 10px;
+}
+
+#reviewRating {
+    width: 100px;
+    padding: 8px;
+    border: none;
+    border-radius: var(--border-radius-light);
+}
+
+#reviewComment {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--border-radius-light);
+    resize: vertical;
+}
+
+#submitReviewBtn {
+    background: var(--color-red);
+    color: var(--color-light);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius-light);
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 15px;
+}
+
+#reviewMessage {
+    margin-top: 15px;
+}
+
+.auth-warning {
+    background: #fff3cd;
+    border: 1px solid #ffecb5;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 13.3vw;
+    text-align: center;
+    color: #856404;
+}
+
+.auth-warning a {
+    color: #e63946;
+}
+/*#endregion */
 
 /* #region 404 */
   .background_404{
@@ -2176,6 +2298,34 @@ a {
 
   /* #endregion */
 
+  /*#region reviews.html */
+  .reviews-section h3{
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 44px;
+  }
+
+  .reviews-section {
+      margin: 30px 15px;
+  }
+    
+  #reviewFormContainer {
+      margin: 30px 15px;
+      padding: 20px;
+  }
+    
+  .reviews-grid-container {
+      grid-template-columns: 1fr;
+  }
+
+  .review-header strong {
+    font-size: 16px;
+  }
+
+  .review-comment {
+  font-size: 14px;
+  }
+  /*#endregion */
 
 }
 
