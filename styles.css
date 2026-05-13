@@ -1840,6 +1840,93 @@ a {
   }
 /* #endregion */
 
+/*#region privacy-policy */
+  .policy{
+    margin: 20px 13.3vw 10px 13.3vw;
+  }
+
+  .policy_title{
+    font-size: 70px;
+    font-weight: 700;
+    margin-bottom: 80px;
+  }
+
+  .policy h3{
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .policy h4{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .policy_text{
+    font-size: 16px;
+  }
+
+  .policy_text li{
+    font-size: 16px;
+  }
+/*#endregion */
+
+/*#region terms-of-use */
+  .policy{
+    margin: 20px 13.3vw 10px 13.3vw;
+  }
+
+  .policy_title{
+    font-size: 70px;
+    font-weight: 700;
+    margin-bottom: 80px;
+  }
+
+  .policy h3{
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .policy h4{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .policy_text{
+    font-size: 16px;
+  }
+
+  .policy_text li{
+    font-size: 16px;
+  }
+/*#endregion */
+
+/*#region checkboxes */
+.consent-checkbox {
+    margin: 15px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.consent-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.consent-checkbox label {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.consent-checkbox a {
+    color: var(--color-red);
+    text-decoration: none;
+}
+
+/*#endregion*/
+
 /*#region media */
 
 @media (max-width: 920px) {
@@ -2064,7 +2151,6 @@ a {
     font-size: 10px; /* Уменьшенный шрифт мелкого текста */
     color: #737373; /* Цвет текста */
     text-align: center; /* Выравнивание по центру */
-    margin-top: 8px; /* Отступы */
     margin-bottom: 20px;
   }
   /* #endregion*/
@@ -2326,6 +2412,75 @@ a {
   }
   /*#endregion */
 
+  /*#region privacy-policy */
+
+  .policy{
+    margin: 15px
+  }
+
+  .policy_title{
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 44px;
+  }
+
+  .policy h3{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .policy h4{
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .policy_text{
+    font-size: 14px;
+  }
+
+  .policy_text li{
+    font-size: 14px;
+  }
+  /*#endregion */
+
+
+  /*#region terms-of-use */
+  .terms{
+    margin: 15px
+  }
+
+  .terms_title{
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 44px;
+  }
+
+  .terms h3{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .terms h4{
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .terms_text{
+    font-size: 14px;
+  }
+
+  .terms_text li{
+    font-size: 14px;
+  }
+  /*#endregion */
+
+
+  /*#region chechbox terms */
+  .consent-checkbox input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+  }
+  /*#endregion */
 }
 
 @media (max-width: 1380px) {
@@ -2350,7 +2505,6 @@ a {
   }
   
   .banner-beat-smalltext{
-    margin-top: 10px;
   }
 
 }

@@ -223,78 +223,92 @@ function setupBooking(car) {
     }
     
     // Отправка формы
-    if (submitBtn) {
-        const newSubmitBtn = submitBtn.cloneNode(true);
-        submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
-        
-        newSubmitBtn.addEventListener('click', async () => {
-            const nameInput = document.getElementById('bookingName');
-            const phoneInput = document.getElementById('bookingPhone');
-            const messageDiv = document.getElementById('bookingMessage');
+        if (submitBtn) {
+            const newSubmitBtn = submitBtn.cloneNode(true);
+            submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
             
-            const name = nameInput ? nameInput.value.trim() : '';
-            const phone = phoneInput ? phoneInput.value.trim() : '';
-            
-            if (!name || !phone) {
-                if (messageDiv) {
-                    messageDiv.textContent = 'Заполните имя и телефон';
-                    messageDiv.style.color = 'red';
-                }
-                return;
-            }
-            
-            // Блокируем кнопку во время отправки
-            newSubmitBtn.disabled = true;
-            newSubmitBtn.textContent = 'Отправка...';
-            
-            try {
-                const response = await fetch('/api/callback.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: name,
-                        phone: phone,
-                        car_id: currentBookingCar.id,
-                        car_title: currentBookingCar.title,
-                        car_price: currentBookingCar.price
-                    })
-                });
+            newSubmitBtn.addEventListener('click', async () => {
+                const nameInput = document.getElementById('bookingName');
+                const phoneInput = document.getElementById('bookingPhone');
+                const consentCheckbox = document.getElementById('bookingConsent');
+                const messageDiv = document.getElementById('bookingMessage');
                 
-                const result = await response.json();
+                const name = nameInput ? nameInput.value.trim() : '';
+                const phone = phoneInput ? phoneInput.value.trim() : '';
                 
-                if (response.ok && result.success) {
-                    // УСПЕХ – показываем сообщение, НЕ закрываем модалку
+                // Проверка имени и телефона
+                if (!name || !phone) {
                     if (messageDiv) {
-                        messageDiv.textContent = result.message;
-                        messageDiv.style.color = 'green';
+                        messageDiv.textContent = 'Заполните имя и телефон';
+                        messageDiv.style.color = 'red';
                     }
-                    // Меняем текст кнопки, чтобы нельзя было отправить повторно
-                    newSubmitBtn.textContent = '✓ Заявка отправлена';
-                    // Очищаем поля ввода (опционально)
-                    if (nameInput) nameInput.value = '';
-                    if (phoneInput) phoneInput.value = '';
-                    // Модальное окно НЕ закрывается, сообщение НЕ стирается
-                    // Пользователь сам закроет окно крестиком или кликом вне
-                } else {
-                    // ОШИБКА – показываем, кнопку разблокируем
+                    return;
+                }
+                
+                // Проверка согласия с политикой
+                if (!consentCheckbox || !consentCheckbox.checked) {
                     if (messageDiv) {
-                        messageDiv.textContent = result.error || 'Ошибка отправки';
+                        messageDiv.textContent = 'Подтвердите согласие с Политикой конфиденциальности и Пользовательским соглашением, а также дайте согласие на получение звонка';
+                        messageDiv.style.color = 'red';
+                    }
+                    return;
+                }
+                
+                // Блокируем кнопку во время отправки
+                newSubmitBtn.disabled = true;
+                newSubmitBtn.textContent = 'Отправка...';
+                
+                try {
+                    const response = await fetch('/api/callback.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: name,
+                            phone: phone,
+                            car_id: currentBookingCar.id,
+                            car_title: currentBookingCar.title,
+                            car_price: currentBookingCar.price,
+                            consent: true  // ✅ Отправляем подтверждение согласия на сервер
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        // УСПЕХ – показываем сообщение, НЕ закрываем модалку
+                        if (messageDiv) {
+                            messageDiv.textContent = result.message;
+                            messageDiv.style.color = 'green';
+                        }
+                        // Меняем текст кнопки, чтобы нельзя было отправить повторно
+                        newSubmitBtn.textContent = '✓ Заявка отправлена';
+                        // Очищаем поля ввода
+                        if (nameInput) nameInput.value = '';
+                        if (phoneInput) phoneInput.value = '';
+                        // ✅ Сбрасываем чекбокс
+                        if (consentCheckbox) consentCheckbox.checked = false;
+                        // Модальное окно НЕ закрывается, сообщение НЕ стирается
+                        // Пользователь сам закроет окно крестиком или кликом вне
+                    } else {
+                        // ОШИБКА – показываем, кнопку разблокируем
+                        if (messageDiv) {
+                            messageDiv.textContent = result.error || 'Ошибка отправки';
+                            messageDiv.style.color = 'red';
+                        }
+                        newSubmitBtn.disabled = false;
+                        newSubmitBtn.textContent = 'Отправить заявку';
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    if (messageDiv) {
+                        messageDiv.textContent = 'Ошибка соединения';
                         messageDiv.style.color = 'red';
                     }
                     newSubmitBtn.disabled = false;
                     newSubmitBtn.textContent = 'Отправить заявку';
                 }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                if (messageDiv) {
-                    messageDiv.textContent = 'Ошибка соединения';
-                    messageDiv.style.color = 'red';
-                }
-                newSubmitBtn.disabled = false;
-                newSubmitBtn.textContent = 'Отправить заявку';
-            }
-        });
-    }
+            });
+        }
 }
 
 // ========== ИЗБРАННОЕ ==========

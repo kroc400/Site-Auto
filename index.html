@@ -115,7 +115,18 @@
                         <button type="submit" class="banner-beat-button">Получить предложение</button>
                     </form>
                     <div id="callbackSimpleMessage" class="callback-message"></div>
-                    <div class="banner-beat-smalltext">Нажимая кнопку “Отправить” Вы даете согласие на обработку своих персональных данных</div>
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="callbackSimpleConsent" required>
+                        <label for="callbackSimpleConsent" class="banner-beat-smalltext">
+                            Я ознакомлен и согласен с 
+                            <a href="/privacy-policy.html" target="_blank">Политикой конфиденциальности</a> и 
+                            <a href="/terms-of-use.html" target="_blank">Пользовательским соглашением</a>, 
+                            а также даю согласие на получение обратного звонка.
+                            Нажимая кнопку "Получить предложение" Вы даете согласие на обработку своих персональных данных.
+                            <!-- <div class="banner-beat-smalltext">Нажимая кнопку "Получить предложение" Вы даете согласие на обработку своих персональных данных</div> -->
+                        </label>
+                    </div>
+                    
                 </div>
             </div>
         </section>
@@ -163,8 +174,8 @@
                 <div class="left-column">
                     <div class="diller-info">© 2026 Автосалон "ТулГУ". Официальный дилер</div>
                     <div class="links">
-                        <a href="#">Политика конфиденциальности</a>
-                        <a href="#">Пользовательское соглашение</a>
+                        <a href="/privacy-policy.html">Политика конфиденциальности</a>
+                        <a href="/terms-of-use.html">Пользовательское соглашение</a>
                     </div>
                 </div>
                 <div class="right-column">
@@ -183,13 +194,23 @@
             if (simpleForm) {
                 simpleForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    
                     const phoneInput = document.getElementById('callbackSimplePhone');
+                    const consentCheckbox = document.getElementById('callbackSimpleConsent');
                     const messageDiv = document.getElementById('callbackSimpleMessage');
                     const phone = phoneInput.value.trim();
                     const submitBtn = simpleForm.querySelector('button');
                     
+                    // Проверка телефона
                     if (!phone || phone.length < 10) {
                         messageDiv.textContent = 'Введите корректный номер телефона';
+                        messageDiv.style.color = 'red';
+                        return;
+                    }
+                    
+                    // Проверка согласия
+                    if (!consentCheckbox || !consentCheckbox.checked) {
+                        messageDiv.textContent = 'Подтвердите согласие с политикой конфиденциальности и получение звонка';
                         messageDiv.style.color = 'red';
                         return;
                     }
@@ -209,6 +230,7 @@
                             messageDiv.textContent = result.message;
                             messageDiv.style.color = 'green';
                             phoneInput.value = '';
+                            consentCheckbox.checked = false; // сбрасываем чекбокс
                         } else {
                             messageDiv.textContent = result.error || 'Ошибка отправки';
                             messageDiv.style.color = 'red';

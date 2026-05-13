@@ -6,8 +6,8 @@ template.innerHTML = `
                 <div class="left-column">
                     <div class="diller-info">© 2026 Автосалон "ТулГУ". Официальный дилер</div>
                     <div class="links">
-                        <a href="#">Политика конфиденциальности</a>
-                        <a href="#">Пользовательское соглашение</a>
+                        <a href="/privacy-policy.html">Политика конфиденциальности</a>
+                        <a href="/terms-of-use.html">Пользовательское соглашение</a>
                     </div>
                 </div>
                 <div class="right-column">

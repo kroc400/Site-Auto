@@ -23,6 +23,7 @@ $phone = $input['phone'] ?? null;
 $car_id = $input['car_id'] ?? null;
 $car_title = $input['car_title'] ?? null;
 $car_price = $input['car_price'] ?? null;
+$consent = $input['consent'] ?? false; // Получаем согласие
 
 // Дополнительные поля
 $name = !empty($input['name']) ? $input['name'] : 'Клиент';
@@ -35,13 +36,23 @@ if (!$phone || !$car_id || !$car_title || !$car_price) {
     exit;
 }
 
+// ПРОВЕРКА СОГЛАСИЯ (обязательно)
+if (!$consent) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Для бронирования необходимо подтвердить согласие на обработку персональных данных и получение звонка']);
+    exit;
+}
+
 // 1. СОХРАНЯЕМ ЗАКАЗ В БД
 try {
+    // Добавляем колонку consent, если её ещё нет
+    $pdo->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS consent TINYINT(1) DEFAULT 1");
+    
     $stmt = $pdo->prepare("
-        INSERT INTO orders (user_id, customer_name, customer_phone, car_id, car_title, car_price, status)
-        VALUES (?, ?, ?, ?, ?, ?, 'new')
+        INSERT INTO orders (user_id, customer_name, customer_phone, car_id, car_title, car_price, status, consent)
+        VALUES (?, ?, ?, ?, ?, ?, 'new', ?)
     ");
-    $stmt->execute([$user_id, $name, $phone, $car_id, $car_title, $car_price]);
+    $stmt->execute([$user_id, $name, $phone, $car_id, $car_title, $car_price, $consent ? 1 : 0]);
     $order_id = $pdo->lastInsertId();
 } catch (PDOException $e) {
     http_response_code(500);
@@ -50,7 +61,7 @@ try {
 }
 
 // 2. ОТПРАВЛЯЕМ ЗАПРОС НА ЗВОНОК
-$messageText = "Здравствуйте, $name! Вы оставили заявку на автомобиль $car_title стоимостью $car_price. Наш менеджер свяжется с вами в ближайшее время. Номер вашего заказа: $order_id.";
+$messageText = "Здравствуйте, $name! Вы оставили заявку на автомобиль $car_title стоимостью $car_price рублей. Наш менеджер свяжется с вами в ближайшее время. Номер вашего заказа: $order_id.";
 
 $postData = [
     'public_key' => $api_key,
@@ -79,10 +90,10 @@ if ($httpCode === 200) {
 } else {
     // Звонок не удался, но заказ сохранён – администратор увидит и обработает вручную
     echo json_encode([
-        'success' => true, // всё равно true, чтобы клиент не паниковал
+        'success' => true,
         'message' => 'Заявка принята! Номер заказа: ' . $order_id . '. С вами свяжутся в ближайшее время.',
         'order_id' => $order_id,
-        'call_error' => $response // для отладки
+        'call_error' => $response
     ]);
 }
 ?>

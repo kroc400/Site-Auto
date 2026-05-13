@@ -17,24 +17,34 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $phone = $input['phone'] ?? null;
+$consent = $input['consent'] ?? false; // Получаем согласие
 
+// Проверка телефона
 if (!$phone) {
     http_response_code(400);
     echo json_encode(['error' => 'Не указан номер телефона']);
     exit;
 }
 
-// Сохраняем в отдельную таблицу простых заявок (или в ту же orders, но без car_id)
+//ПРОВЕРКА СОГЛАСИЯ
+if (!$consent) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Для получения звонка необходимо подтвердить согласие на обработку персональных данных']);
+    exit;
+}
+
+// Сохраняем в отдельную таблицу простых заявок
 try {
     // Проверяем существование таблицы simple_requests, если нет – создаём
     $pdo->exec("CREATE TABLE IF NOT EXISTS simple_requests (
         id INT AUTO_INCREMENT PRIMARY KEY,
         phone VARCHAR(20) NOT NULL,
+        consent TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     
-    $stmt = $pdo->prepare("INSERT INTO simple_requests (phone) VALUES (?)");
-    $stmt->execute([$phone]);
+    $stmt = $pdo->prepare("INSERT INTO simple_requests (phone, consent) VALUES (?, ?)");
+    $stmt->execute([$phone, $consent ? 1 : 0]);
 } catch (PDOException $e) {
     // Логируем ошибку, но не прерываем выполнение
     error_log('Ошибка сохранения заявки: ' . $e->getMessage());
