@@ -730,15 +730,23 @@ a {
   margin-right: 147px;
 }
 
-.banner-beat-form{
-  display: flex;
-  gap: 38px;
+.banner-beat-form {
+    display: flex;
+    flex-direction: column;  /* ← ВЕРТИКАЛЬНОЕ расположение */
+    gap: 15px;
+    width: 100%;
+}
+
+/* Контейнер для поля ввода и кнопки (горизонтально) */
+.banner-beat-form-row {
+    display: flex;
+    gap: 38px;
+    flex-wrap: wrap;
 }
 
 .banner-beat-smalltext{
-  color: var(--color-light);
-  font-size: 13px;
-}
+    color: #737373;
+  }
 /*#endregion */
 
 /*#region карта */

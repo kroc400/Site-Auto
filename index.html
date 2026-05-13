@@ -109,24 +109,26 @@
                 </div>
                 <div class="banner-beat-right">
                     <div class="banner-beat-slogan">Перебьем предложения от конкурентов!</div>
-                    <div class="banner-beat-skidki">Скидки от 10 до 25% на стоимость автомобиля </div>
-                    <form class="banner-beat-form" id="callbackSimpleForm">
-                        <input type="tel" id="callbackSimplePhone" class="banner-beat-input" placeholder="+7 (XXX) XXX-XX-XX" required>
-                        <button type="submit" class="banner-beat-button">Получить предложение</button>
-                    </form>
-                    <div id="callbackSimpleMessage" class="callback-message"></div>
-                    <div class="consent-checkbox">
-                        <input type="checkbox" id="callbackSimpleConsent" required>
-                        <label for="callbackSimpleConsent" class="banner-beat-smalltext">
-                            Я ознакомлен и согласен с 
-                            <a href="/privacy-policy.html" target="_blank">Политикой конфиденциальности</a> и 
-                            <a href="/terms-of-use.html" target="_blank">Пользовательским соглашением</a>, 
-                            а также даю согласие на получение обратного звонка.
-                            Нажимая кнопку "Получить предложение" Вы даете согласие на обработку своих персональных данных.
-                            <!-- <div class="banner-beat-smalltext">Нажимая кнопку "Получить предложение" Вы даете согласие на обработку своих персональных данных</div> -->
-                        </label>
-                    </div>
+                    <div class="banner-beat-skidki">Скидки от 10 до 25% на стоимость автомобиля</div>
                     
+                    <form class="banner-beat-form" id="callbackSimpleForm">
+                        <div class="banner-beat-form-row">
+                            <input type="tel" id="callbackSimplePhone" class="banner-beat-input" placeholder="+7 (XXX) XXX-XX-XX" required>
+                            <button type="submit" class="banner-beat-button">Получить предложение</button>
+                        </div>
+                        
+                        <div class="consent-checkbox">
+                            <input type="checkbox" id="callbackSimpleConsent" required>
+                            <label for="callbackSimpleConsent" class="banner-beat-smalltext">
+                                Я ознакомлен и согласен с 
+                                <a href="/privacy-policy.html" target="_blank">Политикой конфиденциальности</a> и 
+                                <a href="/terms-of-use.html" target="_blank">Пользовательским соглашением</a>, 
+                                а также даю согласие на получение обратного звонка.
+                            </label>
+                        </div>
+                    </form>
+                    
+                    <div id="callbackSimpleMessage" class="callback-message"></div>
                 </div>
             </div>
         </section>
