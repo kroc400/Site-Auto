@@ -1,26 +1,50 @@
 
 
-on: push
+# on: push
+# name: 🚀 Deploy website on push
+# jobs:
+#   web-deploy:
+#     name: 🎉 Deploy
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: 🚚 Get latest code
+#       uses: actions/checkout@v4
+
+#     - uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
+#       with:
+#         ftp_host: ${{ secrets.SFTP_HOST }}
+#         ftp_username: ${{ secrets.SFTP_USERNAME }}
+#         ftp_password: ${{ secrets.SFTP_PASSWORD }}
+#         local_source_dir: "."
+#         dist_target_dir: "/"
+#         delete: "false"
+#         exclude: |
+#             .git/
+#             .github/
+#             .gitattributes
+#             logs/
+#             README.md
+
+
 name: 🚀 Deploy website on push
+
+on:
+  push:
+    branches: [ main, master ]
+
 jobs:
   web-deploy:
-    name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-
-    - uses: kevinpainchaud/simple-ftp-deploy-action@v1.2.1
-      with:
-        ftp_host: ${{ secrets.SFTP_HOST }}
-        ftp_username: ${{ secrets.SFTP_USERNAME }}
-        ftp_password: ${{ secrets.SFTP_PASSWORD }}
-        local_source_dir: "."
-        dist_target_dir: "/"
-        delete: "false"
-        exclude: |
-            .git/
-            .github/
-            .gitattributes
-            logs/
-            README.md
+      - uses: actions/checkout@v4
+      
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./
+          server-dir: /
+          log-level: verbose
