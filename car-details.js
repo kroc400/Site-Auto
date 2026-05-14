@@ -268,7 +268,7 @@ function setupBooking(car) {
                             car_id: currentBookingCar.id,
                             car_title: currentBookingCar.title,
                             car_price: currentBookingCar.price,
-                            consent: true  // ✅ Отправляем подтверждение согласия на сервер
+                            consent: true  
                         })
                     });
                     
@@ -285,7 +285,7 @@ function setupBooking(car) {
                         // Очищаем поля ввода
                         if (nameInput) nameInput.value = '';
                         if (phoneInput) phoneInput.value = '';
-                        // ✅ Сбрасываем чекбокс
+                        
                         if (consentCheckbox) consentCheckbox.checked = false;
                         // Модальное окно НЕ закрывается, сообщение НЕ стирается
                         // Пользователь сам закроет окно крестиком или кликом вне
@@ -333,7 +333,7 @@ async function toggleFavorite(carId) {
     const messageDiv = document.getElementById('favoriteMessage');
     const isLoggedIn = await checkAuthStatus();
     if (!isLoggedIn) { 
-        if (messageDiv) { messageDiv.textContent = '⚠️ Войдите в аккаунт'; messageDiv.className = 'favorite-message error'; setTimeout(() => { if (messageDiv) messageDiv.textContent = ''; }, 3000); }
+        if (messageDiv) { messageDiv.textContent = 'Войдите в аккаунт'; messageDiv.className = 'favorite-message error'; setTimeout(() => { if (messageDiv) messageDiv.textContent = ''; }, 3000); }
         return; 
     }
     try {
