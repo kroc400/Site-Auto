@@ -526,6 +526,20 @@ a {
   border-radius: var(--border-radius);
 }
 
+.car-card-stock {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 12;
+}
+
+.car-card-stock.in-stock {
+    color: var(--color-dark);
+}
+
 .car-card-title{
   font-size: 27px;
   text-align: left;
@@ -546,6 +560,23 @@ a {
   overflow: hidden;
   background-blend-mode: multiply;
   position: relative;
+}
+
+.sorting-controls {
+    margin-bottom: 25px;
+    justify-content: center;
+    font-size: 14px;
+    display: flex;
+    gap:50px
+}
+.sort-group label {
+    margin-right: 8px;
+    font-weight: 500;
+}
+.sort-group select {
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
 }
 
 .car-card-img{

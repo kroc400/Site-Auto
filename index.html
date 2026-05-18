@@ -66,6 +66,17 @@
         </section>
         <section class="auto-cards">
             <h3>Автомобили в наличии с ПТС</h3>
+            <div class="sorting-controls">
+                <div class="sort-group">
+                    <label for="sortBy">Сортировать по:</label>
+                    <select id="sortBy" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; background: white;">
+                        <option value="price_asc">Цена: сначала недорогие</option>
+                        <option value="price_desc">Цена: сначала дорогие</option>
+                        <option value="stock_asc">Наличие: сначала меньше</option>
+                        <option value="stock_desc">Наличие: сначала больше</option>
+                    </select>
+                </div>
+            </div>
             <div class="cars-grid-container" id="carsGrid">
                 <div class="loading-spinner">Загрузка автомобилей...</div>
             </div>
@@ -210,63 +221,104 @@
         // Функция отображения статуса наличия
         function getStockHtml(quantity) {
             if (quantity === 0) return '<div class="car-card-stock out-of-stock">Нет в наличии</div>';
-            if (quantity === 1) return '<div class="car-card-stock low-stock">Остался всего 1 автомобиль!</div>';
-            if (quantity <= 3) return `<div class="car-card-stock low-stock">Осталось всего ${quantity} шт!</div>`;
-            return `<div class="car-card-stock in-stock">В наличии ${quantity} шт</div>`;
+            return `<div class="car-card-stock in-stock">В наличии: ${quantity}</div>`;
         }
 
-        // Загрузка автомобилей из базы данных
+        // Глобальный массив автомобилей
+        let allCars = [];
+
+        // Рендеринг карточек на основе переданного массива
+        function renderCars(carsArray) {
+            const container = document.getElementById('carsGrid');
+            if (!container) return;
+            if (!carsArray.length) {
+                container.innerHTML = '<div class="no-cars">Автомобили не найдены</div>';
+                return;
+            }
+            container.innerHTML = carsArray.map(car => `
+                <div class="car-container" data-car-id="${car.id}">
+                    <div class="car-card">
+                        <div class="car-card-title">${escapeHtml(car.title)}</div>
+                        <div class="car-card-img">
+                            <img src="${car.image_url || '/images/placeholder.png'}" 
+                                 alt="${escapeHtml(car.title)}"
+                                 onerror="this.src='/images/placeholder.png'">
+                        </div>
+                        <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                        ${getStockHtml(car.stock_quantity)}
+                        <div>
+                            <button class="car-card-button" data-id="${car.id}">Подробнее</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            // Обработчики кнопок
+            document.querySelectorAll('.car-card-button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const carId = btn.getAttribute('data-id');
+                    window.location.href = `car_template.html?id=${carId}`;
+                });
+            });
+        }
+
+        // Сортировка и рендеринг в зависимости от выбранного критерия
+        function sortAndRender() {
+            const sortSelect = document.getElementById('sortBy');
+            if (!sortSelect) return;
+            const value = sortSelect.value;
+            let sorted = [...allCars];
+
+            switch(value) {
+                case 'price_asc':
+                    sorted.sort((a, b) => a.price_value - b.price_value);
+                    break;
+                case 'price_desc':
+                    sorted.sort((a, b) => b.price_value - a.price_value);
+                    break;
+                case 'stock_asc':
+                    sorted.sort((a, b) => a.stock_quantity - b.stock_quantity);
+                    break;
+                case 'stock_desc':
+                    sorted.sort((a, b) => b.stock_quantity - a.stock_quantity);
+                    break;
+                default:
+                    sorted.sort((a, b) => a.price_value - b.price_value);
+            }
+            renderCars(sorted);
+        }
+
+        // Инициализация выпадающего списка
+        function initSorting() {
+            const sortSelect = document.getElementById('sortBy');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', sortAndRender);
+            }
+        }
+
+        // Загрузка автомобилей из БД
         async function loadCarsFromDB() {
             const container = document.getElementById('carsGrid');
             if (!container) return;
-            
+            container.innerHTML = '<div class="loading-spinner">Загрузка автомобилей...</div>';
             try {
                 const response = await fetch('/api/cars.php');
                 const cars = await response.json();
-                
                 if (cars.error) {
                     container.innerHTML = `<div class="error-message">Ошибка загрузки: ${cars.error}</div>`;
                     return;
                 }
-                
                 if (!cars.length) {
                     container.innerHTML = '<div class="no-cars">Автомобили не найдены</div>';
                     return;
                 }
-                
-                // Генерируем карточки с отображением количества
-                container.innerHTML = cars.map(car => `
-                    <div class="car-container" data-car-id="${car.id}">
-                        <div class="car-card">
-                            <div class="car-card-title">${escapeHtml(car.title)}</div>
-                            <div class="car-card-img">
-                                <img src="${car.image_url || '/images/placeholder.png'}" 
-                                    alt="${escapeHtml(car.title)}"
-                                    onerror="this.src='/images/placeholder.png'">
-                            </div>
-                            <div class="car-card-cost">${formatPrice(car.price_value)}</div>
-                            ${getStockHtml(car.stock_quantity)}
-                            <div>
-                                <button class="car-card-button" data-id="${car.id}">Подробнее</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                // Назначаем обработчики кнопкам
-                document.querySelectorAll('.car-card-button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const carId = btn.getAttribute('data-id');
-                        window.location.href = `car_template.html?id=${carId}`;
-                    });
-                });
-                
+                allCars = cars;
+                sortAndRender();  // применяем сортировку по умолчанию
             } catch (error) {
                 console.error('Ошибка:', error);
                 container.innerHTML = '<div class="error-message">Ошибка загрузки автомобилей</div>';
             }
         }
-        
+
         // Защита от XSS
         function escapeHtml(str) {
             if (!str) return '';
@@ -277,9 +329,12 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
         }
-        
-        // Запускаем загрузку после загрузки DOM
-        document.addEventListener('DOMContentLoaded', loadCarsFromDB);
+
+        // Старт
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCarsFromDB();
+            initSorting();
+        });
     </script>
 
     <script src="backToTopButton.js"></script>
