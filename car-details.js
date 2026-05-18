@@ -193,7 +193,8 @@ function setupBooking(car) {
     currentBookingCar = {
         id: car.id,
         title: car.title,
-        price: formatPrice(car.price_value)
+        price: formatPrice(car.price_value),
+        price_value: car.price_value
     };
 
     const bookingBtn = document.getElementById('bookingBtn');
@@ -284,6 +285,7 @@ function setupBooking(car) {
                         car_id: currentBookingCar.id,
                         car_title: currentBookingCar.title,
                         car_price: currentBookingCar.price,
+                        car_price_value: currentBookingCar.price_value,
                         consent: true
                     })
                 });

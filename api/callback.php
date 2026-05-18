@@ -23,6 +23,7 @@ $phone = $input['phone'] ?? null;
 $car_id = $input['car_id'] ?? null;
 $car_title = $input['car_title'] ?? null;
 $car_price = $input['car_price'] ?? null;
+$car_price_value = $input['car_price_value'] ?? null;
 $consent = $input['consent'] ?? false;
 
 // Дополнительные поля
@@ -30,7 +31,7 @@ $name = !empty($input['name']) ? $input['name'] : 'Клиент';
 $user_id = $_SESSION['user_id'] ?? null;
 
 // Валидация
-if (!$phone || !$car_id || !$car_title || !$car_price) {
+if (!$phone || !$car_id || !$car_title || !$car_price || !$car_price_value) {
     http_response_code(400);
     echo json_encode(['error' => 'Заполните все обязательные поля (телефон, авто)']);
     exit;
@@ -47,12 +48,14 @@ if (!$consent) {
 try {
     // Добавляем колонку consent, если её ещё нет
     $pdo->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS consent TINYINT(1) DEFAULT 1");
+    // Добавляем колонку price_value, если её ещё нет
+    $pdo->exec("ALTER TABLE orders ADD COLUMN IF NOT EXISTS price_value INT DEFAULT 0");
     
     $stmt = $pdo->prepare("
-        INSERT INTO orders (user_id, customer_name, customer_phone, car_id, car_title, car_price, status, consent)
-        VALUES (?, ?, ?, ?, ?, ?, 'new', ?)
+        INSERT INTO orders (user_id, customer_name, customer_phone, car_id, car_title, car_price, price_value, status, consent)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?)
     ");
-    $stmt->execute([$user_id, $name, $phone, $car_id, $car_title, $car_price, $consent ? 1 : 0]);
+    $stmt->execute([$user_id, $name, $phone, $car_id, $car_title, $car_price, $car_price_value, $consent ? 1 : 0]);
     $order_id = $pdo->lastInsertId();
 } catch (PDOException $e) {
     http_response_code(500);

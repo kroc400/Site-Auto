@@ -9,9 +9,10 @@ require_once 'config/database.php';
 // ========== ПОЛЬЗОВАТЕЛЬСКИЕ ФУНКЦИИ ДЛЯ СТАТИСТИКИ ==========
 function getMonthlyRevenue($pdo, $year, $month) {
     $stmt = $pdo->prepare("
-        SELECT SUM(CAST(REPLACE(REPLACE(car_price, ' ', ''), '₽', '') AS DECIMAL(10,2))) as total 
+        SELECT SUM(price_value) as total 
         FROM orders 
-        WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? AND status != 'cancelled'
+        WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? 
+        AND status IN ('processed', 'completed')
     ");
     $stmt->execute([$year, $month]);
     $result = $stmt->fetch();
@@ -20,9 +21,10 @@ function getMonthlyRevenue($pdo, $year, $month) {
 
 function getYearlyRevenue($pdo, $year) {
     $stmt = $pdo->prepare("
-        SELECT SUM(CAST(REPLACE(REPLACE(car_price, ' ', ''), '₽', '') AS DECIMAL(10,2))) as total 
+        SELECT SUM(price_value) as total 
         FROM orders 
-        WHERE YEAR(created_at) = ? AND status != 'cancelled'
+        WHERE YEAR(created_at) = ? 
+        AND status IN ('processed', 'completed')
     ");
     $stmt->execute([$year]);
     $result = $stmt->fetch();
@@ -31,10 +33,10 @@ function getYearlyRevenue($pdo, $year) {
 
 function getTotalOrdersCount($pdo, $year = null) {
     if ($year) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND status != 'cancelled'");
+        $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND status IN ('processed', 'completed')");
         $stmt->execute([$year]);
     } else {
-        $stmt = $pdo->query("SELECT COUNT(*) as cnt FROM orders WHERE status != 'cancelled'");
+        $stmt = $pdo->query("SELECT COUNT(*) as cnt FROM orders WHERE status IN ('processed', 'completed')");
     }
     return $stmt->fetch()['cnt'];
 }
@@ -43,7 +45,7 @@ function getMostPopularCar($pdo, $year) {
     $stmt = $pdo->prepare("
         SELECT car_title, COUNT(*) as cnt 
         FROM orders 
-        WHERE YEAR(created_at) = ? AND status != 'cancelled'
+        WHERE YEAR(created_at) = ? AND status IN ('processed', 'completed')
         GROUP BY car_title 
         ORDER BY cnt DESC 
         LIMIT 1
