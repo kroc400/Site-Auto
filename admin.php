@@ -6,6 +6,53 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 require_once 'config/database.php';
 
+// ========== ПОЛЬЗОВАТЕЛЬСКИЕ ФУНКЦИИ ДЛЯ СТАТИСТИКИ ==========
+function getMonthlyRevenue($pdo, $year, $month) {
+    $stmt = $pdo->prepare("
+        SELECT SUM(CAST(REPLACE(REPLACE(car_price, ' ', ''), '₽', '') AS DECIMAL(10,2))) as total 
+        FROM orders 
+        WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? AND status != 'cancelled'
+    ");
+    $stmt->execute([$year, $month]);
+    $result = $stmt->fetch();
+    return $result['total'] ?? 0;
+}
+
+function getYearlyRevenue($pdo, $year) {
+    $stmt = $pdo->prepare("
+        SELECT SUM(CAST(REPLACE(REPLACE(car_price, ' ', ''), '₽', '') AS DECIMAL(10,2))) as total 
+        FROM orders 
+        WHERE YEAR(created_at) = ? AND status != 'cancelled'
+    ");
+    $stmt->execute([$year]);
+    $result = $stmt->fetch();
+    return $result['total'] ?? 0;
+}
+
+function getTotalOrdersCount($pdo, $year = null) {
+    if ($year) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND status != 'cancelled'");
+        $stmt->execute([$year]);
+    } else {
+        $stmt = $pdo->query("SELECT COUNT(*) as cnt FROM orders WHERE status != 'cancelled'");
+    }
+    return $stmt->fetch()['cnt'];
+}
+
+function getMostPopularCar($pdo, $year) {
+    $stmt = $pdo->prepare("
+        SELECT car_title, COUNT(*) as cnt 
+        FROM orders 
+        WHERE YEAR(created_at) = ? AND status != 'cancelled'
+        GROUP BY car_title 
+        ORDER BY cnt DESC 
+        LIMIT 1
+    ");
+    $stmt->execute([$year]);
+    return $stmt->fetch();
+}
+// =========================================================
+
 // Создаём таблицу settings, если её нет
 $pdo->exec("CREATE TABLE IF NOT EXISTS settings (
     setting_key VARCHAR(100) PRIMARY KEY,
@@ -59,6 +106,11 @@ $orders = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC")->fetchAll
 $cars = $pdo->query("SELECT id, title, stock_quantity, price_value FROM cars ORDER BY id")->fetchAll();
 $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'decrease_stock_on_confirm'");
 $decrease_enabled = ($stmt->fetch()['setting_value'] ?? '0') == '1';
+
+$currentYear = date('Y');
+$yearlyRevenue = getYearlyRevenue($pdo, $currentYear);
+$totalOrders = getTotalOrdersCount($pdo, $currentYear);
+$popularCar = getMostPopularCar($pdo, $currentYear);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -74,6 +126,52 @@ $decrease_enabled = ($stmt->fetch()['setting_value'] ?? '0') == '1';
         <div class="admin-container">
             <a href="account.html" class="switch-to-user">← Переключиться на пользовательский интерфейс</a>
             <h1>Админ-панель</h1>
+
+            <!-- Блок статистики -->
+            <div class="admin-section">
+                <h2>Статистика продаж за <?= $currentYear ?> год</h2>
+                
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <h3>Общая выручка</h3>
+                        <div class="value"><?= number_format($yearlyRevenue, 0, '', ' ') ?> ₽</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Количество заказов</h3>
+                        <div class="value"><?= $totalOrders ?></div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Самый популярный автомобиль</h3>
+                        <?php if ($popularCar && $popularCar['cnt'] > 0): ?>
+                            <div class="value" style="font-size: 18px;"><?= htmlspecialchars($popularCar['car_title']) ?></div>
+                            <div style="margin-top: 5px; color: #888;">Заказов: <?= $popularCar['cnt'] ?></div>
+                        <?php else: ?>
+                            <div class="value" style="font-size: 16px;">Нет заказов</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <table class="monthly-table">
+                    <thead>
+                        <tr><th>Месяц</th><th>Выручка</th><th>Количество заказов</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php for ($month = 1; $month <= 12; $month++): 
+                            $monthName = date('F', mktime(0, 0, 0, $month, 1));
+                            $monthlyRevenue = getMonthlyRevenue($pdo, $currentYear, $month);
+                            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? AND status != 'cancelled'");
+                            $stmt->execute([$currentYear, $month]);
+                            $monthlyOrders = $stmt->fetch()['cnt'];
+                        ?>
+                        <tr>
+                            <td data-label="Месяц"><?= $monthName ?></td>
+                            <td data-label="Выручка"><?= $monthlyRevenue > 0 ? number_format($monthlyRevenue, 0, '', ' ') . ' ₽' : '—' ?></td>
+                            <td data-label="Заказы"><?= $monthlyOrders ?></td>
+                        </tr>
+                        <?php endfor; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Блок настроек (кнопка внутри) -->
             <div class="admin-section">
