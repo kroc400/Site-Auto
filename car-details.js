@@ -366,6 +366,68 @@ async function setupFavorites() {
     }
 }
 
+// ========== ВЫБОР ЦВЕТА ==========
+function setupColorPicker(car) {
+    const container = document.getElementById('colorButtonsList');
+    if (!container) return;
+
+    const colorImages = car.color_images;
+    if (!colorImages || Object.keys(colorImages).length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = '';
+
+    const bannerImg = document.querySelector('.Toyota_Camry-banner-img');
+    let activeColor = Object.keys(colorImages)[0];
+
+    function changeColor(colorName, imageUrl) {
+        if (!bannerImg) return;
+        bannerImg.style.transition = 'opacity 0.25s ease-in-out';
+        bannerImg.style.opacity = '0.4';
+        setTimeout(() => {
+            bannerImg.src = imageUrl;
+            bannerImg.onload = () => {
+                bannerImg.style.opacity = '1';
+                setTimeout(() => {
+                    bannerImg.style.transition = '';
+                }, 250);
+            };
+        }, 150);
+        activeColor = colorName;
+        updateActiveButton(colorName);
+    }
+
+    function updateActiveButton(activeColorName) {
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            if (btn.dataset.color === activeColorName) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    for (const [colorName, imageUrl] of Object.entries(colorImages)) {
+        const btn = document.createElement('button');
+        btn.textContent = colorName;
+        btn.classList.add('color-btn');
+        btn.dataset.color = colorName;
+        btn.addEventListener('click', () => changeColor(colorName, imageUrl));
+        container.appendChild(btn);
+    }
+
+    if (Object.keys(colorImages).length > 0) {
+        const firstColor = Object.keys(colorImages)[0];
+        updateActiveButton(firstColor);
+        // убедимся, что картинка соответствует первому цвету
+        if (bannerImg && bannerImg.src !== colorImages[firstColor]) {
+            bannerImg.src = colorImages[firstColor];
+        }
+    }
+}
+
 // ========== ЗАПУСК ==========
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => requestAnimationFrame(() => alignColumnHeights()));

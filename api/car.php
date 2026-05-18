@@ -12,7 +12,7 @@ if ($id <= 0) {
 
 try {
     // Получаем данные модели + stock_quantity
-    $stmt = $pdo->prepare("SELECT id, title, price_value, stock_quantity, procent, image_url, equipment, dimensions FROM cars WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, title, price_value, stock_quantity, procent, image_url, color_images, equipment, dimensions FROM cars WHERE id = ?");
     $stmt->execute([$id]);
     $car = $stmt->fetch();
     
@@ -24,6 +24,7 @@ try {
     // Декодируем JSON-поля
     $car['equipment'] = json_decode($car['equipment'], true);
     $car['dimensions'] = json_decode($car['dimensions'], true);
+    $car['color_images'] = json_decode($car['color_images'], true);
     
     echo json_encode($car, JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {

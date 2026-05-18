@@ -1285,6 +1285,51 @@ a {
 
 /* #endregion */
 
+/*#region color */
+/* Цветовая палитра */
+.color-picker-wrapper {
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.color-picker-label {
+    font-weight: 500;
+    font-size: 16px;
+}
+.color-buttons-list {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.color-btn {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 40px;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+.color-btn:hover {
+    background: #ddd;
+    transform: scale(1.02);
+}
+.color-btn.active {
+    background: #e63946;
+    color: white;
+    border-color: #e63946;
+    box-shadow: 0 2px 8px rgba(230,57,70,0.3);
+}
+@media (max-width: 768px) {
+    .color-picker-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+/* #endregion */
 /*#endregion */
 
 /*#region account.html */

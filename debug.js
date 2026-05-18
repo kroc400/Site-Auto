@@ -25,47 +25,47 @@
     devBadge.appendChild(closeBtn);
     document.body.appendChild(devBadge);
 
-    // Мок-данные с разными ценами и количеством
+    // Мок-данные с цветами
     const mockCars = [
         {
             id: 1,
-            title: 'Toyota Camry (тест)',
-            price_value: 5000000,
+            title: 'Audi RS7 (тест)',
+            price_value: 4050000,
             stock_quantity: 3,
             procent: 'Кредит от 31,9%',
-            image_url: '/images/placeholder.png',
+            image_url: '/images/Audi RS7 Sportback/Audi RS7 Sportback red.png',
+            color_images: {
+                "Красный": "/images/Audi RS7 Sportback/Audi RS7 Sportback red.png",
+                "Синий": "/images/Audi RS7 Sportback/Audi RS7 Sportback blue.png",
+                "Черный": "/images/Audi RS7 Sportback/Audi RS7 Sportback black.png"
+            },
             equipment: { безопасность: ['ABS', 'ESP'], экстерьер: [], интерьер: [] },
-            dimensions: { length: 4885, width: 1840, height: 1445 }
+            dimensions: { length: 5009, width: 2118, height: 1424 }
         },
         {
             id: 2,
-            title: 'Honda Civic (тест)',
-            price_value: 3400000,
-            stock_quantity: 1,
-            procent: 'Кредит от 6,2%',
-            image_url: '/images/placeholder.png',
-            equipment: { безопасность: ['ABS'], экстерьер: [], интерьер: [] },
+            title: 'Audi RS6 (тест)',
+            price_value: 8900000,
+            stock_quantity: 2,
+            procent: 'Кредит от 26,2%',
+            image_url: '/images/Audi RS6 GT Avant/Audi RS6 GT Avant red.png',
+            color_images: {
+                "Красный": "/images/Audi RS6 GT Avant/Audi RS6 GT Avant red.png",
+                "Белый": "/images/Audi RS6 GT Avant/Audi RS6 GT Avant white.png"
+            },
+            equipment: {},
             dimensions: { length: 4674, width: 1801, height: 1415 }
         },
         {
             id: 3,
-            title: 'Renault Logan (тест)',
-            price_value: 999999000,
-            stock_quantity: 5,
-            procent: 'Кредит от 666,6%',
-            image_url: '/images/placeholder.png',
-            equipment: { безопасность: ['ABS'], экстерьер: [], интерьер: [] },
-            dimensions: { length: 4359, width: 1733, height: 1517 }
-        },
-        {
-            id: 4,
-            title: 'Audi RS7 (тест)',
-            price_value: 4050000,
-            stock_quantity: 2,
-            procent: 'Кредит от 31,9%',
-            image_url: '/images/placeholder.png',
+            title: 'Audi A5 (тест)',
+            price_value: 7750000,
+            stock_quantity: 1,
+            procent: 'Кредит от 26,6%',
+            image_url: '/images/Audi A5 Sportback S Line/Audi A5 Sportback S Line red.png',
+            color_images: null,
             equipment: {},
-            dimensions: {}
+            dimensions: { length: 4757, width: 1843, height: 1386 }
         }
     ];
 
@@ -102,8 +102,8 @@
         console.log(`[DEV] Запрос: ${urlStr}`);
 
         if (urlStr.includes('/api/cars.php')) {
-            console.log('[DEV] Возвращаем мок-список авто');
-            return new Response(JSON.stringify(mockCars), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            const carsForList = mockCars.map(({ id, title, price_value, stock_quantity, image_url }) => ({ id, title, price_value, stock_quantity, image_url }));
+            return new Response(JSON.stringify(carsForList), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
         if (urlStr.includes('/api/car.php')) {
             const idMatch = urlStr.match(/[?&]id=(\d+)/);
