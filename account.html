@@ -18,12 +18,9 @@
         
         <div id="profileContent" style="display: none;">
             <div class="user_Profile">
-<<<<<<< HEAD
                 <div id="adminSwitch" style="display: none; text-align: right; margin-bottom: 15px;">
-                    <a href="/admin/cars.php" class="switch-to-admin" style="background: #e63946; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none;">🔧 Перейти в админ-панель</a>
+                    <a href="admin.php" class="switch-to-admin" style="background: #e63946; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none;">🔧 Перейти в админ-панель</a>
                 </div>
-=======
->>>>>>> parent of 64f339d (adminka)
                 <h2 class="user_title">Данные пользователя</h2>
                 <div class="user_data">
                     <div class="FIO">
@@ -71,260 +68,196 @@
     
 
     <script>
-        function formatPrice(price) {
-            if (price === undefined || price === null) return '— ₽';
-            return price.toLocaleString('ru-RU') + ' ₽';
-        }
+    function formatPrice(price) {
+        if (price === undefined || price === null) return '— ₽';
+        return price.toLocaleString('ru-RU') + ' ₽';
+    }
 
-
-        // Проверка авторизации
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/check_session.php');
-                const data = await response.json();
-                if (data.logged_in === true) {
-                    document.getElementById('profileContent').style.display = 'block';
-                    // document.getElementById('authCheck').innerHTML = `<div style="background: #d4edda; padding: 10px;">Вы вошли как: ${data.username}</div>`;
-                    const userTitle = document.querySelector('.user_title');
-                    if (userTitle) {
-                        userTitle.textContent = `Вы вошли как: ${data.username}`;
-                    }
-            // Блок authCheck можно скрыть или очистить
-            document.getElementById('authCheck').style.display = 'none';
-                    loadUserProfile();
-                    loadFavorites();
-                } else {
-                    document.getElementById('profileContent').style.display = 'none';
-                    document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a></div>`;
+    // ========== АВТОРИЗАЦИЯ ==========
+    async function checkAuth() {
+        try {
+            const response = await fetch('/api/check_session.php');
+            const data = await response.json();
+            if (data.logged_in === true) {
+                // Показать профиль
+                document.getElementById('profileContent').style.display = 'block';
+                const userTitle = document.querySelector('.user_title');
+                if (userTitle) {
+                    userTitle.textContent = `Вы вошли как: ${data.username}`;
                 }
-            } catch (error) {
-                console.error('Auth error:', error);
+                document.getElementById('authCheck').style.display = 'none';
+                
+                // Если пользователь админ – показать кнопку перехода в админку
+                if (data.role === 'admin') {
+                    const adminSwitch = document.getElementById('adminSwitch');
+                    if (adminSwitch) adminSwitch.style.display = 'block';
+                }
+                
+                loadUserProfile();
+                loadFavorites();
+            } else {
                 document.getElementById('profileContent').style.display = 'none';
-                document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Ошибка соединения</div>`;
+                document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a></div>`;
             }
+        } catch (error) {
+            console.error('Auth error:', error);
+            document.getElementById('profileContent').style.display = 'none';
+            document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Ошибка соединения</div>`;
         }
+    }
 
-        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-            const response = await fetch('/api/logout.php');
-            const result = await response.json();
-            
-            if (result.success) {
-                alert('Вы вышли из аккаунта');
-                window.location.href = 'index.html';
-            } else {
-                alert('Ошибка при выходе');
-            }
-        });
-
-        // Загрузка профиля
-        async function loadUserProfile() {
-            const response = await fetch('/api/user_profile.php');
-            const user = await response.json();
-            
-            document.getElementById('surname').value = user.surname || '';
-            document.getElementById('name').value = user.name || '';
-            document.getElementById('patronymic').value = user.patronymic || '';
-            document.getElementById('phone').value = user.phone || '';
-            document.getElementById('email').value = user.email || '';
+    // Выход из аккаунта
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        const response = await fetch('/api/logout.php');
+        const result = await response.json();
+        if (result.success) {
+            alert('Вы вышли из аккаунта');
+            window.location.href = 'index.html';
+        } else {
+            alert('Ошибка при выходе');
         }
+    });
 
-        // Сохранение профиля
-        document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
-            const data = {
-                surname: document.getElementById('surname').value,
-                name: document.getElementById('name').value,
-                patronymic: document.getElementById('patronymic').value,
-                phone: document.getElementById('phone').value
-            };
-            
-            const response = await fetch('/api/user_profile.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            
-            if (result.success) {
-                alert('Профиль сохранён!');
-            } else {
-                alert('Ошибка: ' + result.message);
-            }
+    // Загрузка профиля
+    async function loadUserProfile() {
+        const response = await fetch('/api/user_profile.php');
+        const user = await response.json();
+        document.getElementById('surname').value = user.surname || '';
+        document.getElementById('name').value = user.name || '';
+        document.getElementById('patronymic').value = user.patronymic || '';
+        document.getElementById('phone').value = user.phone || '';
+        document.getElementById('email').value = user.email || '';
+    }
+
+    // Сохранение профиля
+    document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+        const data = {
+            surname: document.getElementById('surname').value,
+            name: document.getElementById('name').value,
+            patronymic: document.getElementById('patronymic').value,
+            phone: document.getElementById('phone').value
+        };
+        const response = await fetch('/api/user_profile.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
+        const result = await response.json();
+        if (result.success) {
+            alert('Профиль сохранён!');
+        } else {
+            alert('Ошибка: ' + result.message);
+        }
+    });
 
-        // Загрузка избранного
-        // async function loadFavorites() {
-        //     const container = document.getElementById('favoritesGrid');
-        //     if (!container) return;
-            
-        //     try {
-        //         const response = await fetch('/api/get_favorites.php');
-        //         const favorites = await response.json();
-
-        //         if (favorites.error) {
-        //             container.innerHTML = `<div class="error-message">${favorites.error}</div>`;
-        //             return;
-        //         }
-
-        //         if (!favorites.length) {
-        //             container.innerHTML = '<div class="no-cars">У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</div>';
-        //             return;
-        //         }
-
-        //         // Генерируем карточки, точно как на главной
-        //         container.innerHTML = favorites.map(car => `
-        //         <div class="car-container" data-car-id="${car.id}">
-        //             <div class="car-card">
-        //                 <div class="car-card-title">${escapeHtml(car.title)}</div>
-        //                 <div class="car-card-img">
-        //                     <img src="${car.image_url || '/images/placeholder.png'}" 
-        //                         alt="${escapeHtml(car.title)}"
-        //                         onerror="this.src='/images/placeholder.png'">
-        //                 </div>
-        //                 <div class="car-card-cost">${formatPrice(car.price_value)}</div>
-        //                 <div class="car-card-buttons">
-        //                     <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
-        //                     <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     `).join('');
-
-        //         // Назначаем обработчики для кнопок удаления
-        //         document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
-        //             btn.addEventListener('click', async (e) => {
-        //                 e.preventDefault();
-        //                 const carId = btn.getAttribute('data-id');
-        //                 await removeFromFavorites(carId);
-        //             });
-        //         });
-
-        //     } catch (error) {
-        //         console.error('Ошибка:', error);
-        //         container.innerHTML = '<div class="error-message">Ошибка загрузки избранного</div>';
-        //     }
-        // }
-
-            async function loadFavorites() {
-            const container = document.getElementById('favoritesGrid');
-            if (!container) return;
-
-            // Дополнительная проверка авторизации (на случай, если блок profileContent показан ошибочно)
-            try {
-                const authResponse = await fetch('/api/check_session.php');
-                const authData = await authResponse.json();
-                if (!authData.logged_in) {
-                    container.innerHTML = '<div class="auth-warning">Необходимо <a href="login.html">войти</a>, чтобы видеть избранное</div>';
-                    return;
-                }
-            } catch (err) {
-                console.error('Ошибка проверки авторизации в loadFavorites:', err);
-                container.innerHTML = '<div class="error-message">Ошибка соединения. Попробуйте позже.</div>';
+    // ========== ИЗБРАННОЕ ==========
+    async function loadFavorites() {
+        const container = document.getElementById('favoritesGrid');
+        if (!container) return;
+        try {
+            const authResponse = await fetch('/api/check_session.php');
+            const authData = await authResponse.json();
+            if (!authData.logged_in) {
+                container.innerHTML = '<div class="auth-warning">Необходимо <a href="login.html">войти</a>, чтобы видеть избранное</div>';
                 return;
             }
-
-            try {
-                const response = await fetch('/api/get_favorites.php');
-                const favorites = await response.json();
-
-                if (favorites.error) {
-                    container.innerHTML = `<div class="error-message">${favorites.error}</div>`;
-                    return;
-                }
-
-                if (!favorites.length) {
-                    container.innerHTML = '<div class="no-cars">У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</div>';
-                    return;
-                }
-
-                container.innerHTML = favorites.map(car => `
-                    <div class="car-container" data-car-id="${car.id}">
-                        <div class="car-card">
-                            <div class="car-card-title">${escapeHtml(car.title)}</div>
-                            <div class="car-card-img">
-                                <img src="${car.image_url || '/images/placeholder.png'}" 
-                                    alt="${escapeHtml(car.title)}"
-                                    onerror="this.src='/images/placeholder.png'">
-                            </div>
-                            <div class="car-card-cost">${formatPrice(car.price_value)}</div>
-                            <div class="car-card-buttons">
-                                <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
-                                <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
-                            </div>
+        } catch (err) {
+            console.error('Ошибка проверки авторизации в loadFavorites:', err);
+            container.innerHTML = '<div class="error-message">Ошибка соединения. Попробуйте позже.</div>';
+            return;
+        }
+        try {
+            const response = await fetch('/api/get_favorites.php');
+            const favorites = await response.json();
+            if (favorites.error) {
+                container.innerHTML = `<div class="error-message">${favorites.error}</div>`;
+                return;
+            }
+            if (!favorites.length) {
+                container.innerHTML = '<div class="no-cars">У вас пока нет избранных автомобилей. Добавьте их на <a href="index.html">главной странице</a>.</div>';
+                return;
+            }
+            container.innerHTML = favorites.map(car => `
+                <div class="car-container" data-car-id="${car.id}">
+                    <div class="car-card">
+                        <div class="car-card-title">${escapeHtml(car.title)}</div>
+                        <div class="car-card-img">
+                            <img src="${car.image_url || '/images/placeholder.png'}" 
+                                 alt="${escapeHtml(car.title)}"
+                                 onerror="this.src='/images/placeholder.png'">
+                        </div>
+                        <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                        <div class="car-card-buttons">
+                            <a href="car_template.html?id=${car.id}" class="car-card-button details-btn">Подробнее</a>
+                            <button class="car-card-button remove-favorite-btn" data-id="${car.id}">Удалить из избранного</button>
                         </div>
                     </div>
-                `).join('');
-
-                document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        const carId = btn.getAttribute('data-id');
-                        await removeFromFavorites(carId);
-                    });
+                </div>
+            `).join('');
+            document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const carId = btn.getAttribute('data-id');
+                    await removeFromFavorites(carId);
                 });
-
-            } catch (error) {
-                console.error('Ошибка:', error);
-                container.innerHTML = '<div class="error-message">Ошибка загрузки избранного</div>';
-            }
-        }
-
-        // Функция удаления из избранного
-        async function removeFromFavorites(carId) {
-            try {
-                const response = await fetch('/api/favorites_toggle.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ car_id: carId })
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    // Обновляем список избранного
-                    await loadFavorites();
-                    // Показываем уведомление (опционально)
-                    showNotification(result.message, 'success');
-                } else {
-                    showNotification(result.message || 'Ошибка при удалении', 'error');
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showNotification('Ошибка соединения', 'error');
-            }
-        }
-
-        // Простое уведомление (можно улучшить)
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#4CAF50' : '#e63946'};
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 1000;
-                font-size: 14px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        // Функция escapeHtml для защиты от XSS (если нет, добавить)
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
             });
+        } catch (error) {
+            console.error('Ошибка:', error);
+            container.innerHTML = '<div class="error-message">Ошибка загрузки избранного</div>';
         }
+    }
 
-        // Запуск проверки авторизации
-        checkAuth();
-    </script>
+    async function removeFromFavorites(carId) {
+        try {
+            const response = await fetch('/api/favorites_toggle.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ car_id: carId })
+            });
+            const result = await response.json();
+            if (result.success) {
+                await loadFavorites();
+                showNotification(result.message, 'success');
+            } else {
+                showNotification(result.message || 'Ошибка при удалении', 'error');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showNotification('Ошибка соединения', 'error');
+        }
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#4CAF50' : '#e63946'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Запуск
+    checkAuth();
+</script>
 </body>
 </html>
