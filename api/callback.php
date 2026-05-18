@@ -61,13 +61,13 @@ try {
 }
 
 // 2. УМЕНЬШАЕМ КОЛИЧЕСТВО ДОСТУПНЫХ АВТОМОБИЛЕЙ
-try {
-    $stmt = $pdo->prepare("UPDATE cars SET stock_quantity = stock_quantity - 1 WHERE id = ? AND stock_quantity > 0");
-    $stmt->execute([$car_id]);
-} catch (PDOException $e) {
-    // Логируем ошибку, но не прерываем выполнение (заказ уже сохранён)
-    error_log('Ошибка обновления stock_quantity: ' . $e->getMessage());
-}
+// try {
+//     $stmt = $pdo->prepare("UPDATE cars SET stock_quantity = stock_quantity - 1 WHERE id = ? AND stock_quantity > 0");
+//     $stmt->execute([$car_id]);
+// } catch (PDOException $e) {
+//     // Логируем ошибку, но не прерываем выполнение (заказ уже сохранён)
+//     error_log('Ошибка обновления stock_quantity: ' . $e->getMessage());
+// }
 
 // 3. ОТПРАВЛЯЕМ ЗАПРОС НА ЗВОНОК
 $messageText = "Здравствуйте, $name! Вы оставили заявку на автомобиль $car_title стоимостью $car_price. Наш менеджер свяжется с вами в ближайшее время. Номер вашего заказа: $order_id.";
