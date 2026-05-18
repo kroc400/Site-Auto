@@ -210,8 +210,9 @@
         // Функция отображения статуса наличия
         function getStockHtml(quantity) {
             if (quantity === 0) return '<div class="car-card-stock out-of-stock">Нет в наличии</div>';
-            // Единый формат: В наличии: X
-            return `<div class="car-card-stock in-stock">В наличии: ${quantity}</div>`;
+            if (quantity === 1) return '<div class="car-card-stock low-stock">Остался всего 1 автомобиль!</div>';
+            if (quantity <= 3) return `<div class="car-card-stock low-stock">Осталось всего ${quantity} шт!</div>`;
+            return `<div class="car-card-stock in-stock">В наличии ${quantity} шт</div>`;
         }
 
         // Загрузка автомобилей из базы данных
