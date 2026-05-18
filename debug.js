@@ -25,19 +25,19 @@
     devBadge.appendChild(closeBtn);
     document.body.appendChild(devBadge);
 
-    // Мок-данные с цветами
+    // Мок-данные с цветами (принудительно)
     const mockCars = [
         {
             id: 1,
-            title: 'Audi RS7 (тест)',
+            title: 'Audi RS5 (тест)',
             price_value: 4050000,
             stock_quantity: 3,
             procent: 'Кредит от 31,9%',
-            image_url: '/images/Audi RS7 Sportback/Audi RS7 Sportback red.png',
+            image_url: '/images/placeholder.png',
             color_images: {
-                "Красный": "/images/Audi RS7 Sportback/Audi RS7 Sportback red.png",
-                "Синий": "/images/Audi RS7 Sportback/Audi RS7 Sportback blue.png",
-                "Черный": "/images/Audi RS7 Sportback/Audi RS7 Sportback black.png"
+                "Красный": "./images/Audi RS5/Audi RS5 red.png",
+                "Серый": "./images/Audi RS5/Audi RS5 grey.png",
+                "Желтый": "./images/Audi RS5/Audi RS5 grey.png"
             },
             equipment: { безопасность: ['ABS', 'ESP'], экстерьер: [], интерьер: [] },
             dimensions: { length: 5009, width: 2118, height: 1424 }
@@ -48,10 +48,10 @@
             price_value: 8900000,
             stock_quantity: 2,
             procent: 'Кредит от 26,2%',
-            image_url: '/images/Audi RS6 GT Avant/Audi RS6 GT Avant red.png',
+            image_url: '/images/placeholder.png',
             color_images: {
-                "Красный": "/images/Audi RS6 GT Avant/Audi RS6 GT Avant red.png",
-                "Белый": "/images/Audi RS6 GT Avant/Audi RS6 GT Avant white.png"
+                "Красный": "/images/placeholder.png",
+                "Белый": "/images/placeholder.png"
             },
             equipment: {},
             dimensions: { length: 4674, width: 1801, height: 1415 }
@@ -62,7 +62,7 @@
             price_value: 7750000,
             stock_quantity: 1,
             procent: 'Кредит от 26,6%',
-            image_url: '/images/Audi A5 Sportback S Line/Audi A5 Sportback S Line red.png',
+            image_url: '/images/placeholder.png',
             color_images: null,
             equipment: {},
             dimensions: { length: 4757, width: 1843, height: 1386 }
@@ -97,43 +97,47 @@
 
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
-        const url = args[0];
-        const urlStr = typeof url === 'string' ? url : url.url;
+        let url = args[0];
+        if (typeof url !== 'string') url = url.url;
+        const urlStr = url;
         console.log(`[DEV] Запрос: ${urlStr}`);
 
-        if (urlStr.includes('/api/cars.php')) {
+        // Исправленные проверки: ищем подстроку без обязательного слеша
+        if (urlStr.includes('api/cars.php')) {
+            console.log('[DEV] Возвращаем мок-список авто');
             const carsForList = mockCars.map(({ id, title, price_value, stock_quantity, image_url }) => ({ id, title, price_value, stock_quantity, image_url }));
             return new Response(JSON.stringify(carsForList), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/car.php')) {
+        if (urlStr.includes('api/car.php')) {
             const idMatch = urlStr.match(/[?&]id=(\d+)/);
             const id = idMatch ? parseInt(idMatch[1]) : 0;
             const car = mockCars.find(c => c.id === id) || null;
+            console.log(`[DEV] Возвращаем авто ID=${id}`, car);
             return new Response(JSON.stringify(car || { error: 'Автомобиль не найден' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/check_session.php')) {
+        if (urlStr.includes('api/check_session.php')) {
             return new Response(JSON.stringify(mockSession), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/user_profile.php') && args[1]?.method !== 'POST') {
+        if (urlStr.includes('api/user_profile.php') && args[1]?.method !== 'POST') {
             return new Response(JSON.stringify(mockProfile), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/user_profile.php') && args[1]?.method === 'POST') {
+        if (urlStr.includes('api/user_profile.php') && args[1]?.method === 'POST') {
             return new Response(JSON.stringify({ success: true, message: 'Профиль сохранён (тест)' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/get_favorites.php')) {
+        if (urlStr.includes('api/get_favorites.php')) {
             return new Response(JSON.stringify(getMockFavorites()), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/favorites_toggle.php')) {
+        if (urlStr.includes('api/favorites_toggle.php')) {
             return new Response(JSON.stringify({ success: true, message: 'Действие выполнено (тест)', action: 'added' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/logout.php')) {
+        if (urlStr.includes('api/logout.php')) {
             sessionStorage.removeItem('devmode');
             return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/get_reviews.php')) {
+        if (urlStr.includes('api/get_reviews.php')) {
             return new Response(JSON.stringify(getMockReviews()), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        if (urlStr.includes('/api/add_review.php')) {
+        if (urlStr.includes('api/add_review.php')) {
             return new Response(JSON.stringify({ success: true, message: 'Ваш отзыв добавлен! (тестовый режим)' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
         console.log('[DEV] Проксируем запрос (не мок):', urlStr);
@@ -209,7 +213,7 @@
     const originalFetchForDev = window.fetch;
     window.fetch = async function(...args) {
         const urlStr = args[0];
-        if (typeof urlStr === 'string' && urlStr.includes('/api/callback.php')) {
+        if (typeof urlStr === 'string' && urlStr.includes('api/callback.php')) {
             console.log('[DEV] Перехват отправки формы бронирования – возвращаем заглушку');
             return new Response(JSON.stringify({ success: true, message: 'Заявка принята (тестовый режим). Номер заказа: 999.' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
