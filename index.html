@@ -38,13 +38,13 @@
             </ul>
         </nav>
         <div class="mobile-contacts">
-        <div class="mobile-contact-item">
-            <img src="/icons/mobile-logo.svg" alt="Phone" class="mobile-icon">
-            <span class="mobile-text-main">+7(800)555-35-35</span>
-        </div>
-        <div class="mobile-contact-item">
-            <span class="mobile-text-second">+7(495)228-12-34</span>
-        </div>
+            <div class="mobile-contact-item">
+                <img src="/icons/mobile-logo.svg" alt="Phone" class="mobile-icon">
+                <span class="mobile-text-main">+7(800)555-35-35</span>
+            </div>
+            <div class="mobile-contact-item">
+                <span class="mobile-text-second">+7(495)228-12-34</span>
+            </div>
         </div>
     </header>
     <main class="content">
@@ -63,27 +63,10 @@
                 <div class="banner-info">Грандиозная распродажа тестового парка!</div>
                 <h3></h3>
             </div>
-            <!-- <div class="banner-pagination">
-                <ul class="banner-pagination-list">
-                    <li class="banner-pagination-item">
-                        <button class="banner-pagination-button"
-                        type="button"></button>
-                    </li>
-                    <li class="banner-pagination-item">
-                        <button class="banner-pagination-button"
-                        type="button"></button>
-                    </li>
-                    <li class="banner-pagination-item is-current">
-                        <button class="banner-pagination-button"
-                        type="button"></button>
-                    </li>
-                </ul>
-            </div> -->
         </section>
         <section class="auto-cards">
             <h3>Автомобили в наличии с ПТС</h3>
             <div class="cars-grid-container" id="carsGrid">
-                <!-- Сюда будут загружаться карточки из БД -->
                 <div class="loading-spinner">Загрузка автомобилей...</div>
             </div>
         </section>
@@ -97,12 +80,10 @@
                 <div class="news-container grid-new1">234</div>
                 <div class="news-container grid-new1">345</div>
             </div>
-
         </section>
 
         <section class="banner-beat-section">
             <h3 class="visually-hidden">banner-beat</h3>
-
             <div class="banner-beat">
                 <div class="banner-beat-left">
                     <img class="box-glove" src="./images/banner-beat-box-glove.png">
@@ -135,40 +116,8 @@
         
         <section class="map-section">
             <h3 class="visually-hidden">map</h3>
-                
             <iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1243.8402930508853!2d37.5865601541612!3d54.166612368924326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x41343ffa67ecd867%3A0x620c982482247d64!2z0KLRg9C70YzRgdC60LjQuSDQs9C-0YHRg9C00LDRgNGB0YLQstC10L3QvdGL0Lkg0YPQvdC40LLQtdGA0YHQuNGC0LXRgg!5e0!3m2!1sru!2sru!4v1773682030867!5m2!1sru!2sru" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            <!-- <div class="map-info">
-                <div class="map-container">
-                    <div class="map-item">
-                        <div class="map-red-icon">
-                            <img src="/icons/call-answer.png" class="map-container-icon">
-                        </div>
-                        <span class="map-label">+7 (800) 551-94-31</span>
-                    </div>
-                    <div class="map-item">
-                        <div class="map-red-icon">
-                            <img src="/icons/call-answer.png" class="map-container-icon">
-                        </div>
-                        <span class="map-label">+7 (495) 292-18-67</span>
-                    </div>
-                    <div class="map-item">
-                        <div class="map-red-icon">
-                            <img src="/icons/time-icon.png" class="map-container-icon">
-                        </div>
-                        <span class="map-label">Ежедневно с 08:00 до 21:00</span>
-                    </div>
-                    <div class="map-item">
-                        <div class="map-red-icon">
-                            <img src="/icons/maps-and-flags.png" class="map-container-icon">
-                        </div>
-                        <span class="map-label">Россия, Тула, пр. Ленина 92</span>
-                    </div>
-                    <button class="map-button">Как до нас добраться</button>
-                </div>
-            </div> -->
         </section>
-
-        
     </main>
     <footer>
         <section class="footer-section">
@@ -187,81 +136,85 @@
                 </div>
             </div>
         </section>
-        
     </footer>
 
-        <script>
-            // Простой звонок (без привязки к авто)
-            const simpleForm = document.getElementById('callbackSimpleForm');
-            if (simpleForm) {
-                simpleForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
+    <script>
+        // Простой звонок (без привязки к авто)
+        const simpleForm = document.getElementById('callbackSimpleForm');
+        if (simpleForm) {
+            simpleForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const phoneInput = document.getElementById('callbackSimplePhone');
+                const consentCheckbox = document.getElementById('callbackSimpleConsent');
+                const messageDiv = document.getElementById('callbackSimpleMessage');
+                const phone = phoneInput.value.trim();
+                const submitBtn = simpleForm.querySelector('button');
+                
+                // Проверка телефона
+                if (!phone || phone.length < 10) {
+                    messageDiv.textContent = 'Введите корректный номер телефона';
+                    messageDiv.style.color = 'red';
+                    return;
+                }
+                
+                // Проверка согласия
+                if (!consentCheckbox || !consentCheckbox.checked) {
+                    messageDiv.textContent = 'Подтвердите согласие с политикой конфиденциальности и получение звонка';
+                    messageDiv.style.color = 'red';
+                    return;
+                }
+                
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                
+                try {
+                    const response = await fetch('/api/callback_simple.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            phone: phone,
+                            consent: true 
+                        })
+                    });
+                    const result = await response.json();
                     
-                    const phoneInput = document.getElementById('callbackSimplePhone');
-                    const consentCheckbox = document.getElementById('callbackSimpleConsent');
-                    const messageDiv = document.getElementById('callbackSimpleMessage');
-                    const phone = phoneInput.value.trim();
-                    const submitBtn = simpleForm.querySelector('button');
-                    
-                    // Проверка телефона
-                    if (!phone || phone.length < 10) {
-                        messageDiv.textContent = 'Введите корректный номер телефона';
+                    if (response.ok && result.success) {
+                        messageDiv.textContent = result.message;
+                        messageDiv.style.color = 'green';
+                        phoneInput.value = '';
+                        consentCheckbox.checked = false;
+                    } else {
+                        messageDiv.textContent = result.error || 'Ошибка отправки';
                         messageDiv.style.color = 'red';
-                        return;
                     }
-                    
-                    // Проверка согласия
-                    if (!consentCheckbox || !consentCheckbox.checked) {
-                        messageDiv.textContent = 'Подтвердите согласие с политикой конфиденциальности и получение звонка';
-                        messageDiv.style.color = 'red';
-                        return;
-                    }
-                    
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Отправка...';
-                    
-                    try {
-                        const response = await fetch('/api/callback_simple.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                phone: phone,
-                                consent: true 
-                            })
-                        });
-                        const result = await response.json();
-                        
-                        if (response.ok && result.success) {
-                            messageDiv.textContent = result.message;
-                            messageDiv.style.color = 'green';
-                            phoneInput.value = '';
-                            consentCheckbox.checked = false; // сбрасываем чекбокс
-                        } else {
-                            messageDiv.textContent = result.error || 'Ошибка отправки';
-                            messageDiv.style.color = 'red';
-                        }
-                    } catch (error) {
-                        messageDiv.textContent = 'Ошибка соединения';
-                        messageDiv.style.color = 'red';
-                    } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Получить предложение';
-                        setTimeout(() => { messageDiv.textContent = ''; }, 5000);
-                    }
-                });
-            }
-        </script>
+                } catch (error) {
+                    messageDiv.textContent = 'Ошибка соединения';
+                    messageDiv.style.color = 'red';
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Получить предложение';
+                    setTimeout(() => { messageDiv.textContent = ''; }, 5000);
+                }
+            });
+        }
+    </script>
 
-
-
-
-
-        <script>
+    <script>
         // Функция форматирования цены
         function formatPrice(price) {
             if (price === undefined || price === null) return '— ₽';
             return price.toLocaleString('ru-RU') + ' ₽';
         }
+
+        // Функция отображения статуса наличия
+        function getStockHtml(quantity) {
+            if (quantity === 0) return '<div class="car-card-stock out-of-stock">Нет в наличии</div>';
+            if (quantity === 1) return '<div class="car-card-stock low-stock">Остался всего 1 автомобиль!</div>';
+            if (quantity <= 3) return `<div class="car-card-stock low-stock">Осталось всего ${quantity} шт!</div>`;
+            return `<div class="car-card-stock in-stock">В наличии ${quantity} шт</div>`;
+        }
+
         // Загрузка автомобилей из базы данных
         async function loadCarsFromDB() {
             const container = document.getElementById('carsGrid');
@@ -281,7 +234,7 @@
                     return;
                 }
                 
-                // Генерируем карточки
+                // Генерируем карточки с отображением количества
                 container.innerHTML = cars.map(car => `
                     <div class="car-container" data-car-id="${car.id}">
                         <div class="car-card">
@@ -292,6 +245,7 @@
                                     onerror="this.src='/images/placeholder.png'">
                             </div>
                             <div class="car-card-cost">${formatPrice(car.price_value)}</div>
+                            ${getStockHtml(car.stock_quantity)}
                             <div>
                                 <button class="car-card-button" data-id="${car.id}">Подробнее</button>
                             </div>
@@ -326,11 +280,10 @@
         
         // Запускаем загрузку после загрузки DOM
         document.addEventListener('DOMContentLoaded', loadCarsFromDB);
-        </script>
-        
+    </script>
 
-        <script  src="backToTopButton.js"></script>
-        <script src="https://unpkg.com/imask"></script>
-        <script src="masks.js"></script>
+    <script src="backToTopButton.js"></script>
+    <script src="https://unpkg.com/imask"></script>
+    <script src="masks.js"></script>
 </body>
 </html>

@@ -11,17 +11,21 @@ if ($id <= 0) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT id, title, price_value, procent, image_url, equipment, dimensions FROM cars WHERE id = ?");
+    // Получаем данные модели + stock_quantity
+    $stmt = $pdo->prepare("SELECT id, title, price_value, stock_quantity, procent, image_url, equipment, dimensions FROM cars WHERE id = ?");
     $stmt->execute([$id]);
     $car = $stmt->fetch();
     
-    if ($car) {
-        $car['equipment'] = json_decode($car['equipment'], true);
-        $car['dimensions'] = json_decode($car['dimensions'], true);
-        echo json_encode($car, JSON_UNESCAPED_UNICODE);
-    } else {
+    if (!$car) {
         echo json_encode(['error' => 'Автомобиль не найден']);
+        exit;
     }
+    
+    // Декодируем JSON-поля
+    $car['equipment'] = json_decode($car['equipment'], true);
+    $car['dimensions'] = json_decode($car['dimensions'], true);
+    
+    echo json_encode($car, JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }

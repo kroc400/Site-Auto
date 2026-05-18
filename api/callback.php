@@ -23,7 +23,7 @@ $phone = $input['phone'] ?? null;
 $car_id = $input['car_id'] ?? null;
 $car_title = $input['car_title'] ?? null;
 $car_price = $input['car_price'] ?? null;
-$consent = $input['consent'] ?? false; // Получаем согласие
+$consent = $input['consent'] ?? false;
 
 // Дополнительные поля
 $name = !empty($input['name']) ? $input['name'] : 'Клиент';
@@ -36,7 +36,7 @@ if (!$phone || !$car_id || !$car_title || !$car_price) {
     exit;
 }
 
-// ПРОВЕРКА СОГЛАСИЯ (обязательно)
+// Проверка согласия
 if (!$consent) {
     http_response_code(400);
     echo json_encode(['error' => 'Для бронирования необходимо подтвердить согласие на обработку персональных данных и получение звонка']);
@@ -60,8 +60,17 @@ try {
     exit;
 }
 
-// 2. ОТПРАВЛЯЕМ ЗАПРОС НА ЗВОНОК
-$messageText = "Здравствуйте, $name! Вы оставили заявку на автомобиль $car_title стоимостью $car_price рублей. Наш менеджер свяжется с вами в ближайшее время. Номер вашего заказа: $order_id.";
+// 2. УМЕНЬШАЕМ КОЛИЧЕСТВО ДОСТУПНЫХ АВТОМОБИЛЕЙ
+try {
+    $stmt = $pdo->prepare("UPDATE cars SET stock_quantity = stock_quantity - 1 WHERE id = ? AND stock_quantity > 0");
+    $stmt->execute([$car_id]);
+} catch (PDOException $e) {
+    // Логируем ошибку, но не прерываем выполнение (заказ уже сохранён)
+    error_log('Ошибка обновления stock_quantity: ' . $e->getMessage());
+}
+
+// 3. ОТПРАВЛЯЕМ ЗАПРОС НА ЗВОНОК
+$messageText = "Здравствуйте, $name! Вы оставили заявку на автомобиль $car_title стоимостью $car_price. Наш менеджер свяжется с вами в ближайшее время. Номер вашего заказа: $order_id.";
 
 $postData = [
     'public_key' => $api_key,
@@ -80,7 +89,7 @@ $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-// 3. ОТВЕЧАЕМ КЛИЕНТУ
+// 4. ОТВЕЧАЕМ КЛИЕНТУ
 if ($httpCode === 200) {
     echo json_encode([
         'success' => true,
