@@ -221,7 +221,7 @@ $popularCar = getMostPopularCar($pdo, $currentYear);
                 <h2>Заказы</h2>
                 <div class="table-responsive">
                     <table class="orders-table">
-                        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Автомобиль</th><th>Цена</th><th>Статус</th><th>Списано</th><th>Действия</th></tr></thead>
+                        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Автомобиль</th><th>Цена</th><th>Статус</th><th>Списано</th></tr></thead>
                         <tbody>
                             <?php foreach ($orders as $order): ?>
                             <tr>
@@ -258,5 +258,6 @@ $popularCar = getMostPopularCar($pdo, $currentYear);
     <footer></footer>
     <script src="header.js" type="module"></script>
     <script src="footer.js" type="module"></script>
+    <script src="backToTopButton.js"></script>
 </body>
 </html>
