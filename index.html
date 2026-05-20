@@ -400,6 +400,95 @@
         setTimeout(animateCardsSequentially, 500);
         setTimeout(animateCardsSequentially, 2000);
     });
+
+    
     </script>
+
+    <div id="ratingModal" class="rating-modal" style="display: none;">
+    <div class="rating-modal-content">
+        <span class="rating-modal-close">&times;</span>
+        <h2>Оцените наш сайт</h2>
+        <p>Оцените каждый параметр от 1 до 10</p>
+        
+        <form action="api/save_rating.php" method="POST" id="ratingForm">
+            <div class="rating-item">
+                <label>Дизайн сайта</label>
+                <input type="range" name="design" id="design" min="1" max="10" value="5" step="1" oninput="updateRatingValue('design', this.value)">
+                <span id="designVal" class="rating-value">5</span>
+            </div>
+            
+            <div class="rating-item">
+                <label>Удобство использования</label>
+                <input type="range" name="usability" id="usability" min="1" max="10" value="5" step="1" oninput="updateRatingValue('usability', this.value)">
+                <span id="usabilityVal" class="rating-value">5</span>
+            </div>
+            
+            <div class="rating-item">
+                <label>Информативность</label>
+                <input type="range" name="information" id="information" min="1" max="10" value="5" step="1" oninput="updateRatingValue('information', this.value)">
+                <span id="informationVal" class="rating-value">5</span>
+            </div>
+            
+            <div class="rating-item">
+                <label>Скорость загрузки</label>
+                <input type="range" name="speed" id="speed" min="1" max="10" value="5" step="1" oninput="updateRatingValue('speed', this.value)">
+                <span id="speedVal" class="rating-value">5</span>
+            </div>
+            
+            <div class="rating-item">
+                <label>Работа с заказами</label>
+                <input type="range" name="orders" id="orders" min="1" max="10" value="5" step="1" oninput="updateRatingValue('orders', this.value)">
+                <span id="ordersVal" class="rating-value">5</span>
+            </div>
+            
+            <input type="hidden" name="average_score" id="rating_average_score" value="5">
+            
+            <div class="rating-result">
+                <div>Средняя оценка</div>
+                <div class="rating-average" id="ratingAverageScore">5.0</div>
+            </div>
+            
+            <button type="submit" class="rating-submit-btn">Отправить оценку</button>
+        </form>
+    </div>
+</div>
+
+<!-- Кнопка для открытия модального окна -->
+<button id="openRatingBtn" class="open-rating-btn" >?</button>
+
+<script>
+    // Функции для модального окна оценки
+    function openRatingModal() {
+        document.getElementById('ratingModal').style.display = 'flex';
+    }
+    function closeRatingModal() {
+        document.getElementById('ratingModal').style.display = 'none';
+    }
+    function updateRatingValue(field, value) {
+        document.getElementById(field + 'Val').textContent = value;
+        calculateRatingAverage();
+    }
+    function calculateRatingAverage() {
+        const design = parseInt(document.getElementById('design').value);
+        const usability = parseInt(document.getElementById('usability').value);
+        const information = parseInt(document.getElementById('information').value);
+        const speed = parseInt(document.getElementById('speed').value);
+        const orders = parseInt(document.getElementById('orders').value);
+        const sum = design + usability + information + speed + orders;
+        const average = sum / 5;
+        document.getElementById('ratingAverageScore').textContent = average.toFixed(1);
+        document.getElementById('rating_average_score').value = average.toFixed(1);
+    }
+    document.getElementById('openRatingBtn').onclick = openRatingModal;
+    document.querySelector('.rating-modal-close').onclick = closeRatingModal;
+    window.onclick = function(e) {
+        if (e.target == document.getElementById('ratingModal')) {
+            closeRatingModal();
+        }
+    };
+    window.onload = function() {
+        calculateRatingAverage();
+    };
+</script>
 </body>
 </html>
