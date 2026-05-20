@@ -2229,6 +2229,9 @@ a {
   .car-card{
     height: 416px;
     width: 290px;
+
+    transition: opacity 1s ease, transform 1s ease !important;
+    will-change: opacity, transform;
   }
 
   .cars-grid-container{
@@ -2245,6 +2248,7 @@ a {
  .car-card-cost{
   margin-top: 217px;
  }
+
 
  .car-card-img{
   max-width: 1290px;

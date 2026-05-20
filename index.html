@@ -340,5 +340,66 @@
     <script src="backToTopButton.js"></script>
     <script src="https://unpkg.com/imask"></script>
     <script src="masks.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Скрываем все карточки
+        $('.car-card').css('opacity', '0');
+        
+        // Показываем карточки при прокрутке
+        $(window).scroll(function() {
+            $('.car-card').each(function() {
+                var cardTop = $(this).offset().top;
+                var windowBottom = $(window).scrollTop() + $(window).height();
+                if (cardTop < windowBottom - 100) {
+                    $(this).animate({ opacity: 1 }, 500);
+                }
+            });
+        });
+        $(window).scroll(); // запускаем сразу
+    });
+    </script>
+
+    <script>
+    $(document).ready(function() {
+        function animateCardsSequentially() {
+            var cards = $('.car-card');
+            console.log('Найдено карточек:', cards.length);
+            
+            if (cards.length === 0) {
+                // Если карточек нет, пробуем ещё раз через 0.5 секунды
+                setTimeout(animateCardsSequentially, 500);
+                return;
+            }
+            
+            // Сначала скрываем все карточки (принудительно через inline-стили)
+            cards.each(function() {
+                $(this).css({
+                    'opacity': '0',
+                    'transform': 'translateY(30px)',
+                    'transition': 'opacity 0.5s ease, transform 1s ease'
+                });
+            });
+            
+            // Показываем карточки по очереди
+            cards.each(function(index) {
+                var $card = $(this);
+                var delay = index * 1500; // 1.5 секунды между карточками
+                
+                setTimeout(function() {
+                    console.log('Показываем карточку', index);
+                    $card.css({
+                        'opacity': '1',
+                        'transform': 'translateY(0)'
+                    });
+                }, delay);
+            });
+        }
+        
+        setTimeout(animateCardsSequentially, 500);
+        setTimeout(animateCardsSequentially, 2000);
+    });
+    </script>
 </body>
 </html>
