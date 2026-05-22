@@ -30,7 +30,7 @@
             <div class="captcha-container">
                 <div class="captcha-question" id="captchaQuestion">Загрузка...</div>
                 <input type="text" id="captchaAnswer" class="captcha-input" placeholder="Введите ответ">
-                <input type="hidden" id="captchaToken" value="">
+                <button type="button" id="refreshCaptcha" class="regButton">Обновить капчу</button>
             </div>
 
             <button id="registerBtn" class="regButton">Зарегистрироваться</button>
@@ -133,7 +133,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    msgDiv.textContent = '✅ Регистрация успешна! Перенаправление на вход...';
+                    msgDiv.textContent = 'Регистрация успешна! Перенаправление на вход...';
                     msgDiv.className = 'success-message';
                     setTimeout(() => {
                         window.location.href = 'login.html';
