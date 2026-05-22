@@ -25,7 +25,11 @@ if ($stmt->fetch()) {
 // Хешируем пароль и сохраняем
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
-$stmt->execute([$username, $email, $password_hash]);
+$result = $stmt->execute([$username, $email, $password_hash]);
 
-echo json_encode(['success' => true, 'message' => 'Регистрация успешна']);
+if ($result) {
+    echo json_encode(['success' => true, 'message' => 'Регистрация успешна']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Ошибка при сохранении пользователя']);
+}
 ?>

@@ -80,7 +80,6 @@
     <footer></footer>
 
     <script>
-        // Генерация капчи
         let captchaResult = 0;
         
         function generateCaptcha() {
@@ -96,7 +95,6 @@
                 question = `${num1} + ${num2}`;
                 result = num1 + num2;
             } else {
-                // Чтобы результат не был отрицательным
                 if (num1 >= num2) {
                     question = `${num1} - ${num2}`;
                     result = num1 - num2;
@@ -110,7 +108,6 @@
             captchaResult = result;
         }
         
-        // Проверка капчи
         function checkCaptcha() {
             const userAnswer = parseInt(document.getElementById('captchaAnswer').value.trim());
             return !isNaN(userAnswer) && userAnswer === captchaResult;
@@ -120,43 +117,65 @@
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
-            const msg = document.getElementById('message');
+            const msgDiv = document.getElementById('message');
+            const registerBtn = document.getElementById('registerBtn');
             
+            // Сброс сообщения
+            msgDiv.textContent = '';
+            msgDiv.className = '';
+            
+            // Валидация полей
             if (!username || !email || !password) {
-                msg.textContent = 'Заполните все поля';
-                msg.style.color = 'red';
+                msgDiv.textContent = 'Заполните все поля';
+                msgDiv.className = 'error-message';
                 return;
             }
             
             // Проверка капчи
             if (!checkCaptcha()) {
-                msg.textContent = 'Неправильный ответ капчи. Попробуйте ещё раз.';
-                msg.style.color = 'red';
-                generateCaptcha(); // обновляем капчу
+                msgDiv.textContent = '❌ Неправильный ответ капчи. Попробуйте ещё раз.';
+                msgDiv.className = 'error-message';
+                generateCaptcha();
                 document.getElementById('captchaAnswer').value = '';
                 return;
             }
             
-            const response = await fetch('/api/register.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
-            });
-            const result = await response.json();
+            // Блокируем кнопку, чтобы не было повторных отправок
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Регистрация...';
             
-            if (result.success) {
-                msg.style.color = 'green';
-                msg.textContent = 'Регистрация успешна! Перенаправление на вход...';
-                setTimeout(() => window.location.href = 'login.html', 1500);
-            } else {
-                msg.style.color = 'red';
-                msg.textContent = result.message;
-                generateCaptcha(); // обновляем капчу при ошибке
-                document.getElementById('captchaAnswer').value = '';
+            try {
+                const response = await fetch('/api/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    msgDiv.textContent = '✅ Регистрация успешна! Перенаправление на вход...';
+                    msgDiv.className = 'success-message';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    msgDiv.textContent = result.message || 'Ошибка регистрации';
+                    msgDiv.className = 'error-message';
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = 'Зарегистрироваться';
+                    generateCaptcha();
+                    document.getElementById('captchaAnswer').value = '';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                msgDiv.textContent = 'Ошибка соединения с сервером';
+                msgDiv.className = 'error-message';
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Зарегистрироваться';
             }
         });
         
-        // Генерируем капчу при загрузке страницы
         generateCaptcha();
     </script>
 
