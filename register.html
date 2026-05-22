@@ -80,67 +80,41 @@
     <footer></footer>
 
     <script>
-        let captchaResult = 0;
-        
-        function generateCaptcha() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
-            const operators = ['+', '-'];
-            const operator = operators[Math.floor(Math.random() * operators.length)];
-            
-            let question = '';
-            let result = 0;
-            
-            if (operator === '+') {
-                question = `${num1} + ${num2}`;
-                result = num1 + num2;
-            } else {
-                if (num1 >= num2) {
-                    question = `${num1} - ${num2}`;
-                    result = num1 - num2;
-                } else {
-                    question = `${num2} - ${num1}`;
-                    result = num2 - num1;
-                }
+        // Функция загрузки капчи с сервера
+        async function loadCaptcha() {
+            try {
+                const response = await fetch('/api/captcha.php');
+                const data = await response.json();
+                document.getElementById('captchaQuestion').textContent = data.question;
+            } catch (error) {
+                console.error('Ошибка загрузки капчи:', error);
+                document.getElementById('captchaQuestion').textContent = 'Ошибка загрузки. Обновите страницу.';
             }
-            
-            document.getElementById('captchaQuestion').textContent = `Сколько будет ${question}?`;
-            captchaResult = result;
-        }
-        
-        function checkCaptcha() {
-            const userAnswer = parseInt(document.getElementById('captchaAnswer').value.trim());
-            return !isNaN(userAnswer) && userAnswer === captchaResult;
         }
         
         document.getElementById('registerBtn').addEventListener('click', async () => {
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
+            const captchaAnswer = document.getElementById('captchaAnswer').value.trim();
             const msgDiv = document.getElementById('message');
             const registerBtn = document.getElementById('registerBtn');
             
-            // Сброс сообщения
             msgDiv.textContent = '';
             msgDiv.className = '';
             
-            // Валидация полей
             if (!username || !email || !password) {
                 msgDiv.textContent = 'Заполните все поля';
                 msgDiv.className = 'error-message';
                 return;
             }
             
-            // Проверка капчи
-            if (!checkCaptcha()) {
-                msgDiv.textContent = '❌ Неправильный ответ капчи. Попробуйте ещё раз.';
+            if (!captchaAnswer) {
+                msgDiv.textContent = 'Введите ответ на капчу';
                 msgDiv.className = 'error-message';
-                generateCaptcha();
-                document.getElementById('captchaAnswer').value = '';
                 return;
             }
             
-            // Блокируем кнопку, чтобы не было повторных отправок
             registerBtn.disabled = true;
             registerBtn.textContent = 'Регистрация...';
             
@@ -148,7 +122,12 @@
                 const response = await fetch('/api/register.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ 
+                        username, 
+                        email, 
+                        password,
+                        captcha: parseInt(captchaAnswer)
+                    })
                 });
                 
                 const result = await response.json();
@@ -164,7 +143,8 @@
                     msgDiv.className = 'error-message';
                     registerBtn.disabled = false;
                     registerBtn.textContent = 'Зарегистрироваться';
-                    generateCaptcha();
+                    // Обновляем капчу при ошибке
+                    loadCaptcha();
                     document.getElementById('captchaAnswer').value = '';
                 }
             } catch (error) {
@@ -176,7 +156,14 @@
             }
         });
         
-        generateCaptcha();
+        // Обновление капчи по кнопке
+        document.getElementById('refreshCaptcha').addEventListener('click', () => {
+            loadCaptcha();
+            document.getElementById('captchaAnswer').value = '';
+        });
+        
+        // Загружаем капчу при загрузке страницы
+        loadCaptcha();
     </script>
 
 </body>
