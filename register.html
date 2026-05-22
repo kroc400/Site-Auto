@@ -26,11 +26,21 @@
             <input type="text" id="username" placeholder="Логин">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Пароль">
+            
+            <div class="captcha-container">
+                <div class="captcha-question" id="captchaQuestion">Загрузка...</div>
+                <input type="text" id="captchaAnswer" class="captcha-input" placeholder="Введите ответ">
+                <input type="hidden" id="captchaToken" value="">
+            </div>
+
             <button id="registerBtn" class="regButton">Зарегистрироваться</button>
             <div id="message"></div>
             <p class="loginRedirect">Уже есть аккаунт? <a href="login.html">Войти</a></p>
         </div>
+        
     </div>
+
+    
 
     </main>
 
@@ -68,5 +78,87 @@
     </script>
 
     <footer></footer>
+
+    <script>
+        // Генерация капчи
+        let captchaResult = 0;
+        
+        function generateCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const operators = ['+', '-'];
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            
+            let question = '';
+            let result = 0;
+            
+            if (operator === '+') {
+                question = `${num1} + ${num2}`;
+                result = num1 + num2;
+            } else {
+                // Чтобы результат не был отрицательным
+                if (num1 >= num2) {
+                    question = `${num1} - ${num2}`;
+                    result = num1 - num2;
+                } else {
+                    question = `${num2} - ${num1}`;
+                    result = num2 - num1;
+                }
+            }
+            
+            document.getElementById('captchaQuestion').textContent = `Сколько будет ${question}?`;
+            captchaResult = result;
+        }
+        
+        // Проверка капчи
+        function checkCaptcha() {
+            const userAnswer = parseInt(document.getElementById('captchaAnswer').value.trim());
+            return !isNaN(userAnswer) && userAnswer === captchaResult;
+        }
+        
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const msg = document.getElementById('message');
+            
+            if (!username || !email || !password) {
+                msg.textContent = 'Заполните все поля';
+                msg.style.color = 'red';
+                return;
+            }
+            
+            // Проверка капчи
+            if (!checkCaptcha()) {
+                msg.textContent = 'Неправильный ответ капчи. Попробуйте ещё раз.';
+                msg.style.color = 'red';
+                generateCaptcha(); // обновляем капчу
+                document.getElementById('captchaAnswer').value = '';
+                return;
+            }
+            
+            const response = await fetch('/api/register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                msg.style.color = 'green';
+                msg.textContent = 'Регистрация успешна! Перенаправление на вход...';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } else {
+                msg.style.color = 'red';
+                msg.textContent = result.message;
+                generateCaptcha(); // обновляем капчу при ошибке
+                document.getElementById('captchaAnswer').value = '';
+            }
+        });
+        
+        // Генерируем капчу при загрузке страницы
+        generateCaptcha();
+    </script>
+
 </body>
 </html>

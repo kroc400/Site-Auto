@@ -1506,6 +1506,29 @@ a {
     color: var(--color-dark);
     margin-bottom: 15px;
   }
+
+.captcha-container {
+  margin: 5px 0;
+  padding: 10px;
+  background: var(--color-light);
+  border-radius: var(--border-radius-light);
+  display: flex;
+  flex-direction: column;
+}
+.captcha-question {
+  font-weight: 700;
+  font-size: 14px;
+}
+.captcha-input {
+  padding: 8px;
+  border-radius: var(--border-radius);
+  width: 100%;
+}
+.error-message {
+  color: var(--color-red);
+  font-size: 12px;
+  margin-top: 5px;
+}
 /* #endregion */
 
 /* #region login-page */
