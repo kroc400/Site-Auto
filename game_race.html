@@ -270,7 +270,8 @@
             let highScore = 0;
             let animationId = null;
             let frameCount = 0;
-            let gamePlayed = false;
+            let gamePlayed = false;     // отслеживает, была ли игра завершена (проигрыш или победа)
+            let gameStarted = false;     // отслеживает, была ли игра когда-либо запущена
             
             // Элементы
             const track = $('#raceTrack');
@@ -300,6 +301,7 @@
                         
                         if (data.played) {
                             gamePlayed = true;
+                            gameStarted = true;
                             if (data.promocode && !data.promocode_used) {
                                 $('#promocodeArea').show();
                                 $('#promocodeValue').text(data.promocode);
@@ -347,6 +349,36 @@
                     console.error('Ошибка сохранения:', error);
                     return false;
                 }
+            }
+            
+            // ========== ОЧИСТКА ИГРЫ (ПЕРЕД ПОВТОРНЫМ СТАРТОМ) ==========
+            function resetGame() {
+                // Останавливаем игру
+                gameRunning = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                // Удаляем все препятствия
+                obstacles.forEach(obs => obs.element.remove());
+                obstacles = [];
+                
+                // Сбрасываем переменные
+                score = 0;
+                frameCount = 0;
+                gameStarted = true;
+                gameRunning = false;
+                
+                // Обновляем отображение
+                $('#score').text(0);
+                $('#gameStatus').text('Нажмите «Старт», чтобы начать гонку!').css('color', '#ffd700');
+                $('#startBtn').text('🏁 Старт').prop('disabled', false);
+                $('#leftBtn').prop('disabled', false);
+                $('#rightBtn').prop('disabled', false);
+                
+                // Сбрасываем позицию игрока
+                initPlayerPosition();
             }
             
             // ========== ИНИЦИАЛИЗАЦИЯ ПОЗИЦИИ ==========
@@ -413,27 +445,33 @@
             // ========== ЗАВЕРШЕНИЕ ИГРЫ ==========
             async function endGame(won, promocode = null) {
                 gameRunning = false;
-                cancelAnimationFrame(animationId);
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
                 
-                if (won && promocode) {
+                if (won && promocode && !gamePlayed) {
                     await saveGameResultToDB(true, score, promocode);
-                    $('#gameStatus').html(`🏆 ПОБЕДА! Вы проехали ${score} метров!`).css('color', '#4CAF50');
+                    gamePlayed = true;
+                    $('#gameStatus').html(`🏆 ПОБЕДА! Вы проехали ${score} метров и получили промокод!`).css('color', '#4CAF50');
                     $('#promocodeArea').show();
                     $('#promocodeValue').text(promocode);
                     $('#startBtn').prop('disabled', true);
                     $('#leftBtn').prop('disabled', true);
                     $('#rightBtn').prop('disabled', true);
                     $('#startBtn').text('Гонка пройдена');
-                } else if (!won && gamePlayed === false) {
+                } else if (!won && !gamePlayed) {
                     await saveGameResultToDB(false, score, null);
+                    gamePlayed = true;
+                    
                     if (score > highScore) {
                         highScore = score;
                         $('#highScore').text(highScore);
                     }
+                    
                     $('#gameStatus').html(`💥 Авария! Ваш результат: ${score} метров. Нажмите «Старт», чтобы попробовать снова.`).css('color', '#ff6b6b');
                     $('#startBtn').text('🏁 Играть снова').prop('disabled', false);
-                    gamePlayed = true;
-                } else {
+                } else if (!won && gamePlayed) {
                     if (score > highScore) {
                         highScore = score;
                         $('#highScore').text(highScore);
@@ -451,7 +489,10 @@
                 if (score >= 500 && !gamePlayed) {
                     const promocode = generatePromocode();
                     gameRunning = false;
-                    cancelAnimationFrame(animationId);
+                    if (animationId) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
                     await endGame(true, promocode);
                     return false;
                 }
@@ -484,8 +525,15 @@
             // ========== ЗАПУСК ИГРЫ ==========
             async function startGame() {
                 if (gamePlayed) {
-                    $('#gameStatus').html('❌ Вы уже играли в эту игру.').css('color', '#ff6b6b');
-                    return;
+                    // Если уже играли, просто сбрасываем игру и начинаем заново
+                    resetGame();
+                    gamePlayed = false;
+                }
+                
+                // Очистка перед стартом
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
                 }
                 
                 obstacles.forEach(obs => obs.element.remove());
@@ -494,10 +542,13 @@
                 gameRunning = true;
                 score = 0;
                 frameCount = 0;
+                gameStarted = true;
                 
                 $('#score').text(0);
                 $('#gameStatus').text('🏎️ ГОНКА НАЧАЛАСЬ! Уклоняйтесь от препятствий!').css('color', '#ffd700');
                 $('#startBtn').text('🏁 В гонке...').prop('disabled', true);
+                $('#leftBtn').prop('disabled', false);
+                $('#rightBtn').prop('disabled', false);
                 
                 initPlayerPosition();
                 gameLoop();
@@ -515,7 +566,7 @@
             
             // ========== УПРАВЛЕНИЕ ==========
             $('#startBtn').click(function() {
-                if (!gameRunning && !gamePlayed) {
+                if (!gameRunning) {
                     startGame();
                 }
             });
