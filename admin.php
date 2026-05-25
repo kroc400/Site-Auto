@@ -62,6 +62,69 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS settings (
 )");
 $pdo->exec("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES ('decrease_stock_on_confirm', '0')");
 
+// ========== ОБРАБОТЧИКИ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ ==========
+
+// Сброс пароля пользователя (админом)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_user_password'])) {
+    $user_id = (int)$_POST['user_id'];
+    $new_password = $_POST['new_password'] ?? '123456';
+    $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
+    
+    $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+    $stmt->execute([$password_hash, $user_id]);
+    
+    header('Location: admin.php?tab=users');
+    exit;
+}
+
+// Изменение роли пользователя
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_role'])) {
+    $user_id = (int)$_POST['user_id'];
+    $new_role = $_POST['role'];
+    
+    $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
+    $stmt->execute([$new_role, $user_id]);
+    
+    header('Location: admin.php?tab=users');
+    exit;
+}
+
+// Добавление нового пользователя (админом)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
+    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '123456';
+    $role = $_POST['role'] ?? 'user';
+    
+    // Проверка на существование
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+    $stmt->execute([$username, $email]);
+    if (!$stmt->fetch()) {
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$username, $email, $password_hash, $role]);
+    }
+    
+    header('Location: admin.php?tab=users');
+    exit;
+}
+
+// Удаление пользователя
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
+    $user_id = (int)$_POST['user_id'];
+    
+    // Не даём удалить самого себя
+    if ($user_id != $_SESSION['user_id']) {
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+    }
+    
+    header('Location: admin.php?tab=users');
+    exit;
+}
+
+// ========== ОБРАБОТЧИКИ ДЛЯ ЗАКАЗОВ И АВТО ==========
+
 // Обработка изменения статуса заказа
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['status'])) {
     $order_id = (int)$_POST['order_id'];
@@ -83,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['s
             $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?")->execute([$new_status, $order_id]);
         }
     }
-    header('Location: admin.php');
+    header('Location: admin.php?tab=orders');
     exit;
 }
 
@@ -92,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
     $car_id = (int)$_POST['car_id'];
     $new_stock = (int)$_POST['stock_quantity'];
     $pdo->prepare("UPDATE cars SET stock_quantity = ? WHERE id = ?")->execute([$new_stock, $car_id]);
-    header('Location: admin.php');
+    header('Location: admin.php?tab=cars');
     exit;
 }
 
@@ -104,8 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_decrease'])) {
     exit;
 }
 
+// ========== ПОЛУЧЕНИЕ ДАННЫХ ==========
 $orders = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC")->fetchAll();
 $cars = $pdo->query("SELECT id, title, stock_quantity, price_value FROM cars ORDER BY id")->fetchAll();
+$users = $pdo->query("SELECT id, username, email, role, created_at FROM users ORDER BY id")->fetchAll();
+
 $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'decrease_stock_on_confirm'");
 $decrease_enabled = ($stmt->fetch()['setting_value'] ?? '0') == '1';
 
@@ -113,6 +179,9 @@ $currentYear = date('Y');
 $yearlyRevenue = getYearlyRevenue($pdo, $currentYear);
 $totalOrders = getTotalOrdersCount($pdo, $currentYear);
 $popularCar = getMostPopularCar($pdo, $currentYear);
+
+// Активная вкладка
+$activeTab = $_GET['tab'] ?? 'stats';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -121,6 +190,108 @@ $popularCar = getMostPopularCar($pdo, $currentYear);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель</title>
     <link rel="stylesheet" href="./styles.css">
+    <style>
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .tab-btn {
+            padding: 10px 25px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            background: #ddd;
+        }
+        .tab-btn.active {
+            background: #e63946;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .users-table th, .users-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .users-table th {
+            background: #1a1a1a;
+            color: white;
+        }
+        .add-user-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .add-user-form input, .add-user-form select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .add-user-form button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-reset {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-delete {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .role-select {
+            padding: 4px;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .add-user-form {
+                flex-direction: column;
+            }
+            .add-user-form input, .add-user-form select, .add-user-form button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header></header>
@@ -129,135 +300,265 @@ $popularCar = getMostPopularCar($pdo, $currentYear);
             <a href="account.html" class="switch-to-user">← Переключиться на пользовательский интерфейс</a>
             <h1>Админ-панель</h1>
 
-            <!-- Блок статистики -->
-            <div class="admin-section">
-                <h2>Статистика продаж за <?= $currentYear ?> год</h2>
-                
-                <div class="stats-grid">
-                    <div class="stats-card">
-                        <h3>Общая выручка</h3>
-                        <div class="value"><?= number_format($yearlyRevenue, 0, '', ' ') ?> ₽</div>
-                    </div>
-                    <div class="stats-card">
-                        <h3>Количество заказов</h3>
-                        <div class="value"><?= $totalOrders ?></div>
-                    </div>
-                    <div class="stats-card">
-                        <h3>Самый популярный автомобиль</h3>
-                        <?php if ($popularCar && $popularCar['cnt'] > 0): ?>
-                            <div class="value" style="font-size: 18px;"><?= htmlspecialchars($popularCar['car_title']) ?></div>
-                            <div style="margin-top: 5px; color: #888;">Заказов: <?= $popularCar['cnt'] ?></div>
-                        <?php else: ?>
-                            <div class="value" style="font-size: 16px;">Нет заказов</div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <table class="monthly-table">
-                    <thead>
-                        <tr><th>Месяц</th><th>Выручка</th><th>Количество заказов</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php for ($month = 1; $month <= 12; $month++): 
-                            $monthName = date('F', mktime(0, 0, 0, $month, 1));
-                            $monthlyRevenue = getMonthlyRevenue($pdo, $currentYear, $month);
-                            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? AND status != 'cancelled'");
-                            $stmt->execute([$currentYear, $month]);
-                            $monthlyOrders = $stmt->fetch()['cnt'];
-                        ?>
-                        <tr>
-                            <td data-label="Месяц"><?= $monthName ?></td>
-                            <td data-label="Выручка"><?= $monthlyRevenue > 0 ? number_format($monthlyRevenue, 0, '', ' ') . ' ₽' : '—' ?></td>
-                            <td data-label="Заказы"><?= $monthlyOrders ?></td>
-                        </tr>
-                        <?php endfor; ?>
-                    </tbody>
-                </table>
+            <!-- Вкладки -->
+            <div class="admin-tabs">
+                <button class="tab-btn <?= $activeTab == 'stats' ? 'active' : '' ?>" data-tab="stats">📊 Статистика</button>
+                <button class="tab-btn <?= $activeTab == 'settings' ? 'active' : '' ?>" data-tab="settings">⚙️ Настройки</button>
+                <button class="tab-btn <?= $activeTab == 'cars' ? 'active' : '' ?>" data-tab="cars">🚗 Автомобили</button>
+                <button class="tab-btn <?= $activeTab == 'orders' ? 'active' : '' ?>" data-tab="orders">📦 Заказы</button>
+                <button class="tab-btn <?= $activeTab == 'users' ? 'active' : '' ?>" data-tab="users">👥 Пользователи</button>
             </div>
 
-            <!-- Блок настроек (кнопка внутри) -->
-            <div class="admin-section">
-                <h2>Настройки</h2>
-                <div class="settings-panel">
-                    <form method="post">
-                        <label>
-                            <input type="checkbox" name="decrease_enabled" value="1" <?= $decrease_enabled ? 'checked' : '' ?>>
-                            Уменьшать количество автомобилей при подтверждении заказа (статус "Подтверждён")
-                        </label>
-                        <button type="submit" name="toggle_decrease">Сохранить</button>
-                    </form>
-                </div>
-            </div>
+            <!-- Вкладка: Статистика -->
+            <div id="tab-stats" class="tab-content <?= $activeTab == 'stats' ? 'active' : '' ?>">
+                <div class="admin-section">
+                    <h2>Статистика продаж за <?= $currentYear ?> год</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stats-card">
+                            <h3>Общая выручка</h3>
+                            <div class="value"><?= number_format($yearlyRevenue, 0, '', ' ') ?> ₽</div>
+                        </div>
+                        <div class="stats-card">
+                            <h3>Количество заказов</h3>
+                            <div class="value"><?= $totalOrders ?></div>
+                        </div>
+                        <div class="stats-card">
+                            <h3>Самый популярный автомобиль</h3>
+                            <?php if ($popularCar && $popularCar['cnt'] > 0): ?>
+                                <div class="value" style="font-size: 18px;"><?= htmlspecialchars($popularCar['car_title']) ?></div>
+                                <div style="margin-top: 5px; color: #888;">Заказов: <?= $popularCar['cnt'] ?></div>
+                            <?php else: ?>
+                                <div class="value" style="font-size: 16px;">Нет заказов</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
 
-            <!-- Автомобили -->
-            <div class="admin-section">
-                <h2>Управление автомобилями</h2>
-                <div class="table-responsive">
-                    <table class="cars-table">
-                        <thead><tr><th>ID</th><th>Название</th><th>Цена</th><th>Количество</th><th>Действия</th></tr></thead>
+                    <table class="monthly-table">
+                        <thead>
+                            <tr><th>Месяц</th><th>Выручка</th><th>Количество заказов</th></tr>
+                        </thead>
                         <tbody>
-                            <?php foreach ($cars as $car): ?>
+                            <?php for ($month = 1; $month <= 12; $month++): 
+                                $monthName = date('F', mktime(0, 0, 0, $month, 1));
+                                $monthlyRevenue = getMonthlyRevenue($pdo, $currentYear, $month);
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM orders WHERE YEAR(created_at) = ? AND MONTH(created_at) = ? AND status != 'cancelled'");
+                                $stmt->execute([$currentYear, $month]);
+                                $monthlyOrders = $stmt->fetch()['cnt'];
+                            ?>
                             <tr>
-                                <td data-label="ID"><?= $car['id'] ?></td>
-                                <td data-label="Название"><?= htmlspecialchars($car['title']) ?></td>
-                                <td data-label="Цена"><?= number_format($car['price_value'], 0, '', ' ') ?> ₽</td>
-                                <td data-label="Количество">
-                                    <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
-                                        <input type="hidden" name="car_id" value="<?= $car['id'] ?>">
-                                        <input type="number" name="stock_quantity" value="<?= $car['stock_quantity'] ?>" class="stock-input" min="0">
-                                        <button type="submit" name="update_stock">Обновить</button>
-                                    </form>
-                                </td>
-                                <td data-label="Действия"><a href="car_template.html?id=<?= $car['id'] ?>" target="_blank">Просмотр</a></td>
+                                <td data-label="Месяц"><?= $monthName ?></td>
+                                <td data-label="Выручка"><?= $monthlyRevenue > 0 ? number_format($monthlyRevenue, 0, '', ' ') . ' ₽' : '—' ?></td>
+                                <td data-label="Заказы"><?= $monthlyOrders ?></td>
                             </tr>
-                            <?php endforeach; ?>
+                            <?php endfor; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Заказы -->
-            <div class="admin-section">
-                <h2>Заказы</h2>
-                <div class="table-responsive">
-                    <table class="orders-table">
-                        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Автомобиль</th><th>Цена</th><th>Статус</th><th>Списано</th></tr></thead>
-                        <tbody>
-                            <?php foreach ($orders as $order): ?>
-                            <tr>
-                                <td data-label="ID"><?= $order['id'] ?></td>
-                                <td data-label="Дата"><?= $order['created_at'] ?></td>
-                                <td data-label="Клиент"><?= htmlspecialchars($order['customer_name']) ?></td>
-                                <td data-label="Телефон"><?= htmlspecialchars($order['customer_phone']) ?></td>
-                                <td data-label="Автомобиль"><?= htmlspecialchars($order['car_title']) ?></td>
-                                <td data-label="Цена"><?= htmlspecialchars($order['car_price']) ?></td>
-                                <td data-label="Статус" class="status-<?= $order['status'] ?>">
-                                    <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
-                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                        <select name="status">
-                                            <option value="new" <?= $order['status'] === 'new' ? 'selected' : '' ?>>Новый</option>
-                                            <option value="processed" <?= $order['status'] === 'processed' ? 'selected' : '' ?>>Подтверждён</option>
-                                            <option value="completed" <?= $order['status'] === 'completed' ? 'selected' : '' ?>>Выполнен</option>
-                                            <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>Отменён</option>
-                                        </select>
-                                        <button type="submit">Обновить</button>
-                                    </form>
-                                </td>
-                                <td data-label="Списано"><?= $order['stock_decreased'] ? 'Да' : 'Нет' ?></td>
-                                <td data-label="Действия">
-                                    <!-- можно добавить удаление, если нужно -->
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+            <!-- Вкладка: Настройки -->
+            <div id="tab-settings" class="tab-content <?= $activeTab == 'settings' ? 'active' : '' ?>">
+                <div class="admin-section">
+                    <h2>Настройки</h2>
+                    <div class="settings-panel">
+                        <form method="post">
+                            <label>
+                                <input type="checkbox" name="decrease_enabled" value="1" <?= $decrease_enabled ? 'checked' : '' ?>>
+                                Уменьшать количество автомобилей при подтверждении заказа (статус "Подтверждён")
+                            </label>
+                            <button type="submit" name="toggle_decrease">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Автомобили -->
+            <div id="tab-cars" class="tab-content <?= $activeTab == 'cars' ? 'active' : '' ?>">
+                <div class="admin-section">
+                    <h2>Управление автомобилями</h2>
+                    <div class="table-responsive">
+                        <table class="cars-table">
+                            <thead><tr><th>ID</th><th>Название</th><th>Цена</th><th>Количество</th><th>Действия</th></td></thead>
+                            <tbody>
+                                <?php foreach ($cars as $car): ?>
+                                <tr>
+                                    <td data-label="ID"><?= $car['id'] ?></td>
+                                    <td data-label="Название"><?= htmlspecialchars($car['title']) ?></td>
+                                    <td data-label="Цена"><?= number_format($car['price_value'], 0, '', ' ') ?> ₽</td>
+                                    <td data-label="Количество">
+                                        <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
+                                            <input type="hidden" name="car_id" value="<?= $car['id'] ?>">
+                                            <input type="number" name="stock_quantity" value="<?= $car['stock_quantity'] ?>" class="stock-input" min="0">
+                                            <button type="submit" name="update_stock">Обновить</button>
+                                        </form>
+                                    </td>
+                                    <td data-label="Действия"><a href="car_template.html?id=<?= $car['id'] ?>" target="_blank">Просмотр</a></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Заказы -->
+            <div id="tab-orders" class="tab-content <?= $activeTab == 'orders' ? 'active' : '' ?>">
+                <div class="admin-section">
+                    <h2>Заказы</h2>
+                    <div class="table-responsive">
+                        <table class="orders-table">
+                            <thead>
+                                <tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Автомобиль</th><th>Цена</th><th>Статус</th><th>Списано</th></tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($orders as $order): ?>
+                                <tr>
+                                    <td data-label="ID"><?= $order['id'] ?></td>
+                                    <td data-label="Дата"><?= $order['created_at'] ?></td>
+                                    <td data-label="Клиент"><?= htmlspecialchars($order['customer_name']) ?></td>
+                                    <td data-label="Телефон"><?= htmlspecialchars($order['customer_phone']) ?></td>
+                                    <td data-label="Автомобиль"><?= htmlspecialchars($order['car_title']) ?></td>
+                                    <td data-label="Цена"><?= htmlspecialchars($order['car_price']) ?></td>
+                                    <td data-label="Статус" class="status-<?= $order['status'] ?>">
+                                        <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
+                                            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                            <select name="status">
+                                                <option value="new" <?= $order['status'] === 'new' ? 'selected' : '' ?>>Новый</option>
+                                                <option value="processed" <?= $order['status'] === 'processed' ? 'selected' : '' ?>>Подтверждён</option>
+                                                <option value="completed" <?= $order['status'] === 'completed' ? 'selected' : '' ?>>Выполнен</option>
+                                                <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>Отменён</option>
+                                            </select>
+                                            <button type="submit">Обновить</button>
+                                        </form>
+                                    </td>
+                                    <td data-label="Списано"><?= $order['stock_decreased'] ? 'Да' : 'Нет' ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладка: Пользователи -->
+            <div id="tab-users" class="tab-content <?= $activeTab == 'users' ? 'active' : '' ?>">
+                <div class="admin-section">
+                    <h2>Управление пользователями</h2>
+                    
+                    <!-- Форма добавления пользователя -->
+                    <div class="add-user-form">
+                        <input type="text" id="new_username" placeholder="Логин" required>
+                        <input type="email" id="new_email" placeholder="Email" required>
+                        <input type="text" id="new_password" placeholder="Пароль (по умолчанию 123456)">
+                        <select id="new_role">
+                            <option value="user">Пользователь</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                        <button id="addUserBtn">➕ Добавить пользователя</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="users-table">
+                            <thead>
+                                <tr><th>ID</th><th>Логин</th><th>Email</th><th>Роль</th><th>Дата регистрации</th><th>Действия</th></tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($users as $user): ?>
+                                <tr id="user-row-<?= $user['id'] ?>">
+                                    <td data-label="ID"><?= $user['id'] ?></td>
+                                    <td data-label="Логин"><?= htmlspecialchars($user['username']) ?></td>
+                                    <td data-label="Email"><?= htmlspecialchars($user['email']) ?></td>
+                                    <td data-label="Роль">
+                                        <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
+                                            <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                            <select name="role" class="role-select">
+                                                <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>Пользователь</option>
+                                                <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Администратор</option>
+                                            </select>
+                                            <button type="submit" name="change_role" style="background: #4CAF50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Сохранить</button>
+                                        </form>
+                                    </td>
+                                    <td data-label="Дата регистрации"><?= $user['created_at'] ?></td>
+                                    <td data-label="Действия">
+                                        <form method="post" style="display: inline;">
+                                            <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                            <input type="hidden" name="new_password" id="new_pass_<?= $user['id'] ?>" value="123456">
+                                            <button type="submit" name="reset_user_password" class="btn-reset" onclick="return confirm('Сбросить пароль пользователя на 123456?')">🔑 Сброс пароля</button>
+                                        </form>
+                                        <?php if ($user['id'] != $_SESSION['user_id']): ?>
+                                            <form method="post" style="display: inline; margin-left: 5px;">
+                                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                                <button type="submit" name="delete_user" class="btn-delete" onclick="return confirm('Удалить пользователя <?= htmlspecialchars($user['username']) ?>?')">🗑️ Удалить</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span style="color: #999; font-size: 12px;">(Вы)</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
     <footer></footer>
+    
     <script src="header.js" type="module"></script>
     <script src="footer.js" type="module"></script>
     <script src="backToTopButton.js"></script>
+    
+    <script>
+        // Переключение вкладок
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                // Обновляем URL без перезагрузки
+                window.history.pushState({}, '', '?tab=' + tabId);
+                // Переключаем активные классы у кнопок
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Переключаем активные классы у контента
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById('tab-' + tabId).classList.add('active');
+            });
+        });
+        
+        // Добавление пользователя через AJAX
+        document.getElementById('addUserBtn')?.addEventListener('click', async () => {
+            const username = document.getElementById('new_username').value.trim();
+            const email = document.getElementById('new_email').value.trim();
+            const password = document.getElementById('new_password').value.trim();
+            const role = document.getElementById('new_role').value;
+            
+            if (!username || !email) {
+                alert('Заполните логин и email');
+                return;
+            }
+            
+            const finalPassword = password || '123456';
+            
+            try {
+                const response = await fetch('/api/add_user.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password: finalPassword, role })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Пользователь добавлен!');
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка соединения');
+            }
+        });
+    </script>
 </body>
 </html>
