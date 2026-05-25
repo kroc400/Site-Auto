@@ -1450,6 +1450,24 @@ a {
 
 
 
+.game-invite-block,
+.promocode-display {
+    margin: 20px 0;
+}
+
+.promocode-display h4 {
+    margin: 0 0 10px 0;
+    color: #155724;
+}
+
+.game-start-btn {
+    transition: transform 0.2s;
+}
+
+.game-start-btn:hover {
+    transform: scale(1.05);
+}
+
 /*#endregion */
 
 /* #region registr page */

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>F1 Гонка - Получи скидку!</title>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        
+        .game-container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .game-container h2 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .score-box {
+            font-size: 24px;
+            font-weight: bold;
+            background: #e63946;
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+        
+        .highscore-box {
+            font-size: 18px;
+            background: #333;
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+        
+        .race-track {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #2d2d2d;
+            overflow: hidden;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+        }
+        
+        .road {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 45%,
+                #ffd700 45%,
+                #ffd700 55%,
+                transparent 55%,
+                transparent 100%
+            );
+            background-size: 60px 100%;
+            pointer-events: none;
+        }
+        
+        .player-car {
+            position: absolute;
+            bottom: 20px;
+            width: 50px;
+            height: 80px;
+            background: #e63946;
+            border-radius: 10px;
+            z-index: 10;
+            transition: left 0.02s linear;
+            box-shadow: 0 0 10px rgba(230,57,70,0.5);
+        }
+        
+        .player-car::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            width: 30px;
+            height: 20px;
+            background: #87CEEB;
+            border-radius: 5px;
+        }
+        
+        .player-car::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 40px;
+            height: 15px;
+            background: #333;
+            border-radius: 5px;
+        }
+        
+        .obstacle {
+            position: absolute;
+            width: 45px;
+            height: 70px;
+            background: #666;
+            border-radius: 8px;
+            z-index: 5;
+        }
+        
+        .obstacle::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 8px;
+            width: 29px;
+            height: 15px;
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        .obstacle::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 35px;
+            height: 12px;
+            background: #222;
+            border-radius: 4px;
+        }
+        
+        .game-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: #e63946;
+            transform: scale(1.05);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .game-status {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #ffd700;
+        }
+        
+        .promocode-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .promocode-area span {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e63946;
+            letter-spacing: 2px;
+        }
+        
+        .info-text {
+            color: #ccc;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .race-track {
+                height: 400px;
+            }
+            .player-car {
+                width: 45px;
+                height: 70px;
+                bottom: 15px;
+            }
+            .obstacle {
+                width: 40px;
+                height: 60px;
+            }
+            .control-btn {
+                padding: 8px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+    <main class="content">
+        <div class="game-container">
+            <h2>🏎️ F1 RACER</h2>
+            <div class="game-stats">
+                <div class="highscore-box">🏆 Рекорд: <span id="highScore">0</span> м</div>
+                <div class="score-box">📊 Очки: <span id="score">0</span> м</div>
+            </div>
+            
+            <div class="race-track" id="raceTrack">
+                <div class="road"></div>
+                <div class="player-car" id="playerCar"></div>
+            </div>
+            
+            <div class="game-controls">
+                <button class="control-btn" id="leftBtn">◀ Влево</button>
+                <button class="control-btn" id="startBtn">🏁 Старт</button>
+                <button class="control-btn" id="rightBtn">Вправо ▶</button>
+            </div>
+            
+            <div class="game-status" id="gameStatus">Нажмите «Старт», чтобы начать гонку!</div>
+            
+            <div class="promocode-area" id="promocodeArea">
+                🎉 ПОЗДРАВЛЯЕМ! Вы получили промокод:<br>
+                <span id="promocodeValue"></span>
+                <p style="font-size: 12px; margin-top: 10px;">Промокод действует на одну покупку. Предъявите его менеджеру.</p>
+                <button id="closeGameBtn" class="control-btn" style="background: #4CAF50; margin-top: 10px;">Закрыть</button>
+            </div>
+            
+            <div class="info-text">
+                💡 Управляйте машиной клавишами <strong>◀</strong> и <strong>▶</strong> или кнопками. Уклоняйтесь от препятствий!
+            </div>
+        </div>
+    </main>
+    <footer></footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="header.js" type="module"></script>
+    <script src="footer.js" type="module"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // ========== ПЕРЕМЕННЫЕ ==========
+            let gameRunning = false;
+            let score = 0;
+            let highScore = 0;
+            let animationId = null;
+            let frameCount = 0;
+            let gamePlayed = false;
+            
+            // Элементы
+            const track = $('#raceTrack');
+            const playerCar = $('#playerCar');
+            let trackWidth = track.width();
+            let trackHeight = track.height();
+            
+            // Параметры игрока
+            const PLAYER_WIDTH = 50;
+            const PLAYER_HEIGHT = 80;
+            let playerX = 0;
+            
+            // Параметры препятствий
+            const OBSTACLE_WIDTH = 45;
+            const OBSTACLE_HEIGHT = 70;
+            let obstacles = [];
+            
+            // ========== ПРОВЕРКА СТАТУСА ИГРЫ ЧЕРЕЗ БД ==========
+            async function checkGameStatus() {
+                try {
+                    const response = await fetch('/api/get_game_status.php?game_type=race');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        highScore = data.score || 0;
+                        $('#highScore').text(highScore);
+                        
+                        if (data.played) {
+                            gamePlayed = true;
+                            if (data.promocode && !data.promocode_used) {
+                                $('#promocodeArea').show();
+                                $('#promocodeValue').text(data.promocode);
+                            }
+                            $('#gameStatus').html('❌ Вы уже играли в эту игру. Промокод можно использовать только один раз.').css('color', '#ff6b6b');
+                            $('#startBtn').prop('disabled', true);
+                            $('#leftBtn').prop('disabled', true);
+                            $('#rightBtn').prop('disabled', true);
+                            $('#startBtn').text('Игра недоступна');
+                            return false;
+                        }
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Ошибка проверки статуса:', error);
+                    return true;
+                }
+            }
+            
+            // ========== ГЕНЕРАЦИЯ ПРОМОКОДА ==========
+            function generatePromocode() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+                let code = '';
+                for (let i = 0; i < 10; i++) {
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return 'F1-' + code;
+            }
+            
+            // ========== СОХРАНЕНИЕ РЕЗУЛЬТАТА В БД ==========
+            async function saveGameResultToDB(won, score, promocode) {
+                try {
+                    const response = await fetch('/api/save_game_result.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            game_type: 'race',
+                            won: won ? 1 : 0,
+                            score: score,
+                            promocode: promocode
+                        })
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Ошибка сохранения:', error);
+                    return false;
+                }
+            }
+            
+            // ========== ИНИЦИАЛИЗАЦИЯ ПОЗИЦИИ ==========
+            function initPlayerPosition() {
+                trackWidth = track.width();
+                trackHeight = track.height();
+                playerX = trackWidth / 2 - PLAYER_WIDTH / 2;
+                playerCar.css('left', playerX + 'px');
+            }
+            
+            // ========== ПРОВЕРКА СТОЛКНОВЕНИЯ ==========
+            function checkCollision(obsX, obsY) {
+                const playerY = trackHeight - 20 - PLAYER_HEIGHT;
+                const playerLeft = playerX;
+                const playerRight = playerX + PLAYER_WIDTH;
+                const playerTop = playerY;
+                const playerBottom = playerY + PLAYER_HEIGHT;
+                
+                const obsLeft = obsX;
+                const obsRight = obsX + OBSTACLE_WIDTH;
+                const obsTop = obsY;
+                const obsBottom = obsY + OBSTACLE_HEIGHT;
+                
+                return (playerRight > obsLeft && playerLeft < obsRight &&
+                        playerBottom > obsTop && playerTop < obsBottom);
+            }
+            
+            // ========== СОЗДАНИЕ ПРЕПЯТСТВИЯ ==========
+            function createObstacle() {
+                const obsX = Math.random() * (trackWidth - OBSTACLE_WIDTH);
+                const obstacle = {
+                    x: obsX,
+                    y: -OBSTACLE_HEIGHT,
+                    element: $('<div class="obstacle"></div>')
+                };
+                obstacle.element.css({
+                    left: obsX + 'px',
+                    top: obstacle.y + 'px'
+                });
+                track.append(obstacle.element);
+                obstacles.push(obstacle);
+            }
+            
+            // ========== ОБНОВЛЕНИЕ ПРЕПЯТСТВИЙ ==========
+            function updateObstacles() {
+                for (let i = 0; i < obstacles.length; i++) {
+                    const obs = obstacles[i];
+                    obs.y += 5;
+                    obs.element.css('top', obs.y + 'px');
+                    
+                    if (checkCollision(obs.x, obs.y)) {
+                        return false;
+                    }
+                    
+                    if (obs.y > trackHeight) {
+                        obs.element.remove();
+                        obstacles.splice(i, 1);
+                        i--;
+                    }
+                }
+                return true;
+            }
+            
+            // ========== ЗАВЕРШЕНИЕ ИГРЫ ==========
+            async function endGame(won, promocode = null) {
+                gameRunning = false;
+                cancelAnimationFrame(animationId);
+                
+                if (won && promocode) {
+                    await saveGameResultToDB(true, score, promocode);
+                    $('#gameStatus').html(`🏆 ПОБЕДА! Вы проехали ${score} метров!`).css('color', '#4CAF50');
+                    $('#promocodeArea').show();
+                    $('#promocodeValue').text(promocode);
+                    $('#startBtn').prop('disabled', true);
+                    $('#leftBtn').prop('disabled', true);
+                    $('#rightBtn').prop('disabled', true);
+                    $('#startBtn').text('Гонка пройдена');
+                } else if (!won && gamePlayed === false) {
+                    await saveGameResultToDB(false, score, null);
+                    if (score > highScore) {
+                        highScore = score;
+                        $('#highScore').text(highScore);
+                    }
+                    $('#gameStatus').html(`💥 Авария! Ваш результат: ${score} метров. Нажмите «Старт», чтобы попробовать снова.`).css('color', '#ff6b6b');
+                    $('#startBtn').text('🏁 Играть снова').prop('disabled', false);
+                    gamePlayed = true;
+                } else {
+                    if (score > highScore) {
+                        highScore = score;
+                        $('#highScore').text(highScore);
+                    }
+                    $('#gameStatus').html(`💥 Авария! Ваш результат: ${score} метров.`).css('color', '#ff6b6b');
+                    $('#startBtn').text('🏁 Играть снова').prop('disabled', false);
+                }
+            }
+            
+            // ========== ОБНОВЛЕНИЕ ОЧКОВ ==========
+            async function updateScore() {
+                score += 10;
+                $('#score').text(score);
+                
+                if (score >= 500 && !gamePlayed) {
+                    const promocode = generatePromocode();
+                    gameRunning = false;
+                    cancelAnimationFrame(animationId);
+                    await endGame(true, promocode);
+                    return false;
+                }
+                return true;
+            }
+            
+            // ========== ИГРОВОЙ ЦИКЛ ==========
+            function gameLoop() {
+                if (!gameRunning) return;
+                
+                frameCount++;
+                
+                if (frameCount % 40 === 0 && obstacles.length < 4) {
+                    createObstacle();
+                }
+                
+                const noCollision = updateObstacles();
+                if (!noCollision) {
+                    endGame(false);
+                    return;
+                }
+                
+                if (frameCount % 15 === 0) {
+                    updateScore();
+                }
+                
+                animationId = requestAnimationFrame(gameLoop);
+            }
+            
+            // ========== ЗАПУСК ИГРЫ ==========
+            async function startGame() {
+                if (gamePlayed) {
+                    $('#gameStatus').html('❌ Вы уже играли в эту игру.').css('color', '#ff6b6b');
+                    return;
+                }
+                
+                obstacles.forEach(obs => obs.element.remove());
+                obstacles = [];
+                
+                gameRunning = true;
+                score = 0;
+                frameCount = 0;
+                
+                $('#score').text(0);
+                $('#gameStatus').text('🏎️ ГОНКА НАЧАЛАСЬ! Уклоняйтесь от препятствий!').css('color', '#ffd700');
+                $('#startBtn').text('🏁 В гонке...').prop('disabled', true);
+                
+                initPlayerPosition();
+                gameLoop();
+            }
+            
+            // ========== ДВИЖЕНИЕ ИГРОКА ==========
+            function movePlayer(dx) {
+                if (!gameRunning) return;
+                let newX = playerX + dx;
+                if (newX >= 0 && newX <= trackWidth - PLAYER_WIDTH) {
+                    playerX = newX;
+                    playerCar.css('left', playerX + 'px');
+                }
+            }
+            
+            // ========== УПРАВЛЕНИЕ ==========
+            $('#startBtn').click(function() {
+                if (!gameRunning && !gamePlayed) {
+                    startGame();
+                }
+            });
+            
+            $('#leftBtn').click(function() {
+                movePlayer(-30);
+            });
+            
+            $('#rightBtn').click(function() {
+                movePlayer(30);
+            });
+            
+            $(document).keydown(function(e) {
+                if (!gameRunning) return;
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    movePlayer(-30);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    movePlayer(30);
+                }
+            });
+            
+            $('#closeGameBtn').click(function() {
+                window.location.href = 'account.html';
+            });
+            
+            $(window).resize(function() {
+                if (!gameRunning) {
+                    initPlayerPosition();
+                }
+            });
+            
+            // ========== ИНИЦИАЛИЗАЦИЯ ==========
+            initPlayerPosition();
+            checkGameStatus();
+        });
+    </script>
+</body>
+</html>

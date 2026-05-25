@@ -95,6 +95,7 @@
                 
                 loadUserProfile();
                 loadFavorites();
+                loadPromocode()
             } else {
                 document.getElementById('profileContent').style.display = 'none';
                 document.getElementById('authCheck').innerHTML = `<div class="auth-warning">Вы не авторизованы. <a href="login.html">Войдите</a></div>`;
@@ -255,6 +256,99 @@
             return m;
         });
     }
+
+
+        // ========== ИГРА И ПРОМОКОД ==========
+    
+    // Загрузка промокода из БД
+    async function loadPromocode() {
+        try {
+            const response = await fetch('/api/get_game_status.php?game_type=race');
+            const data = await response.json();
+            
+            if (data.success && data.promocode && data.won && !data.promocode_used) {
+                // Показываем блок с промокодом
+                let promoBlock = document.getElementById('promocodeDisplay');
+                if (!promoBlock) {
+                    // Создаём блок, если его нет
+                    const favoritesSection = document.querySelector('.favorites-section');
+                    const newBlock = document.createElement('div');
+                    newBlock.id = 'promocodeDisplay';
+                    newBlock.className = 'promocode-display';
+                    newBlock.style.cssText = 'margin-top: 20px; text-align: center; background: #d4edda; padding: 15px; border-radius: 12px; display: none;';
+                    newBlock.innerHTML = `
+                        <h4>🎁 Ваш промокод на скидку 10%!</h4>
+                        <p style="font-size: 24px; font-weight: bold; color: #e63946; letter-spacing: 2px;" id="userPromocode"></p>
+                        <p>Предъявите промокод менеджеру при покупке автомобиля.</p>
+                        <button id="applyPromocodeBtn" class="car-card-button" style="background: #4CAF50; margin-top: 10px;">Применить промокод</button>
+                    `;
+                    favoritesSection.insertAdjacentElement('afterend', newBlock);
+                    promoBlock = document.getElementById('promocodeDisplay');
+                }
+                
+                promoBlock.style.display = 'block';
+                document.getElementById('userPromocode').textContent = data.promocode;
+                
+                // Обработчик применения промокода
+                document.getElementById('applyPromocodeBtn')?.addEventListener('click', applyPromocode);
+            }
+            
+            // Блок для игры (если не играл)
+            if (data.success && !data.played) {
+                let gameBlock = document.getElementById('gameBlock');
+                if (!gameBlock) {
+                    const promoBlock = document.getElementById('promocodeDisplay');
+                    const newGameBlock = document.createElement('div');
+                    newGameBlock.id = 'gameBlock';
+                    newGameBlock.className = 'game-invite-block';
+                    newGameBlock.style.cssText = 'margin-top: 20px; text-align: center; background: linear-gradient(135deg, #e63946, #ff6b6b); padding: 20px; border-radius: 25px; color: white;';
+                    newGameBlock.innerHTML = `
+                        <h3>🏎️ F1 RACER - Получи скидку 10%!</h3>
+                        <p>Проедьте 500 метров, уклоняясь от препятствий, и получите промокод на скидку!</p>
+                        <p style="font-size: 14px; opacity: 0.9;">Управление: кнопки "Влево/Вправо" или клавиши ◀ ▶</p>
+                        <a href="game_race.html" class="game-start-btn" style="background: white; color: #e63946; padding: 12px 30px; border-radius: 40px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px;">🏁 Начать гонку →</a>
+                    `;
+                    if (promoBlock) {
+                        promoBlock.insertAdjacentElement('afterend', newGameBlock);
+                    } else {
+                        const favoritesSection = document.querySelector('.favorites-section');
+                        favoritesSection.insertAdjacentElement('afterend', newGameBlock);
+                    }
+                    gameBlock = document.getElementById('gameBlock');
+                }
+                gameBlock.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки промокода:', error);
+        }
+    }
+    
+    // Применение промокода
+    async function applyPromocode() {
+        const promocode = document.getElementById('userPromocode')?.textContent;
+        if (!promocode) return;
+        
+        try {
+            const response = await fetch('/api/use_promocode.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ promocode: promocode, game_type: 'race' })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Промокод применён! Скидка 10% добавлена к вашему заказу.');
+                document.getElementById('promocodeDisplay').style.display = 'none';
+            } else {
+                alert('❌ ' + result.message);
+            }
+        } catch (error) {
+            console.error('Ошибка применения промокода:', error);
+            alert('Ошибка при применении промокода');
+        }
+    }
+
+
 
     // Запуск
     checkAuth();
