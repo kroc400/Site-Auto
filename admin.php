@@ -64,8 +64,34 @@ $pdo->exec("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES ('de
 
 // ========== ОБРАБОТЧИКИ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ ==========
 
-// Сброс пароля пользователя (админом)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_user_password'])) {
+// Обновление данных пользователя (ФИО, логин, email, роль, телефон)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
+    $user_id = (int)$_POST['user_id'];
+    $surname = $_POST['surname'] ?? '';
+    $name = $_POST['name'] ?? '';
+    $patronymic = $_POST['patronymic'] ?? '';
+    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $role = $_POST['role'] ?? 'user';
+    $phone = $_POST['phone'] ?? '';
+    
+    // Проверка на уникальность логина и email (исключая текущего пользователя)
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
+    $stmt->execute([$username, $email, $user_id]);
+    if ($stmt->fetch()) {
+        $error = "Пользователь с таким логином или email уже существует";
+    } else {
+        $stmt = $pdo->prepare("UPDATE users SET surname = ?, name = ?, patronymic = ?, username = ?, email = ?, role = ?, phone = ? WHERE id = ?");
+        $stmt->execute([$surname, $name, $patronymic, $username, $email, $role, $phone, $user_id]);
+        $success = "Данные пользователя обновлены";
+    }
+    
+    header('Location: admin.php?tab=users' . ($error ? '&error=' . urlencode($error) : '&success=' . urlencode($success)));
+    exit;
+}
+
+// Сброс пароля пользователя
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
     $user_id = (int)$_POST['user_id'];
     $new_password = $_POST['new_password'] ?? '123456';
     $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
@@ -73,39 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_user_password']
     $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
     $stmt->execute([$password_hash, $user_id]);
     
-    header('Location: admin.php?tab=users');
-    exit;
-}
-
-// Изменение роли пользователя
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_role'])) {
-    $user_id = (int)$_POST['user_id'];
-    $new_role = $_POST['role'];
-    
-    $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
-    $stmt->execute([$new_role, $user_id]);
-    
-    header('Location: admin.php?tab=users');
-    exit;
-}
-
-// Добавление нового пользователя (админом)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
-    $username = $_POST['username'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '123456';
-    $role = $_POST['role'] ?? 'user';
-    
-    // Проверка на существование
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-    $stmt->execute([$username, $email]);
-    if (!$stmt->fetch()) {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, $email, $password_hash, $role]);
-    }
-    
-    header('Location: admin.php?tab=users');
+    header('Location: admin.php?tab=users&success=Пароль сброшен на ' . urlencode($new_password));
     exit;
 }
 
@@ -115,11 +109,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     
     // Не даём удалить самого себя
     if ($user_id != $_SESSION['user_id']) {
-        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
+        // Сначала удаляем связанные записи (избранное, отзывы, заказы)
+        $pdo->prepare("DELETE FROM favorites WHERE user_id = ?")->execute([$user_id]);
+        $pdo->prepare("DELETE FROM reviews WHERE user_id = ?")->execute([$user_id]);
+        $pdo->prepare("DELETE FROM orders WHERE user_id = ?")->execute([$user_id]);
+        $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$user_id]);
+        $success = "Пользователь удалён";
+    } else {
+        $error = "Нельзя удалить самого себя";
     }
     
-    header('Location: admin.php?tab=users');
+    header('Location: admin.php?tab=users' . ($error ? '&error=' . urlencode($error) : '&success=' . urlencode($success)));
     exit;
 }
 
@@ -444,57 +444,83 @@ $activeTab = $_GET['tab'] ?? 'stats';
             <!-- Вкладка: Пользователи -->
             <div id="tab-users" class="tab-content <?= $activeTab == 'users' ? 'active' : '' ?>">
                 <div class="admin-section">
-                    <h2>Управление пользователями</h2>
+                    <h2>👥 Управление пользователями</h2>
                     
-                    <!-- Форма добавления пользователя -->
-                    <div class="add-user-form">
-                        <input type="text" id="new_username" placeholder="Логин" required>
-                        <input type="email" id="new_email" placeholder="Email" required>
-                        <input type="text" id="new_password" placeholder="Пароль (по умолчанию 123456)">
-                        <select id="new_role">
-                            <option value="user">Пользователь</option>
-                            <option value="admin">Администратор</option>
-                        </select>
-                        <button id="addUserBtn">➕ Добавить пользователя</button>
-                    </div>
+                    <?php if (isset($_GET['success'])): ?>
+                        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                            ✅ <?= htmlspecialchars($_GET['success']) ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (isset($_GET['error'])): ?>
+                        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                            ❌ <?= htmlspecialchars($_GET['error']) ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="table-responsive">
                         <table class="users-table">
                             <thead>
-                                <tr><th>ID</th><th>Логин</th><th>Email</th><th>Роль</th><th>Дата регистрации</th><th>Действия</th></tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ФИО</th>
+                                    <th>Логин</th>
+                                    <th>Email</th>
+                                    <th>Телефон</th>
+                                    <th>Роль</th>
+                                    <th>Дата регистрации</th>
+                                    <th>Действия</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($users as $user): ?>
+                                <?php 
+                                // Получаем всех пользователей с дополнительными полями
+                                $users = $pdo->query("SELECT id, username, email, role, created_at, surname, name, patronymic, phone FROM users ORDER BY id")->fetchAll();
+                                foreach ($users as $user): 
+                                ?>
                                 <tr id="user-row-<?= $user['id'] ?>">
-                                    <td data-label="ID"><?= $user['id'] ?></td>
-                                    <td data-label="Логин"><?= htmlspecialchars($user['username']) ?></td>
-                                    <td data-label="Email"><?= htmlspecialchars($user['email']) ?></td>
-                                    <td data-label="Роль">
-                                        <form method="post" style="display: inline-flex; gap: 5px; align-items: center;">
-                                            <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                            <select name="role" class="role-select">
+                                    <form method="post">
+                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                        <td data-label="ID"><?= $user['id'] ?></td>
+                                        <td data-label="ФИО">
+                                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                                <input type="text" name="surname" value="<?= htmlspecialchars($user['surname'] ?? '') ?>" placeholder="Фамилия" style="width: 100%; padding: 4px;">
+                                                <input type="text" name="name" value="<?= htmlspecialchars($user['name'] ?? '') ?>" placeholder="Имя" style="width: 100%; padding: 4px;">
+                                                <input type="text" name="patronymic" value="<?= htmlspecialchars($user['patronymic'] ?? '') ?>" placeholder="Отчество" style="width: 100%; padding: 4px;">
+                                            </div>
+                                        </td>
+                                        <td data-label="Логин">
+                                            <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required style="width: 100%; padding: 4px;">
+                                        </td>
+                                        <td data-label="Email">
+                                            <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required style="width: 100%; padding: 4px;">
+                                        </td>
+                                        <td data-label="Телефон">
+                                            <input type="text" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" placeholder="+7 (XXX) XXX-XX-XX" style="width: 100%; padding: 4px;">
+                                        </td>
+                                        <td data-label="Роль">
+                                            <select name="role" style="width: 100%; padding: 4px;">
                                                 <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>Пользователь</option>
                                                 <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Администратор</option>
                                             </select>
-                                            <button type="submit" name="change_role" style="background: #4CAF50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Сохранить</button>
-                                        </form>
-                                    </td>
-                                    <td data-label="Дата регистрации"><?= $user['created_at'] ?></td>
-                                    <td data-label="Действия">
-                                        <form method="post" style="display: inline;">
+                                        </td>
+                                        <td data-label="Дата регистрации"><?= $user['created_at'] ?></td>
+                                        <td data-label="Действия" style="white-space: nowrap;">
+                                            <button type="submit" name="update_user" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-bottom: 5px;">💾 Сохранить</button>
+                                    </form>
+                                    <form method="post" style="display: inline-block; margin-left: 5px;">
+                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                        <input type="hidden" name="new_password" value="123456">
+                                        <button type="submit" name="reset_password" class="btn-reset" onclick="return confirm('Сбросить пароль пользователя на 123456?')" style="background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🔑 Сброс пароля</button>
+                                    </form>
+                                    <?php if ($user['id'] != $_SESSION['user_id']): ?>
+                                        <form method="post" style="display: inline-block; margin-left: 5px;">
                                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                            <input type="hidden" name="new_password" id="new_pass_<?= $user['id'] ?>" value="123456">
-                                            <button type="submit" name="reset_user_password" class="btn-reset" onclick="return confirm('Сбросить пароль пользователя на 123456?')">🔑 Сброс пароля</button>
+                                            <button type="submit" name="delete_user" class="btn-delete" onclick="return confirm('Удалить пользователя <?= htmlspecialchars($user['username']) ?>?')" style="background: #e63946; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Удалить</button>
                                         </form>
-                                        <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                            <form method="post" style="display: inline; margin-left: 5px;">
-                                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                                <button type="submit" name="delete_user" class="btn-delete" onclick="return confirm('Удалить пользователя <?= htmlspecialchars($user['username']) ?>?')">🗑️ Удалить</button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span style="color: #999; font-size: 12px;">(Вы)</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <?php else: ?>
+                                        <span style="color: #999; font-size: 12px; margin-left: 5px;">(Вы)</span>
+                                    <?php endif; ?>
+                                        </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
