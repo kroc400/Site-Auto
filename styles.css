@@ -1448,6 +1448,125 @@ a {
   }
 
 
+/*#region forgot pass */
+.reset-container {
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 30px;
+  background: var(--color-light);
+  border-radius: 25px;
+  text-align: center;
+  background-color: var(--color-medium-grey);
+}
+.reset-container h2 {
+  margin-bottom: 20px;
+  color: var(--color-red);
+}
+.reset-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: var(--border-radius-light);
+  border: 0;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+.reset-container button {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-dark);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+}
+.success {
+  background: var(--color-light-grey);
+  color: #155724;
+}
+.error {
+  background: var(--color-light-grey);
+  color: var(--color-red);
+}
+.reset-link-area {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--color-light);
+  border-radius: 8px;
+  display: none;
+}
+.reset-link-area a {
+  color: var(--color-red);
+  word-break: break-all;
+}
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--color-dark);
+}
+/*#endregion */
+
+
+/*#region reset pass */
+.reset-container {
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 30px;
+  background: var(--color-medium-grey);
+  border-radius: 25px;
+  text-align: center;
+}
+.reset-container h2 {
+  margin-bottom: 20px;
+  color: var(--color-red);
+}
+.reset-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 0;
+  border-radius: var(--border-radius-light);
+  font-size: 16px;
+  box-sizing: border-box;
+}
+.reset-container button {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-black);
+  color: var(--color-light);
+  border: none;
+  border-radius: var(--border-radius-light);
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+}
+.success {
+  background: #d4edda;
+  color: #155724;
+}
+.error {
+  background: var(--color-light-grey);
+  color: var(--color-red);
+}
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--color-dark);
+}
+/*#endregion */
+
 
 
 .game-invite-block,
