@@ -399,6 +399,9 @@ $activeTab = $_GET['tab'] ?? 'stats';
                             </tbody>
                         </table>
                     </div>
+                    <div style="margin-bottom: 20px; text-align: right;">
+                        <a href="admin_add_car.php" style="background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;">➕ Добавить автомобиль</a>
+                    </div>
                 </div>
             </div>
 
